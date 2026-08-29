@@ -1,8 +1,16 @@
 {% extends "base.html" %}
 {% block title %}{{ officer.full_name }} — USMS Panel{% endblock %}
 {% block content %}
+
 <div class="profile-head panel">
-    <div class="profile-avatar">{{ officer.full_name[:1] }}</div>
+    <div class="profile-photo-wrap">
+        {% if profile_meta.has_photo %}
+            <img class="profile-photo" src="{{ url_for('officer_photo_media', badge=officer.badge) }}" alt="Zdjęcie {{ officer.full_name }}">
+        {% else %}
+            <div class="profile-avatar">{{ officer.full_name[:1] }}</div>
+        {% endif %}
+    </div>
+
     <div class="profile-main">
         <span class="eyebrow">ODZNAKA #{{ officer.badge }}</span>
         <h1>{{ officer.full_name }}</h1>
@@ -17,8 +25,59 @@
             <span class="badge">Discord: {{ officer.discord_id }}</span>
         </div>
     </div>
-    <div class="profile-time"><small>Łączny czas</small><strong>{{ officer.time_text }}</strong></div>
+
+    <div class="profile-time-stack">
+        <div class="profile-time">
+            <small>Łączny czas służby</small>
+            <strong>{{ officer.lifetime_time_text }}</strong>
+        </div>
+        <div class="profile-time secondary-time">
+            <small>W tym tygodniu</small>
+            <strong>{{ officer.weekly_time_text }}</strong>
+        </div>
+        {% if officer.active %}
+        <div class="profile-time secondary-time">
+            <small>Aktualna służba</small>
+            <strong>{{ officer.current_shift_text }}</strong>
+        </div>
+        {% endif %}
+    </div>
 </div>
+
+{% if is_admin %}
+<section class="panel full admin-profile-tools">
+    <div class="panel-title">
+        <h2>Administracja profilu</h2>
+        <span class="badge green-badge">Tylko administrator</span>
+    </div>
+
+    <div class="admin-tools-grid">
+        <form class="upload-box" method="post" enctype="multipart/form-data" action="{{ url_for('upload_officer_photo', badge=officer.badge) }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <strong>Zdjęcie funkcjonariusza</strong>
+            <small>PNG, JPG lub WEBP • maks. 5 MB</small>
+            <input type="file" name="photo" accept="image/png,image/jpeg,image/webp" required>
+            <button class="small-button" type="submit">{% if profile_meta.has_photo %}Zmień zdjęcie{% else %}Dodaj zdjęcie{% endif %}</button>
+        </form>
+
+        {% if profile_meta.has_photo %}
+        <form method="post" action="{{ url_for('delete_officer_photo', badge=officer.badge) }}" class="delete-photo-form">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button class="danger-button" type="submit">Usuń zdjęcie</button>
+        </form>
+        {% endif %}
+
+        <form class="upload-box" method="post" enctype="multipart/form-data" action="{{ url_for('upload_officer_document', badge=officer.badge) }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <strong>Dodaj dokument / screenshot</strong>
+            <small>PNG, JPG lub WEBP • maks. 10 MB</small>
+            <input type="text" name="title" maxlength="120" placeholder="Np. Legitymacja, raport, zaświadczenie" required>
+            <input type="file" name="document" accept="image/png,image/jpeg,image/webp" required>
+            <button class="small-button" type="submit">Dodaj dokument</button>
+        </form>
+    </div>
+</section>
+{% endif %}
 
 <div class="profile-grid">
     <section class="panel">
@@ -42,6 +101,38 @@
         </div>
     </section>
 </div>
+
+<section class="panel full">
+    <div class="panel-title">
+        <h2>Dokumenty</h2>
+        <span class="muted">{{ documents|length }} plików</span>
+    </div>
+
+    {% if documents %}
+    <div class="documents-grid">
+        {% for doc in documents %}
+        <article class="document-card">
+            <a class="document-preview" href="{{ url_for('officer_document_media', document_id=doc.id) }}" target="_blank">
+                <img src="{{ url_for('officer_document_media', document_id=doc.id) }}" alt="{{ doc.title }}">
+            </a>
+            <div class="document-info">
+                <strong>{{ doc.title }}</strong>
+                <small>Dodano: {{ doc.uploaded_at[:19].replace('T', ' ') if doc.uploaded_at else 'Brak daty' }}</small>
+            </div>
+            {% if is_admin %}
+            <form method="post" action="{{ url_for('delete_officer_document', document_id=doc.id) }}">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <input type="hidden" name="badge" value="{{ officer.badge }}">
+                <button class="danger-button compact" type="submit">Usuń</button>
+            </form>
+            {% endif %}
+        </article>
+        {% endfor %}
+    </div>
+    {% else %}
+        <div class="empty">Brak dokumentów przypisanych do tego funkcjonariusza.</div>
+    {% endif %}
+</section>
 
 <section class="panel full">
     <div class="panel-title"><h2>Status administracyjny</h2></div>

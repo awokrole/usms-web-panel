@@ -18,7 +18,8 @@
     <div class="stat-card green"><span>NA SŁUŻBIE</span><strong>{{ active|length }}</strong><small>Aktualnie aktywni</small></div>
     <div class="stat-card yellow"><span>NA URLOPIE</span><strong>{{ vacation_count }}</strong><small>Aktywne urlopy</small></div>
     <div class="stat-card purple"><span>ZAWIESZENI</span><strong>{{ suspended_count }}</strong><small>Aktywne zawieszenia</small></div>
-    <div class="stat-card cyan"><span>ŁĄCZNE GODZINY</span><strong>{{ total_hours }}h</strong><small>Aktualny stan bazy</small></div>
+    <div class="stat-card cyan"><span>ŁĄCZNE GODZINY W TYGODNIU</span><strong>{{ weekly_hours }}h</strong><small>Resetowane przez /resetgodzin</small></div>
+    <div class="stat-card cyan"><span>ŁĄCZNE GODZINY</span><strong>{{ lifetime_hours }}h</strong><small>Historia — bez resetu</small></div>
 </div>
 
 <div class="dashboard-grid">
