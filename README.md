@@ -75,3 +75,22 @@ Panel czyta tabelę `users` z tej samej bazy PostgreSQL co bot.
 Sekcja „Aktualnie na służbie” pokazuje teraz wyłącznie czas od ostatniego
 START SŁUŻBY. Karta „Łączne godziny” nadal sumuje zapisany czas historyczny
 oraz trwającą aktualnie służbę.
+
+
+## v4 — godziny tygodniowe i łączne
+
+- `ŁĄCZNE GODZINY W TYGODNIU` korzystają z `total_seconds` i resetują się po `/resetgodzin`.
+- `ŁĄCZNE GODZINY` korzystają z `lifetime_seconds` i nie są resetowane.
+- Trwająca służba jest doliczana na żywo do obu liczników.
+
+
+## v5 — profile, zdjęcia i dokumenty
+
+- Każdy profil funkcjonariusza pokazuje łączny czas służby (`lifetime_seconds`).
+- Zdjęcia profilu i screenshoty dokumentów są przechowywane trwale w PostgreSQL.
+- Dokumenty mogą oglądać zalogowani użytkownicy panelu.
+- Dodawanie/usuwanie zdjęć i dokumentów jest dostępne tylko dla administratora.
+- Administrator jest wykrywany po uprawnieniu Discord `Administrator`, właścicielu serwera
+  albo opcjonalnie po `WEB_ADMIN_ROLE_IDS`.
+- Zdjęcie profilu: do 5 MB.
+- Dokument/screenshot: do 10 MB.

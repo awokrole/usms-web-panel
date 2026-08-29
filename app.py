@@ -2,6 +2,7 @@ import json
 import os
 import secrets
 import sqlite3
+import io
 from datetime import datetime, timezone
 
 try:
@@ -14,7 +15,7 @@ from functools import wraps
 
 import gspread
 import requests
-from flask import Flask, redirect, render_template, request, session, url_for
+from flask import Flask, abort, redirect, render_template, request, send_file, session, url_for
 from google.oauth2.credentials import Credentials
 
 
@@ -48,6 +49,11 @@ else:
 DISCORD_API = "https://discord.com/api/v10"
 GOOGLE_SCOPES = ["https://www.googleapis.com/auth/spreadsheets.readonly"]
 
+PROFILE_PHOTO_MAX_BYTES = 5 * 1024 * 1024
+DOCUMENT_MAX_BYTES = 10 * 1024 * 1024
+ALLOWED_IMAGE_MIMES = {"image/png", "image/jpeg", "image/webp"}
+
+
 
 def parse_role_ids(value: str):
     result = set()
@@ -59,6 +65,131 @@ def parse_role_ids(value: str):
 
 
 WEB_ADMIN_ROLE_IDS = parse_role_ids(os.environ.get("WEB_ADMIN_ROLE_IDS", ""))
+
+
+
+def pg_connect(application_name="usms-web-panel"):
+    if not DATABASE_URL:
+        raise RuntimeError("Ta funkcja wymaga DATABASE_URL/PostgreSQL.")
+    if psycopg2 is None:
+        raise RuntimeError("Brakuje psycopg2-binary.")
+    return psycopg2.connect(
+        DATABASE_URL,
+        connect_timeout=10,
+        application_name=application_name,
+    )
+
+
+def ensure_web_profile_tables():
+    """Tworzy trwałe tabele zdjęć profili i dokumentów funkcjonariuszy."""
+    if not DATABASE_URL:
+        return
+
+    conn = pg_connect("usms-web-panel-init")
+    try:
+        with conn.cursor() as cur:
+            cur.execute(
+                """
+                CREATE TABLE IF NOT EXISTS officer_profiles (
+                    badge_number TEXT PRIMARY KEY,
+                    photo_mime TEXT DEFAULT NULL,
+                    photo_data BYTEA DEFAULT NULL,
+                    photo_uploaded_by BIGINT DEFAULT NULL,
+                    photo_uploaded_at TEXT DEFAULT NULL
+                )
+                """
+            )
+            cur.execute(
+                """
+                CREATE TABLE IF NOT EXISTS officer_documents (
+                    id BIGSERIAL PRIMARY KEY,
+                    badge_number TEXT NOT NULL,
+                    title TEXT NOT NULL,
+                    mime_type TEXT NOT NULL,
+                    file_data BYTEA NOT NULL,
+                    uploaded_by BIGINT NOT NULL,
+                    uploaded_at TEXT NOT NULL
+                )
+                """
+            )
+            cur.execute(
+                """
+                CREATE INDEX IF NOT EXISTS idx_officer_documents_badge
+                ON officer_documents (badge_number, uploaded_at DESC)
+                """
+            )
+        conn.commit()
+        print("✅ WEB: tabele profili i dokumentów gotowe.", flush=True)
+    finally:
+        conn.close()
+
+
+def get_profile_meta(badge: str):
+    if not DATABASE_URL:
+        return {"has_photo": False}
+
+    conn = pg_connect("usms-profile-meta")
+    try:
+        with conn.cursor(cursor_factory=RealDictCursor) as cur:
+            cur.execute(
+                """
+                SELECT badge_number, photo_mime, photo_uploaded_by, photo_uploaded_at,
+                       (photo_data IS NOT NULL) AS has_photo
+                FROM officer_profiles
+                WHERE badge_number = %s
+                """,
+                (str(badge),),
+            )
+            row = cur.fetchone()
+            return dict(row) if row else {"has_photo": False}
+    finally:
+        conn.close()
+
+
+def get_officer_documents(badge: str):
+    if not DATABASE_URL:
+        return []
+
+    conn = pg_connect("usms-profile-documents")
+    try:
+        with conn.cursor(cursor_factory=RealDictCursor) as cur:
+            cur.execute(
+                """
+                SELECT id, badge_number, title, mime_type, uploaded_by, uploaded_at
+                FROM officer_documents
+                WHERE badge_number = %s
+                ORDER BY id DESC
+                """,
+                (str(badge),),
+            )
+            return [dict(row) for row in cur.fetchall()]
+    finally:
+        conn.close()
+
+
+def _read_upload(file_storage, max_bytes: int):
+    if file_storage is None or not file_storage.filename:
+        raise ValueError("Nie wybrano pliku.")
+
+    mime = (file_storage.mimetype or "").lower().strip()
+    if mime not in ALLOWED_IMAGE_MIMES:
+        raise ValueError("Dozwolone są tylko obrazy PNG, JPG/JPEG i WEBP.")
+
+    data = file_storage.read(max_bytes + 1)
+    if not data:
+        raise ValueError("Plik jest pusty.")
+    if len(data) > max_bytes:
+        raise ValueError(
+            f"Plik jest za duży. Maksymalny rozmiar to {max_bytes // (1024 * 1024)} MB."
+        )
+
+    return mime, data
+
+
+try:
+    ensure_web_profile_tables()
+except Exception as exc:
+    print(f"⚠️ WEB: nie udało się przygotować tabel profili/dokumentów: {exc!r}", flush=True)
 
 
 def oauth_redirect_uri():
@@ -189,7 +320,7 @@ def _load_duty_rows():
     2. SQLite przez DB_PATH (opcjonalny fallback lokalny)
     """
     query = """
-        SELECT user_id, total_seconds, start_time, pause_start,
+        SELECT user_id, total_seconds, lifetime_seconds, start_time, pause_start,
                paused_seconds, suspension_until, vacation_start, vacation_end
         FROM users
     """
@@ -236,8 +367,10 @@ def load_duty_state():
     now = datetime.now(timezone.utc)
 
     for row in rows:
-        # total_saved = wyłącznie zakończone służby zapisane przez bota.
-        total_saved = int(row["total_seconds"] or 0)
+        # total_saved = zakończone godziny bieżącego tygodnia.
+        weekly_saved = int(row["total_seconds"] or 0)
+        # lifetime_saved = zakończone godziny od początku historii.
+        lifetime_saved = int(row["lifetime_seconds"] or 0)
         start_time = row["start_time"]
         pause_start = row["pause_start"]
         paused = int(row["paused_seconds"] or 0)
@@ -269,12 +402,16 @@ def load_duty_state():
             except Exception:
                 current_shift_seconds = 0
 
-        # Łączny czas = zakończone służby + aktualnie trwająca.
-        total_with_current = total_saved + current_shift_seconds
+        # Oba liczniki uwzględniają aktualnie trwającą służbę.
+        weekly_with_current = weekly_saved + current_shift_seconds
+        lifetime_with_current = lifetime_saved + current_shift_seconds
 
         result[int(row["user_id"])] = {
-            "total_seconds": total_with_current,
-            "saved_total_seconds": total_saved,
+            "total_seconds": weekly_with_current,
+            "weekly_seconds": weekly_with_current,
+            "lifetime_seconds": lifetime_with_current,
+            "saved_total_seconds": weekly_saved,
+            "saved_lifetime_seconds": lifetime_saved,
             "current_shift_seconds": current_shift_seconds,
             "active": active,
             "on_pause": on_pause,
@@ -309,8 +446,70 @@ def discord_member(user_id: str):
 def is_member_admin(member):
     if not member:
         return False
+
     roles = {int(x) for x in member.get("roles", []) if str(x).isdigit()}
-    return bool(WEB_ADMIN_ROLE_IDS & roles) if WEB_ADMIN_ROLE_IDS else False
+
+    # Opcjonalne ręczne role administracyjne nadal są obsługiwane.
+    if WEB_ADMIN_ROLE_IDS and (WEB_ADMIN_ROLE_IDS & roles):
+        return True
+
+    if not DISCORD_TOKEN or not DISCORD_GUILD_ID:
+        return False
+
+    try:
+        headers = {"Authorization": f"Bot {DISCORD_TOKEN}"}
+
+        guild_resp = requests.get(
+            f"{DISCORD_API}/guilds/{DISCORD_GUILD_ID}",
+            headers=headers,
+            timeout=10,
+        )
+        roles_resp = requests.get(
+            f"{DISCORD_API}/guilds/{DISCORD_GUILD_ID}/roles",
+            headers=headers,
+            timeout=10,
+        )
+
+        if guild_resp.status_code != 200 or roles_resp.status_code != 200:
+            return False
+
+        guild = guild_resp.json()
+        user_id = str(member.get("user", {}).get("id", ""))
+
+        # Właściciel serwera jest administratorem.
+        if user_id and str(guild.get("owner_id")) == user_id:
+            return True
+
+        # Discord permission bit ADMINISTRATOR = 1 << 3.
+        ADMINISTRATOR = 1 << 3
+
+        for role in roles_resp.json():
+            role_id = int(role.get("id", 0))
+            if role_id not in roles:
+                continue
+            permissions = int(role.get("permissions", "0"))
+            if permissions & ADMINISTRATOR:
+                return True
+
+    except Exception as exc:
+        print(f"[ADMIN] Nie udało się sprawdzić uprawnień Discord: {exc!r}", flush=True)
+
+    return False
+
+
+def csrf_token():
+    token = session.get("_csrf_token")
+    if not token:
+        token = secrets.token_urlsafe(32)
+        session["_csrf_token"] = token
+    return token
+
+
+def validate_csrf():
+    expected = session.get("_csrf_token")
+    supplied = request.form.get("csrf_token", "")
+    if not expected or not supplied or not secrets.compare_digest(expected, supplied):
+        abort(400)
 
 
 @app.context_processor
@@ -318,6 +517,7 @@ def inject_globals():
     return {
         "current_user": session.get("discord_user"),
         "is_admin": session.get("is_admin", False),
+        "csrf_token": csrf_token,
     }
 
 
@@ -442,7 +642,8 @@ def dashboard():
     active = []
     vacation_count = 0
     suspended_count = 0
-    total_seconds = 0
+    weekly_total_seconds = 0
+    lifetime_total_seconds = 0
 
     now = datetime.now(timezone.utc)
 
@@ -460,7 +661,8 @@ def dashboard():
             state.get("current_shift_seconds", 0)
         )
 
-        total_seconds += state.get("total_seconds", 0)
+        weekly_total_seconds += state.get("weekly_seconds", 0)
+        lifetime_total_seconds += state.get("lifetime_seconds", 0)
 
         if state.get("active"):
             active.append(officer)
@@ -489,7 +691,8 @@ def dashboard():
         active=active[:8],
         vacation_count=vacation_count,
         suspended_count=suspended_count,
-        total_hours=round(total_seconds / 3600, 1),
+        weekly_hours=round(weekly_total_seconds / 3600, 1),
+        lifetime_hours=round(lifetime_total_seconds / 3600, 1),
         sheet_error=sheet_error,
     )
 
@@ -529,11 +732,225 @@ def officer_detail(badge):
     state = load_duty_state().get(officer["discord_id"], {})
     officer["active"] = state.get("active", False)
     officer["on_pause"] = state.get("on_pause", False)
-    officer["time_text"] = format_seconds(state.get("total_seconds", 0))
+    officer["weekly_time_text"] = format_seconds(state.get("weekly_seconds", 0))
+    officer["lifetime_time_text"] = format_seconds(state.get("lifetime_seconds", 0))
+    officer["current_shift_text"] = format_seconds(state.get("current_shift_seconds", 0))
     officer["suspension_until"] = state.get("suspension_until")
     officer["vacation_end"] = state.get("vacation_end")
 
-    return render_template("officer.html", officer=officer)
+    profile_meta = get_profile_meta(officer["badge"])
+    documents = get_officer_documents(officer["badge"])
+
+    return render_template(
+        "officer.html",
+        officer=officer,
+        profile_meta=profile_meta,
+        documents=documents,
+    )
+
+
+
+@app.route("/funkcjonariusze/<badge>/zdjecie", methods=["POST"])
+@admin_required
+def upload_officer_photo(badge):
+    validate_csrf()
+
+    # Sprawdź, czy profil istnieje w rosterze.
+    if not any(str(x["badge"]) == str(badge) for x in load_officers()):
+        abort(404)
+
+    try:
+        mime, data = _read_upload(request.files.get("photo"), PROFILE_PHOTO_MAX_BYTES)
+    except ValueError as exc:
+        return render_template("error.html", title="Błąd zdjęcia", message=str(exc)), 400
+
+    conn = pg_connect("usms-upload-photo")
+    try:
+        with conn.cursor() as cur:
+            cur.execute(
+                """
+                INSERT INTO officer_profiles (
+                    badge_number, photo_mime, photo_data,
+                    photo_uploaded_by, photo_uploaded_at
+                )
+                VALUES (%s, %s, %s, %s, %s)
+                ON CONFLICT(badge_number) DO UPDATE SET
+                    photo_mime = excluded.photo_mime,
+                    photo_data = excluded.photo_data,
+                    photo_uploaded_by = excluded.photo_uploaded_by,
+                    photo_uploaded_at = excluded.photo_uploaded_at
+                """,
+                (
+                    str(badge),
+                    mime,
+                    psycopg2.Binary(data),
+                    int(session["discord_user"]["id"]),
+                    datetime.now(timezone.utc).isoformat(),
+                ),
+            )
+        conn.commit()
+    finally:
+        conn.close()
+
+    return redirect(url_for("officer_detail", badge=badge))
+
+
+@app.route("/funkcjonariusze/<badge>/zdjecie/usun", methods=["POST"])
+@admin_required
+def delete_officer_photo(badge):
+    validate_csrf()
+
+    conn = pg_connect("usms-delete-photo")
+    try:
+        with conn.cursor() as cur:
+            cur.execute(
+                """
+                UPDATE officer_profiles
+                SET photo_mime = NULL,
+                    photo_data = NULL,
+                    photo_uploaded_by = NULL,
+                    photo_uploaded_at = NULL
+                WHERE badge_number = %s
+                """,
+                (str(badge),),
+            )
+        conn.commit()
+    finally:
+        conn.close()
+
+    return redirect(url_for("officer_detail", badge=badge))
+
+
+@app.route("/media/profil/<badge>")
+@logged_in_required
+def officer_photo_media(badge):
+    conn = pg_connect("usms-photo-media")
+    try:
+        with conn.cursor(cursor_factory=RealDictCursor) as cur:
+            cur.execute(
+                """
+                SELECT photo_mime, photo_data
+                FROM officer_profiles
+                WHERE badge_number = %s AND photo_data IS NOT NULL
+                """,
+                (str(badge),),
+            )
+            row = cur.fetchone()
+    finally:
+        conn.close()
+
+    if not row:
+        abort(404)
+
+    return send_file(
+        io.BytesIO(bytes(row["photo_data"])),
+        mimetype=row["photo_mime"],
+        max_age=3600,
+        download_name=f"profil-{badge}",
+    )
+
+
+@app.route("/funkcjonariusze/<badge>/dokumenty", methods=["POST"])
+@admin_required
+def upload_officer_document(badge):
+    validate_csrf()
+
+    if not any(str(x["badge"]) == str(badge) for x in load_officers()):
+        abort(404)
+
+    title = (request.form.get("title") or "").strip()
+    if not title:
+        return render_template(
+            "error.html",
+            title="Błąd dokumentu",
+            message="Podaj nazwę dokumentu.",
+        ), 400
+
+    if len(title) > 120:
+        title = title[:120]
+
+    try:
+        mime, data = _read_upload(request.files.get("document"), DOCUMENT_MAX_BYTES)
+    except ValueError as exc:
+        return render_template("error.html", title="Błąd dokumentu", message=str(exc)), 400
+
+    conn = pg_connect("usms-upload-document")
+    try:
+        with conn.cursor() as cur:
+            cur.execute(
+                """
+                INSERT INTO officer_documents (
+                    badge_number, title, mime_type, file_data,
+                    uploaded_by, uploaded_at
+                )
+                VALUES (%s, %s, %s, %s, %s, %s)
+                """,
+                (
+                    str(badge),
+                    title,
+                    mime,
+                    psycopg2.Binary(data),
+                    int(session["discord_user"]["id"]),
+                    datetime.now(timezone.utc).isoformat(),
+                ),
+            )
+        conn.commit()
+    finally:
+        conn.close()
+
+    return redirect(url_for("officer_detail", badge=badge))
+
+
+@app.route("/dokument/<int:document_id>")
+@logged_in_required
+def officer_document_media(document_id):
+    conn = pg_connect("usms-document-media")
+    try:
+        with conn.cursor(cursor_factory=RealDictCursor) as cur:
+            cur.execute(
+                """
+                SELECT id, title, mime_type, file_data
+                FROM officer_documents
+                WHERE id = %s
+                """,
+                (int(document_id),),
+            )
+            row = cur.fetchone()
+    finally:
+        conn.close()
+
+    if not row:
+        abort(404)
+
+    return send_file(
+        io.BytesIO(bytes(row["file_data"])),
+        mimetype=row["mime_type"],
+        max_age=3600,
+        download_name=row["title"],
+    )
+
+
+@app.route("/dokument/<int:document_id>/usun", methods=["POST"])
+@admin_required
+def delete_officer_document(document_id):
+    validate_csrf()
+
+    badge = request.form.get("badge", "").strip()
+
+    conn = pg_connect("usms-delete-document")
+    try:
+        with conn.cursor() as cur:
+            cur.execute(
+                "DELETE FROM officer_documents WHERE id = %s",
+                (int(document_id),),
+            )
+        conn.commit()
+    finally:
+        conn.close()
+
+    if badge:
+        return redirect(url_for("officer_detail", badge=badge))
+    return redirect(url_for("officers"))
 
 
 @app.route("/akta")
