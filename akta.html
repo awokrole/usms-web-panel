@@ -1,24 +1,18 @@
 {% extends "base.html" %}
-{% block title %}Akta — USMS Panel{% endblock %}
-{% block content %}
-<div class="page-head"><div><h1>Akta</h1><p>Zestawienie nagród i kar funkcjonariuszy.</p></div></div>
-<section class="panel full">
-<div class="table-wrap">
-<table>
-<thead><tr><th>Odznaka</th><th>Funkcjonariusz</th><th>Plusy</th><th>Minusy</th><th>Pochwały</th><th>Nagany</th></tr></thead>
-<tbody>
-{% for o in officers %}
-<tr>
-<td>#{{ o.badge }}</td>
-<td><a href="{{ url_for('officer_detail', badge=o.badge) }}"><strong>{{ o.full_name }}</strong></a><small>{{ o.rank }}</small></td>
-<td><span class="count positive">{{ o.plus }}/3</span></td>
-<td><span class="count negative">{{ o.minus }}/3</span></td>
-<td><span class="count positive">{{ o.praise }}/2</span></td>
-<td><span class="count warning">{{ o.reprimand }}/2</span></td>
-</tr>
-{% endfor %}
-</tbody>
-</table>
+{% block title %}Logowanie — USMS Panel{% endblock %}
+{% block public_content %}
+<div class="login-page">
+    <div class="login-glow"></div>
+    <div class="login-card">
+        <div class="big-seal">★</div>
+        <p class="eyebrow">UNITED STATES MARSHALS SERVICE</p>
+        <h1>USMS Panel</h1>
+        <p class="muted">Wewnętrzny panel funkcjonariuszy. Dostęp wyłącznie dla członków serwera USMS.</p>
+        <a class="discord-button" href="{{ url_for('discord_login') }}">
+            <span class="discord-logo">☁</span>
+            Zaloguj przez Discord
+        </a>
+        <p class="login-note">Nie tworzymy osobnego hasła. Tożsamość jest potwierdzana przez Discord OAuth2.</p>
+    </div>
 </div>
-</section>
 {% endblock %}

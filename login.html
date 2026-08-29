@@ -1,18 +1,69 @@
-{% extends "base.html" %}
-{% block title %}Logowanie — USMS Panel{% endblock %}
-{% block public_content %}
-<div class="login-page">
-    <div class="login-glow"></div>
-    <div class="login-card">
-        <div class="big-seal">★</div>
-        <p class="eyebrow">UNITED STATES MARSHALS SERVICE</p>
-        <h1>USMS Panel</h1>
-        <p class="muted">Wewnętrzny panel funkcjonariuszy. Dostęp wyłącznie dla członków serwera USMS.</p>
-        <a class="discord-button" href="{{ url_for('discord_login') }}">
-            <span class="discord-logo">☁</span>
-            Zaloguj przez Discord
-        </a>
-        <p class="login-note">Nie tworzymy osobnego hasła. Tożsamość jest potwierdzana przez Discord OAuth2.</p>
-    </div>
+<!doctype html>
+<html lang="pl">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}USMS Panel{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+{% if current_user %}
+<div class="layout">
+    <aside class="sidebar">
+        <div class="brand">
+            <div class="seal">★</div>
+            <div>
+                <strong>UNITED STATES</strong>
+                <strong>MARSHALS SERVICE</strong>
+                <small>USMS PANEL</small>
+            </div>
+        </div>
+
+        <nav>
+            <span class="nav-label">MENU GŁÓWNE</span>
+            <a href="{{ url_for('dashboard') }}" class="{% if request.endpoint == 'dashboard' %}active{% endif %}">▣ Dashboard</a>
+            <a href="{{ url_for('officers') }}" class="{% if request.endpoint in ['officers','officer_detail'] %}active{% endif %}">♙ Funkcjonariusze</a>
+            <a href="{{ url_for('trainings') }}" class="{% if request.endpoint == 'trainings' %}active{% endif %}">✚ Szkolenia</a>
+            <a href="{{ url_for('akta') }}" class="{% if request.endpoint == 'akta' %}active{% endif %}">▤ Akta</a>
+
+            <span class="nav-label">SYSTEM</span>
+            <a href="#">◉ Służba</a>
+            <a href="#">▣ Wypłaty</a>
+            <a href="#">⌁ Urlopy i zawieszenia</a>
+            <a href="#">◁ Ogłoszenia</a>
+            {% if is_admin %}
+            <a href="{{ url_for('logs') }}" class="{% if request.endpoint == 'logs' %}active{% endif %}">▥ Logi komend</a>
+            {% endif %}
+        </nav>
+
+        <div class="sidebar-user">
+            <img src="{{ current_user.avatar_url }}" alt="">
+            <div>
+                <strong>{{ current_user.username }}</strong>
+                <small>Discord ID: {{ current_user.id }}</small>
+            </div>
+            <a href="{{ url_for('logout') }}" title="Wyloguj">↪</a>
+        </div>
+    </aside>
+
+    <main class="main">
+        <header class="topbar">
+            <div>
+                <strong>☰ &nbsp; USMS PANEL</strong>
+            </div>
+            <div class="top-user">
+                <span class="status-dot"></span>
+                {{ current_user.username }}
+            </div>
+        </header>
+
+        <section class="content">
+            {% block content %}{% endblock %}
+        </section>
+    </main>
 </div>
-{% endblock %}
+{% else %}
+    {% block public_content %}{% endblock %}
+{% endif %}
+</body>
+</html>

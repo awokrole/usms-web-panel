@@ -1,6 +1,24 @@
 {% extends "base.html" %}
-{% block title %}{{ title }} — USMS Panel{% endblock %}
+{% block title %}Akta — USMS Panel{% endblock %}
 {% block content %}
-<div class="page-head"><div><h1>{{ title }}</h1><p>{{ message }}</p></div></div>
-<section class="panel full"><div class="empty">Ta sekcja jest przygotowana pod kolejny etap panelu.</div></section>
+<div class="page-head"><div><h1>Akta</h1><p>Zestawienie nagród i kar funkcjonariuszy.</p></div></div>
+<section class="panel full">
+<div class="table-wrap">
+<table>
+<thead><tr><th>Odznaka</th><th>Funkcjonariusz</th><th>Plusy</th><th>Minusy</th><th>Pochwały</th><th>Nagany</th></tr></thead>
+<tbody>
+{% for o in officers %}
+<tr>
+<td>#{{ o.badge }}</td>
+<td><a href="{{ url_for('officer_detail', badge=o.badge) }}"><strong>{{ o.full_name }}</strong></a><small>{{ o.rank }}</small></td>
+<td><span class="count positive">{{ o.plus }}/3</span></td>
+<td><span class="count negative">{{ o.minus }}/3</span></td>
+<td><span class="count positive">{{ o.praise }}/2</span></td>
+<td><span class="count warning">{{ o.reprimand }}/2</span></td>
+</tr>
+{% endfor %}
+</tbody>
+</table>
+</div>
+</section>
 {% endblock %}

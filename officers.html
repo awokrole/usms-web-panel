@@ -1,34 +1,24 @@
 {% extends "base.html" %}
-{% block title %}Funkcjonariusze — USMS Panel{% endblock %}
+{% block title %}Szkolenia — USMS Panel{% endblock %}
 {% block content %}
-<div class="page-head">
-    <div><h1>Funkcjonariusze</h1><p>Pełna baza aktywnych funkcjonariuszy USMS.</p></div>
-</div>
-
-<form class="search-row" method="get">
-    <input name="q" value="{{ q }}" placeholder="Szukaj po nazwisku, odznace lub stopniu...">
-    <button>Szukaj</button>
-</form>
-
+<div class="page-head"><div><h1>Szkolenia</h1><p>Aktualny stan szkoleń z arkusza Szkolenia.</p></div></div>
 <section class="panel full">
 <div class="table-wrap">
-<table>
-    <thead><tr><th>Status</th><th>Odznaka</th><th>Imię i nazwisko</th><th>Stopień</th><th>CSN</th><th>Godziny</th><th></th></tr></thead>
-    <tbody>
-    {% for officer in officers %}
-    <tr>
-        <td>{% if officer.active %}<span class="badge green-badge">Na służbie</span>{% else %}<span class="badge">Poza służbą</span>{% endif %}</td>
-        <td>#{{ officer.badge }}</td>
-        <td><strong>{{ officer.full_name }}</strong><small>Discord: {{ officer.discord_id }}</small></td>
-        <td>{{ officer.rank }}</td>
-        <td>{{ officer.csn or '—' }}</td>
-        <td class="time">{{ officer.time_text }}</td>
-        <td><a class="small-button" href="{{ url_for('officer_detail', badge=officer.badge) }}">Profil →</a></td>
-    </tr>
-    {% else %}
-    <tr><td colspan="7" class="empty">Brak wyników.</td></tr>
-    {% endfor %}
-    </tbody>
+<table class="training-table">
+<thead><tr><th>Odznaka</th><th>Funkcjonariusz</th><th>Posiadane szkolenia</th></tr></thead>
+<tbody>
+{% for o in officers %}
+<tr>
+<td>#{{ o.badge }}</td>
+<td><a href="{{ url_for('officer_detail', badge=o.badge) }}"><strong>{{ o.full_name }}</strong></a><small>{{ o.rank }}</small></td>
+<td>
+<div class="chips">
+{% for t in o.trainings %}<span class="training-chip">{{ t }}</span>{% else %}<span class="muted">Brak</span>{% endfor %}
+</div>
+</td>
+</tr>
+{% endfor %}
+</tbody>
 </table>
 </div>
 </section>

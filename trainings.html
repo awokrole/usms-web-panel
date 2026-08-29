@@ -1,25 +1,8 @@
 {% extends "base.html" %}
-{% block title %}Szkolenia — USMS Panel{% endblock %}
+{% block title %}{{ title }} — USMS Panel{% endblock %}
 {% block content %}
-<div class="page-head"><div><h1>Szkolenia</h1><p>Aktualny stan szkoleń z arkusza Szkolenia.</p></div></div>
-<section class="panel full">
-<div class="table-wrap">
-<table class="training-table">
-<thead><tr><th>Odznaka</th><th>Funkcjonariusz</th><th>Posiadane szkolenia</th></tr></thead>
-<tbody>
-{% for o in officers %}
-<tr>
-<td>#{{ o.badge }}</td>
-<td><a href="{{ url_for('officer_detail', badge=o.badge) }}"><strong>{{ o.full_name }}</strong></a><small>{{ o.rank }}</small></td>
-<td>
-<div class="chips">
-{% for t in o.trainings %}<span class="training-chip">{{ t }}</span>{% else %}<span class="muted">Brak</span>{% endfor %}
-</div>
-</td>
-</tr>
-{% endfor %}
-</tbody>
-</table>
-</div>
-</section>
+<div class="center-message panel"><h1>{{ title }}</h1><p>{{ message }}</p><a class="small-button" href="{{ url_for('dashboard') }}">Wróć</a></div>
+{% endblock %}
+{% block public_content %}
+<div class="login-page"><div class="login-card"><div class="big-seal">!</div><h1>{{ title }}</h1><p class="muted">{{ message }}</p><a class="discord-button" href="{{ url_for('login') }}">Wróć do logowania</a></div></div>
 {% endblock %}
