@@ -36,7 +36,7 @@
                 <tr>
                     <td><span class="online-dot"></span><a href="{{ url_for('officer_detail', badge=officer.badge) }}"><strong>{{ officer.full_name }}</strong></a><small>#{{ officer.badge }}</small></td>
                     <td>{{ officer.rank }}</td>
-                    <td class="time">{{ officer.time_text }}</td>
+                    <td class="time">{{ officer.current_shift_text }}</td>
                 </tr>
                 {% endfor %}
                 </tbody>
