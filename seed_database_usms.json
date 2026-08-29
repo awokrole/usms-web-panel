@@ -1,0 +1,1441 @@
+{
+  "source": "DATABASE USMS.xlsx",
+  "snapshot_date": "2026-08-29",
+  "officers": [
+    {
+      "discord_id": 396654636192497676,
+      "badge": "701",
+      "rank": "U.S Marshal",
+      "full_name": "Paul Nelson",
+      "csn": "",
+      "vacation_start": null,
+      "suspended": false,
+      "last_promotion": null,
+      "trainings": [
+        "FLETC",
+        "RO",
+        "KPP",
+        "NL I",
+        "NL II",
+        "SV",
+        "MERRY",
+        "SEU",
+        "ASU",
+        "HAW"
+      ],
+      "records": {
+        "plus": 0,
+        "minus": 0,
+        "praise": 0,
+        "reprimand": 0
+      }
+    },
+    {
+      "discord_id": 497752166459506698,
+      "badge": "702",
+      "rank": "Chief Deputy U.S Marshal Service",
+      "full_name": "Michael Keiser",
+      "csn": "S8696",
+      "vacation_start": null,
+      "suspended": false,
+      "last_promotion": null,
+      "trainings": [
+        "FLETC",
+        "RO",
+        "KPP",
+        "NL I",
+        "NL II",
+        "SV",
+        "MERRY",
+        "SEU",
+        "ASU",
+        "HAW"
+      ],
+      "records": {
+        "plus": 0,
+        "minus": 0,
+        "praise": 0,
+        "reprimand": 0
+      }
+    },
+    {
+      "discord_id": 1113457469855899678,
+      "badge": "703",
+      "rank": "Asisstant Chief Deputy U.S Marshal",
+      "full_name": "Nathan Nelson-Papito",
+      "csn": "X8077",
+      "vacation_start": "2026-09-02",
+      "suspended": false,
+      "last_promotion": null,
+      "trainings": [
+        "FLETC",
+        "RO",
+        "KPP",
+        "NL I",
+        "NL II",
+        "SV",
+        "MERRY",
+        "SEU",
+        "ASU",
+        "HAW"
+      ],
+      "records": {
+        "plus": 0,
+        "minus": 0,
+        "praise": 0,
+        "reprimand": 0
+      }
+    },
+    {
+      "discord_id": 734643600817782874,
+      "badge": "706",
+      "rank": "Supervisiory U.S Marshal",
+      "full_name": "Luna Blake",
+      "csn": "V5117",
+      "vacation_start": null,
+      "suspended": false,
+      "last_promotion": null,
+      "trainings": [
+        "FLETC",
+        "RO",
+        "KPP",
+        "NL I",
+        "NL II",
+        "SV",
+        "MERRY",
+        "SEU",
+        "ASU",
+        "HAW"
+      ],
+      "records": {
+        "plus": 0,
+        "minus": 0,
+        "praise": 0,
+        "reprimand": 0
+      }
+    },
+    {
+      "discord_id": 997326848679751771,
+      "badge": "711",
+      "rank": "Lead Deputy U.S Marshal",
+      "full_name": "Liv Raya Cruz",
+      "csn": "S6791",
+      "vacation_start": null,
+      "suspended": false,
+      "last_promotion": null,
+      "trainings": [
+        "FLETC",
+        "RO",
+        "KPP",
+        "NL I",
+        "SV"
+      ],
+      "records": {
+        "plus": 0,
+        "minus": 0,
+        "praise": 1,
+        "reprimand": 0
+      }
+    },
+    {
+      "discord_id": 942470820020768808,
+      "badge": "712",
+      "rank": "Lead Deputy U.S Marshal",
+      "full_name": "Kira Moretti",
+      "csn": "L4573",
+      "vacation_start": null,
+      "suspended": false,
+      "last_promotion": null,
+      "trainings": [
+        "FLETC",
+        "RO",
+        "KPP",
+        "NL I",
+        "SV",
+        "HAW"
+      ],
+      "records": {
+        "plus": 1,
+        "minus": 1,
+        "praise": 0,
+        "reprimand": 0
+      }
+    },
+    {
+      "discord_id": 1117820913044443176,
+      "badge": "713",
+      "rank": "Lead Deputy U.S Marshal",
+      "full_name": "Diego Vance",
+      "csn": "J2599",
+      "vacation_start": null,
+      "suspended": false,
+      "last_promotion": null,
+      "trainings": [
+        "FLETC",
+        "RO",
+        "KPP",
+        "NL I",
+        "SV",
+        "HAW"
+      ],
+      "records": {
+        "plus": 1,
+        "minus": 0,
+        "praise": 0,
+        "reprimand": 0
+      }
+    },
+    {
+      "discord_id": 814968084519583815,
+      "badge": "714",
+      "rank": "Lead Deputy U.S Marshal",
+      "full_name": "Mateo Carti",
+      "csn": "R7280",
+      "vacation_start": null,
+      "suspended": false,
+      "last_promotion": null,
+      "trainings": [
+        "FLETC",
+        "RO",
+        "KPP",
+        "NL I",
+        "SV"
+      ],
+      "records": {
+        "plus": 0,
+        "minus": 0,
+        "praise": 0,
+        "reprimand": 0
+      }
+    },
+    {
+      "discord_id": 320228387597844481,
+      "badge": "721",
+      "rank": "Special Deputy U.S Marshal",
+      "full_name": "Kelly Dust",
+      "csn": "D2081",
+      "vacation_start": null,
+      "suspended": false,
+      "last_promotion": null,
+      "trainings": [
+        "FLETC",
+        "RO",
+        "KPP",
+        "NL I",
+        "SV",
+        "HAW"
+      ],
+      "records": {
+        "plus": 1,
+        "minus": 0,
+        "praise": 0,
+        "reprimand": 0
+      }
+    },
+    {
+      "discord_id": 773842399734530049,
+      "badge": "722",
+      "rank": "Special Deputy U.S Marshal",
+      "full_name": "Pablo Mcflurry",
+      "csn": "F0455",
+      "vacation_start": null,
+      "suspended": false,
+      "last_promotion": null,
+      "trainings": [
+        "FLETC",
+        "RO",
+        "KPP",
+        "NL I",
+        "SV",
+        "ASU"
+      ],
+      "records": {
+        "plus": 0,
+        "minus": 0,
+        "praise": 0,
+        "reprimand": 0
+      }
+    },
+    {
+      "discord_id": 1146520796806783036,
+      "badge": "731",
+      "rank": "Senior Deputy U.S Marshal",
+      "full_name": "David Carter",
+      "csn": "P1639",
+      "vacation_start": null,
+      "suspended": false,
+      "last_promotion": null,
+      "trainings": [
+        "FLETC",
+        "RO",
+        "KPP",
+        "NL I",
+        "SV",
+        "HAW"
+      ],
+      "records": {
+        "plus": 2,
+        "minus": 2,
+        "praise": 0,
+        "reprimand": 1
+      }
+    },
+    {
+      "discord_id": 1191738801303846912,
+      "badge": "732",
+      "rank": "Senior Deputy U.S Marshal",
+      "full_name": "Jacob Peeck",
+      "csn": "G5760",
+      "vacation_start": null,
+      "suspended": false,
+      "last_promotion": null,
+      "trainings": [
+        "FLETC",
+        "KPP",
+        "SV"
+      ],
+      "records": {
+        "plus": 1,
+        "minus": 0,
+        "praise": 0,
+        "reprimand": 0
+      }
+    },
+    {
+      "discord_id": 562377467491385346,
+      "badge": "733",
+      "rank": "Senior Deputy U.S Marshal",
+      "full_name": "Pezz Ett",
+      "csn": "H5826",
+      "vacation_start": null,
+      "suspended": false,
+      "last_promotion": null,
+      "trainings": [
+        "FLETC",
+        "RO",
+        "KPP",
+        "NL I",
+        "SV"
+      ],
+      "records": {
+        "plus": 2,
+        "minus": 0,
+        "praise": 0,
+        "reprimand": 0
+      }
+    },
+    {
+      "discord_id": 1329452180716912784,
+      "badge": "734",
+      "rank": "Senior Deputy U.S Marshal",
+      "full_name": "Matthew Night",
+      "csn": "N0440",
+      "vacation_start": null,
+      "suspended": false,
+      "last_promotion": null,
+      "trainings": [
+        "FLETC",
+        "RO",
+        "KPP",
+        "NL I",
+        "SV",
+        "HAW"
+      ],
+      "records": {
+        "plus": 0,
+        "minus": 0,
+        "praise": 0,
+        "reprimand": 0
+      }
+    },
+    {
+      "discord_id": 694801346980741160,
+      "badge": "735",
+      "rank": "Senior Deputy U.S Marshal",
+      "full_name": "Noemi Ventura-Scott",
+      "csn": "Q0511",
+      "vacation_start": null,
+      "suspended": false,
+      "last_promotion": null,
+      "trainings": [
+        "FLETC",
+        "RO",
+        "KPP",
+        "NL I",
+        "SV"
+      ],
+      "records": {
+        "plus": 0,
+        "minus": 1,
+        "praise": 0,
+        "reprimand": 0
+      }
+    },
+    {
+      "discord_id": 1035127095338205204,
+      "badge": "736",
+      "rank": "Senior Deputy U.S Marshal",
+      "full_name": "Victor Goza",
+      "csn": "U1291",
+      "vacation_start": null,
+      "suspended": false,
+      "last_promotion": null,
+      "trainings": [
+        "FLETC",
+        "RO",
+        "KPP",
+        "NL I",
+        "SV"
+      ],
+      "records": {
+        "plus": 0,
+        "minus": 1,
+        "praise": 0,
+        "reprimand": 0
+      }
+    },
+    {
+      "discord_id": 1208500520038174823,
+      "badge": "737",
+      "rank": "Senior Deputy U.S Marshal",
+      "full_name": "Nori Ventura",
+      "csn": "G3112",
+      "vacation_start": null,
+      "suspended": false,
+      "last_promotion": null,
+      "trainings": [
+        "FLETC",
+        "KPP",
+        "NL I",
+        "SV"
+      ],
+      "records": {
+        "plus": 0,
+        "minus": 1,
+        "praise": 0,
+        "reprimand": 0
+      }
+    },
+    {
+      "discord_id": 1108843279912538135,
+      "badge": "751",
+      "rank": "Deputy U.S Marshal",
+      "full_name": "Johny Banny",
+      "csn": "P1873",
+      "vacation_start": null,
+      "suspended": false,
+      "last_promotion": null,
+      "trainings": [
+        "FLETC",
+        "KPP"
+      ],
+      "records": {
+        "plus": 0,
+        "minus": 1,
+        "praise": 0,
+        "reprimand": 0
+      }
+    },
+    {
+      "discord_id": 392743779724951552,
+      "badge": "752",
+      "rank": "Deputy U.S Marshal",
+      "full_name": "Nathan Carrington",
+      "csn": "Q9810",
+      "vacation_start": null,
+      "suspended": false,
+      "last_promotion": null,
+      "trainings": [],
+      "records": {
+        "plus": 0,
+        "minus": 0,
+        "praise": 0,
+        "reprimand": 0
+      }
+    },
+    {
+      "discord_id": 654957194747576320,
+      "badge": "753",
+      "rank": "Deputy U.S Marshal",
+      "full_name": "Cali Work",
+      "csn": "E9270",
+      "vacation_start": null,
+      "suspended": false,
+      "last_promotion": null,
+      "trainings": [
+        "FLETC",
+        "KPP",
+        "NL I",
+        "SV"
+      ],
+      "records": {
+        "plus": 0,
+        "minus": 1,
+        "praise": 0,
+        "reprimand": 0
+      }
+    },
+    {
+      "discord_id": 1146826117601316905,
+      "badge": "754",
+      "rank": "Deputy U.S Marshal",
+      "full_name": "Logan Lodbrok",
+      "csn": "R0087",
+      "vacation_start": null,
+      "suspended": false,
+      "last_promotion": "2026-08-28",
+      "trainings": [
+        "FLETC",
+        "KPP"
+      ],
+      "records": {
+        "plus": 0,
+        "minus": 0,
+        "praise": 0,
+        "reprimand": 0
+      }
+    },
+    {
+      "discord_id": 718713586180161549,
+      "badge": "755",
+      "rank": "Deputy U.S Marshal",
+      "full_name": "Rimas Carter",
+      "csn": "F9249",
+      "vacation_start": null,
+      "suspended": false,
+      "last_promotion": null,
+      "trainings": [
+        "FLETC",
+        "KPP"
+      ],
+      "records": {
+        "plus": 0,
+        "minus": 0,
+        "praise": 0,
+        "reprimand": 0
+      }
+    },
+    {
+      "discord_id": 1035639441143906365,
+      "badge": "756",
+      "rank": "Deputy U.S Marshal",
+      "full_name": "Ahmed De La Fuente",
+      "csn": "K2740",
+      "vacation_start": null,
+      "suspended": false,
+      "last_promotion": null,
+      "trainings": [],
+      "records": {
+        "plus": 0,
+        "minus": 0,
+        "praise": 0,
+        "reprimand": 0
+      }
+    },
+    {
+      "discord_id": 1305852039028281410,
+      "badge": "757",
+      "rank": "Deputy U.S Marshal",
+      "full_name": "Diego El Mudo Salazar",
+      "csn": "B2231",
+      "vacation_start": null,
+      "suspended": false,
+      "last_promotion": null,
+      "trainings": [],
+      "records": {
+        "plus": 0,
+        "minus": 0,
+        "praise": 0,
+        "reprimand": 0
+      }
+    },
+    {
+      "discord_id": 711945703684833340,
+      "badge": "781",
+      "rank": "Deputy U.S Marshal Trainee",
+      "full_name": "James Drago",
+      "csn": "T2051",
+      "vacation_start": null,
+      "suspended": false,
+      "last_promotion": null,
+      "trainings": [
+        "FLETC"
+      ],
+      "records": {
+        "plus": 0,
+        "minus": 0,
+        "praise": 0,
+        "reprimand": 0
+      }
+    },
+    {
+      "discord_id": 1123328275889016873,
+      "badge": "783",
+      "rank": "Deputy U.S Marshal Trainee",
+      "full_name": "William Parker",
+      "csn": "U1999",
+      "vacation_start": null,
+      "suspended": false,
+      "last_promotion": null,
+      "trainings": [
+        "FLETC",
+        "KPP"
+      ],
+      "records": {
+        "plus": 0,
+        "minus": 0,
+        "praise": 0,
+        "reprimand": 0
+      }
+    },
+    {
+      "discord_id": 1525528201256763413,
+      "badge": "785",
+      "rank": "Deputy U.S Marshal Trainee",
+      "full_name": "Lucas Morgan",
+      "csn": "T3038",
+      "vacation_start": null,
+      "suspended": false,
+      "last_promotion": null,
+      "trainings": [],
+      "records": {
+        "plus": 0,
+        "minus": 0,
+        "praise": 0,
+        "reprimand": 0
+      }
+    },
+    {
+      "discord_id": 787302079999115335,
+      "badge": "787",
+      "rank": "Deputy U.S Marshal Trainee",
+      "full_name": "Dwayne Holloway",
+      "csn": "Q0968",
+      "vacation_start": null,
+      "suspended": false,
+      "last_promotion": null,
+      "trainings": [
+        "FLETC",
+        "KPP"
+      ],
+      "records": {
+        "plus": 0,
+        "minus": 0,
+        "praise": 0,
+        "reprimand": 0
+      }
+    },
+    {
+      "discord_id": 413315821159317505,
+      "badge": "789",
+      "rank": "Deputy U.S Marshal Trainee",
+      "full_name": "John Mayers",
+      "csn": "X3732",
+      "vacation_start": null,
+      "suspended": false,
+      "last_promotion": null,
+      "trainings": [
+        "FLETC",
+        "KPP"
+      ],
+      "records": {
+        "plus": 0,
+        "minus": 0,
+        "praise": 0,
+        "reprimand": 0
+      }
+    },
+    {
+      "discord_id": 1067069995214974976,
+      "badge": "791",
+      "rank": "Deputy U.S Marshal Trainee",
+      "full_name": "James Carter",
+      "csn": "W8504",
+      "vacation_start": null,
+      "suspended": false,
+      "last_promotion": null,
+      "trainings": [],
+      "records": {
+        "plus": 0,
+        "minus": 0,
+        "praise": 0,
+        "reprimand": 0
+      }
+    },
+    {
+      "discord_id": 1136571646547861504,
+      "badge": "793",
+      "rank": "Deputy U.S Marshal Trainee",
+      "full_name": "John Miller",
+      "csn": "B5733",
+      "vacation_start": null,
+      "suspended": false,
+      "last_promotion": null,
+      "trainings": [],
+      "records": {
+        "plus": 0,
+        "minus": 1,
+        "praise": 0,
+        "reprimand": 0
+      }
+    }
+  ],
+  "payroll": [
+    {
+      "discord_id": 396654636192497676,
+      "badge": "701",
+      "rank": "U.S Marshal",
+      "full_name": "Paul Nelson",
+      "period_key": "import-current-2026-08-29",
+      "period_label": "Bieżący tydzień — import 29.08.2026",
+      "hours": 0.0,
+      "amount": 0.0,
+      "received": false,
+      "history": false
+    },
+    {
+      "discord_id": 497752166459506698,
+      "badge": "702",
+      "rank": "Chief Deputy U.S Marshal Service",
+      "full_name": "Michael Keiser",
+      "period_key": "import-current-2026-08-29",
+      "period_label": "Bieżący tydzień — import 29.08.2026",
+      "hours": 0.0,
+      "amount": 0.0,
+      "received": false,
+      "history": false
+    },
+    {
+      "discord_id": 1113457469855899678,
+      "badge": "703",
+      "rank": "Asisstant Chief Deputy U.S Marshal",
+      "full_name": "Nathan Nelson-Papito",
+      "period_key": "import-current-2026-08-29",
+      "period_label": "Bieżący tydzień — import 29.08.2026",
+      "hours": 0.0,
+      "amount": 0.0,
+      "received": false,
+      "history": false
+    },
+    {
+      "discord_id": 734643600817782874,
+      "badge": "706",
+      "rank": "Supervisiory U.S Marshal",
+      "full_name": "Luna Blake",
+      "period_key": "import-current-2026-08-29",
+      "period_label": "Bieżący tydzień — import 29.08.2026",
+      "hours": 0.0,
+      "amount": 0.0,
+      "received": false,
+      "history": false
+    },
+    {
+      "discord_id": 997326848679751771,
+      "badge": "711",
+      "rank": "Lead Deputy U.S Marshal",
+      "full_name": "Liv Raya Cruz",
+      "period_key": "import-current-2026-08-29",
+      "period_label": "Bieżący tydzień — import 29.08.2026",
+      "hours": 0.0,
+      "amount": 0.0,
+      "received": false,
+      "history": false
+    },
+    {
+      "discord_id": 942470820020768808,
+      "badge": "712",
+      "rank": "Lead Deputy U.S Marshal",
+      "full_name": "Kira Moretti",
+      "period_key": "import-current-2026-08-29",
+      "period_label": "Bieżący tydzień — import 29.08.2026",
+      "hours": 0.0,
+      "amount": 0.0,
+      "received": false,
+      "history": false
+    },
+    {
+      "discord_id": 1117820913044443176,
+      "badge": "713",
+      "rank": "Lead Deputy U.S Marshal",
+      "full_name": "Diego Vance",
+      "period_key": "import-current-2026-08-29",
+      "period_label": "Bieżący tydzień — import 29.08.2026",
+      "hours": 1.08,
+      "amount": 1620.0,
+      "received": false,
+      "history": false
+    },
+    {
+      "discord_id": 814968084519583815,
+      "badge": "714",
+      "rank": "Lead Deputy U.S Marshal",
+      "full_name": "Mateo Carti",
+      "period_key": "import-current-2026-08-29",
+      "period_label": "Bieżący tydzień — import 29.08.2026",
+      "hours": 0.0,
+      "amount": 0.0,
+      "received": false,
+      "history": false
+    },
+    {
+      "discord_id": 320228387597844481,
+      "badge": "721",
+      "rank": "Special Deputy U.S Marshal",
+      "full_name": "Kelly Dust",
+      "period_key": "import-current-2026-08-29",
+      "period_label": "Bieżący tydzień — import 29.08.2026",
+      "hours": 2.16,
+      "amount": 3240.0,
+      "received": false,
+      "history": false
+    },
+    {
+      "discord_id": 773842399734530049,
+      "badge": "722",
+      "rank": "Special Deputy U.S Marshal",
+      "full_name": "Pablo Mcflurry",
+      "period_key": "import-current-2026-08-29",
+      "period_label": "Bieżący tydzień — import 29.08.2026",
+      "hours": 8.31,
+      "amount": 12465.0,
+      "received": false,
+      "history": false
+    },
+    {
+      "discord_id": 1146520796806783036,
+      "badge": "731",
+      "rank": "Senior Deputy U.S Marshal",
+      "full_name": "David Carter",
+      "period_key": "import-current-2026-08-29",
+      "period_label": "Bieżący tydzień — import 29.08.2026",
+      "hours": 0.0,
+      "amount": 0.0,
+      "received": false,
+      "history": false
+    },
+    {
+      "discord_id": 1191738801303846912,
+      "badge": "732",
+      "rank": "Senior Deputy U.S Marshal",
+      "full_name": "Jacob Peeck",
+      "period_key": "import-current-2026-08-29",
+      "period_label": "Bieżący tydzień — import 29.08.2026",
+      "hours": 12.51,
+      "amount": 18765.0,
+      "received": false,
+      "history": false
+    },
+    {
+      "discord_id": 562377467491385346,
+      "badge": "733",
+      "rank": "Senior Deputy U.S Marshal",
+      "full_name": "Pezz Ett",
+      "period_key": "import-current-2026-08-29",
+      "period_label": "Bieżący tydzień — import 29.08.2026",
+      "hours": 0.0,
+      "amount": 0.0,
+      "received": false,
+      "history": false
+    },
+    {
+      "discord_id": 1329452180716912784,
+      "badge": "734",
+      "rank": "Senior Deputy U.S Marshal",
+      "full_name": "Matthew Night",
+      "period_key": "import-current-2026-08-29",
+      "period_label": "Bieżący tydzień — import 29.08.2026",
+      "hours": 0.0,
+      "amount": 0.0,
+      "received": false,
+      "history": false
+    },
+    {
+      "discord_id": 694801346980741160,
+      "badge": "735",
+      "rank": "Senior Deputy U.S Marshal",
+      "full_name": "Noemi Ventura-Scott",
+      "period_key": "import-current-2026-08-29",
+      "period_label": "Bieżący tydzień — import 29.08.2026",
+      "hours": 0.0,
+      "amount": 0.0,
+      "received": false,
+      "history": false
+    },
+    {
+      "discord_id": 1035127095338205204,
+      "badge": "736",
+      "rank": "Senior Deputy U.S Marshal",
+      "full_name": "Victor Goza",
+      "period_key": "import-current-2026-08-29",
+      "period_label": "Bieżący tydzień — import 29.08.2026",
+      "hours": 0.0,
+      "amount": 0.0,
+      "received": false,
+      "history": false
+    },
+    {
+      "discord_id": 1208500520038174823,
+      "badge": "737",
+      "rank": "Senior Deputy U.S Marshal",
+      "full_name": "Nori Ventura",
+      "period_key": "import-current-2026-08-29",
+      "period_label": "Bieżący tydzień — import 29.08.2026",
+      "hours": 0.0,
+      "amount": 0.0,
+      "received": false,
+      "history": false
+    },
+    {
+      "discord_id": 1108843279912538135,
+      "badge": "751",
+      "rank": "Deputy U.S Marshal",
+      "full_name": "Johny Banny",
+      "period_key": "import-current-2026-08-29",
+      "period_label": "Bieżący tydzień — import 29.08.2026",
+      "hours": 0.0,
+      "amount": 0.0,
+      "received": false,
+      "history": false
+    },
+    {
+      "discord_id": 392743779724951552,
+      "badge": "752",
+      "rank": "Deputy U.S Marshal",
+      "full_name": "Nathan Carrington",
+      "period_key": "import-current-2026-08-29",
+      "period_label": "Bieżący tydzień — import 29.08.2026",
+      "hours": 8.48,
+      "amount": 12720.0,
+      "received": false,
+      "history": false
+    },
+    {
+      "discord_id": 654957194747576320,
+      "badge": "753",
+      "rank": "Deputy U.S Marshal",
+      "full_name": "Cali Work",
+      "period_key": "import-current-2026-08-29",
+      "period_label": "Bieżący tydzień — import 29.08.2026",
+      "hours": 18.41,
+      "amount": 27615.0,
+      "received": false,
+      "history": false
+    },
+    {
+      "discord_id": 1146826117601316905,
+      "badge": "754",
+      "rank": "Deputy U.S Marshal",
+      "full_name": "Logan Lodbrok",
+      "period_key": "import-current-2026-08-29",
+      "period_label": "Bieżący tydzień — import 29.08.2026",
+      "hours": 0.0,
+      "amount": 0.0,
+      "received": false,
+      "history": false
+    },
+    {
+      "discord_id": 718713586180161549,
+      "badge": "755",
+      "rank": "Deputy U.S Marshal",
+      "full_name": "Rimas Carter",
+      "period_key": "import-current-2026-08-29",
+      "period_label": "Bieżący tydzień — import 29.08.2026",
+      "hours": 17.86,
+      "amount": 26790.0,
+      "received": false,
+      "history": false
+    },
+    {
+      "discord_id": 1035639441143906365,
+      "badge": "756",
+      "rank": "Deputy U.S Marshal",
+      "full_name": "Ahmed De La Fuente",
+      "period_key": "import-current-2026-08-29",
+      "period_label": "Bieżący tydzień — import 29.08.2026",
+      "hours": 0.0,
+      "amount": 0.0,
+      "received": false,
+      "history": false
+    },
+    {
+      "discord_id": 1305852039028281410,
+      "badge": "757",
+      "rank": "Deputy U.S Marshal",
+      "full_name": "Diego El Mudo Salazar",
+      "period_key": "import-current-2026-08-29",
+      "period_label": "Bieżący tydzień — import 29.08.2026",
+      "hours": 0.0,
+      "amount": 0.0,
+      "received": false,
+      "history": false
+    },
+    {
+      "discord_id": 711945703684833340,
+      "badge": "781",
+      "rank": "Deputy U.S Marshal Trainee",
+      "full_name": "James Drago",
+      "period_key": "import-current-2026-08-29",
+      "period_label": "Bieżący tydzień — import 29.08.2026",
+      "hours": 0.0,
+      "amount": 0.0,
+      "received": false,
+      "history": false
+    },
+    {
+      "discord_id": 1123328275889016873,
+      "badge": "783",
+      "rank": "Deputy U.S Marshal Trainee",
+      "full_name": "William Parker",
+      "period_key": "import-current-2026-08-29",
+      "period_label": "Bieżący tydzień — import 29.08.2026",
+      "hours": 0.0,
+      "amount": 0.0,
+      "received": false,
+      "history": false
+    },
+    {
+      "discord_id": 1525528201256763413,
+      "badge": "785",
+      "rank": "Deputy U.S Marshal Trainee",
+      "full_name": "Lucas Morgan",
+      "period_key": "import-current-2026-08-29",
+      "period_label": "Bieżący tydzień — import 29.08.2026",
+      "hours": 0.0,
+      "amount": 0.0,
+      "received": false,
+      "history": false
+    },
+    {
+      "discord_id": 787302079999115335,
+      "badge": "787",
+      "rank": "Deputy U.S Marshal Trainee",
+      "full_name": "Dwayne Holloway",
+      "period_key": "import-current-2026-08-29",
+      "period_label": "Bieżący tydzień — import 29.08.2026",
+      "hours": 4.73,
+      "amount": 7095.0,
+      "received": false,
+      "history": false
+    },
+    {
+      "discord_id": 413315821159317505,
+      "badge": "789",
+      "rank": "Deputy U.S Marshal Trainee",
+      "full_name": "John Mayers",
+      "period_key": "import-current-2026-08-29",
+      "period_label": "Bieżący tydzień — import 29.08.2026",
+      "hours": 2.63,
+      "amount": 3945.0,
+      "received": false,
+      "history": false
+    },
+    {
+      "discord_id": null,
+      "badge": "790",
+      "rank": "",
+      "full_name": "",
+      "period_key": "import-current-2026-08-29",
+      "period_label": "Bieżący tydzień — import 29.08.2026",
+      "hours": 8.59,
+      "amount": 12885.0,
+      "received": false,
+      "history": false
+    },
+    {
+      "discord_id": 1067069995214974976,
+      "badge": "791",
+      "rank": "Deputy U.S Marshal Trainee",
+      "full_name": "James Carter",
+      "period_key": "import-current-2026-08-29",
+      "period_label": "Bieżący tydzień — import 29.08.2026",
+      "hours": 0.0,
+      "amount": 0.0,
+      "received": false,
+      "history": false
+    },
+    {
+      "discord_id": 1136571646547861504,
+      "badge": "793",
+      "rank": "Deputy U.S Marshal Trainee",
+      "full_name": "John Miller",
+      "period_key": "import-current-2026-08-29",
+      "period_label": "Bieżący tydzień — import 29.08.2026",
+      "hours": 0.0,
+      "amount": 0.0,
+      "received": false,
+      "history": false
+    },
+    {
+      "discord_id": 396654636192497676,
+      "badge": "701",
+      "rank": "U.S Marshal",
+      "full_name": "Paul Nelson",
+      "period_key": "import-previous-2026-08-29",
+      "period_label": "Poprzedni tydzień — import 29.08.2026",
+      "hours": 0.29,
+      "amount": 870.0,
+      "received": true,
+      "history": true
+    },
+    {
+      "discord_id": 497752166459506698,
+      "badge": "702",
+      "rank": "Chief Deputy U.S Marshal Service",
+      "full_name": "Michael Keiser",
+      "period_key": "import-previous-2026-08-29",
+      "period_label": "Poprzedni tydzień — import 29.08.2026",
+      "hours": 0.0,
+      "amount": 0.0,
+      "received": false,
+      "history": true
+    },
+    {
+      "discord_id": 1113457469855899678,
+      "badge": "703",
+      "rank": "Asisstant Chief Deputy U.S Marshal",
+      "full_name": "Nathan Nelson-Papito",
+      "period_key": "import-previous-2026-08-29",
+      "period_label": "Poprzedni tydzień — import 29.08.2026",
+      "hours": 0.0,
+      "amount": 0.0,
+      "received": false,
+      "history": true
+    },
+    {
+      "discord_id": 734643600817782874,
+      "badge": "706",
+      "rank": "Supervisiory U.S Marshal",
+      "full_name": "Luna Blake",
+      "period_key": "import-previous-2026-08-29",
+      "period_label": "Poprzedni tydzień — import 29.08.2026",
+      "hours": 0.0,
+      "amount": 0.0,
+      "received": false,
+      "history": true
+    },
+    {
+      "discord_id": 997326848679751771,
+      "badge": "711",
+      "rank": "Lead Deputy U.S Marshal",
+      "full_name": "Liv Raya Cruz",
+      "period_key": "import-previous-2026-08-29",
+      "period_label": "Poprzedni tydzień — import 29.08.2026",
+      "hours": 0.0,
+      "amount": 0.0,
+      "received": false,
+      "history": true
+    },
+    {
+      "discord_id": 942470820020768808,
+      "badge": "712",
+      "rank": "Lead Deputy U.S Marshal",
+      "full_name": "Kira Moretti",
+      "period_key": "import-previous-2026-08-29",
+      "period_label": "Poprzedni tydzień — import 29.08.2026",
+      "hours": 0.0,
+      "amount": 0.0,
+      "received": false,
+      "history": true
+    },
+    {
+      "discord_id": 1117820913044443176,
+      "badge": "713",
+      "rank": "Lead Deputy U.S Marshal",
+      "full_name": "Diego Vance",
+      "period_key": "import-previous-2026-08-29",
+      "period_label": "Poprzedni tydzień — import 29.08.2026",
+      "hours": 0.29,
+      "amount": 870.0,
+      "received": false,
+      "history": true
+    },
+    {
+      "discord_id": 814968084519583815,
+      "badge": "714",
+      "rank": "Lead Deputy U.S Marshal",
+      "full_name": "Mateo Carti",
+      "period_key": "import-previous-2026-08-29",
+      "period_label": "Poprzedni tydzień — import 29.08.2026",
+      "hours": 0.0,
+      "amount": 0.0,
+      "received": false,
+      "history": true
+    },
+    {
+      "discord_id": 320228387597844481,
+      "badge": "721",
+      "rank": "Special Deputy U.S Marshal",
+      "full_name": "Kelly Dust",
+      "period_key": "import-previous-2026-08-29",
+      "period_label": "Poprzedni tydzień — import 29.08.2026",
+      "hours": 0.29,
+      "amount": 870.0,
+      "received": false,
+      "history": true
+    },
+    {
+      "discord_id": 773842399734530049,
+      "badge": "722",
+      "rank": "Special Deputy U.S Marshal",
+      "full_name": "Pablo Mcflurry",
+      "period_key": "import-previous-2026-08-29",
+      "period_label": "Poprzedni tydzień — import 29.08.2026",
+      "hours": 0.0,
+      "amount": 0.0,
+      "received": false,
+      "history": true
+    },
+    {
+      "discord_id": 1146520796806783036,
+      "badge": "731",
+      "rank": "Senior Deputy U.S Marshal",
+      "full_name": "David Carter",
+      "period_key": "import-previous-2026-08-29",
+      "period_label": "Poprzedni tydzień — import 29.08.2026",
+      "hours": 0.0,
+      "amount": 0.0,
+      "received": false,
+      "history": true
+    },
+    {
+      "discord_id": 1191738801303846912,
+      "badge": "732",
+      "rank": "Senior Deputy U.S Marshal",
+      "full_name": "Jacob Peeck",
+      "period_key": "import-previous-2026-08-29",
+      "period_label": "Poprzedni tydzień — import 29.08.2026",
+      "hours": 0.29,
+      "amount": 870.0,
+      "received": false,
+      "history": true
+    },
+    {
+      "discord_id": 562377467491385346,
+      "badge": "733",
+      "rank": "Senior Deputy U.S Marshal",
+      "full_name": "Pezz Ett",
+      "period_key": "import-previous-2026-08-29",
+      "period_label": "Poprzedni tydzień — import 29.08.2026",
+      "hours": 0.0,
+      "amount": 0.0,
+      "received": false,
+      "history": true
+    },
+    {
+      "discord_id": 1329452180716912784,
+      "badge": "734",
+      "rank": "Senior Deputy U.S Marshal",
+      "full_name": "Matthew Night",
+      "period_key": "import-previous-2026-08-29",
+      "period_label": "Poprzedni tydzień — import 29.08.2026",
+      "hours": 0.0,
+      "amount": 0.0,
+      "received": false,
+      "history": true
+    },
+    {
+      "discord_id": 694801346980741160,
+      "badge": "735",
+      "rank": "Senior Deputy U.S Marshal",
+      "full_name": "Noemi Ventura-Scott",
+      "period_key": "import-previous-2026-08-29",
+      "period_label": "Poprzedni tydzień — import 29.08.2026",
+      "hours": 0.0,
+      "amount": 0.0,
+      "received": false,
+      "history": true
+    },
+    {
+      "discord_id": 1035127095338205204,
+      "badge": "736",
+      "rank": "Senior Deputy U.S Marshal",
+      "full_name": "Victor Goza",
+      "period_key": "import-previous-2026-08-29",
+      "period_label": "Poprzedni tydzień — import 29.08.2026",
+      "hours": 0.0,
+      "amount": 0.0,
+      "received": false,
+      "history": true
+    },
+    {
+      "discord_id": 1208500520038174823,
+      "badge": "737",
+      "rank": "Senior Deputy U.S Marshal",
+      "full_name": "Nori Ventura",
+      "period_key": "import-previous-2026-08-29",
+      "period_label": "Poprzedni tydzień — import 29.08.2026",
+      "hours": 0.0,
+      "amount": 0.0,
+      "received": false,
+      "history": true
+    },
+    {
+      "discord_id": 1108843279912538135,
+      "badge": "751",
+      "rank": "Deputy U.S Marshal",
+      "full_name": "Johny Banny",
+      "period_key": "import-previous-2026-08-29",
+      "period_label": "Poprzedni tydzień — import 29.08.2026",
+      "hours": 0.0,
+      "amount": 0.0,
+      "received": false,
+      "history": true
+    },
+    {
+      "discord_id": 392743779724951552,
+      "badge": "752",
+      "rank": "Deputy U.S Marshal",
+      "full_name": "Nathan Carrington",
+      "period_key": "import-previous-2026-08-29",
+      "period_label": "Poprzedni tydzień — import 29.08.2026",
+      "hours": 0.29,
+      "amount": 870.0,
+      "received": false,
+      "history": true
+    },
+    {
+      "discord_id": 654957194747576320,
+      "badge": "753",
+      "rank": "Deputy U.S Marshal",
+      "full_name": "Cali Work",
+      "period_key": "import-previous-2026-08-29",
+      "period_label": "Poprzedni tydzień — import 29.08.2026",
+      "hours": 0.29,
+      "amount": 870.0,
+      "received": false,
+      "history": true
+    },
+    {
+      "discord_id": 1146826117601316905,
+      "badge": "754",
+      "rank": "Deputy U.S Marshal",
+      "full_name": "Logan Lodbrok",
+      "period_key": "import-previous-2026-08-29",
+      "period_label": "Poprzedni tydzień — import 29.08.2026",
+      "hours": 0.0,
+      "amount": 0.0,
+      "received": false,
+      "history": true
+    },
+    {
+      "discord_id": 718713586180161549,
+      "badge": "755",
+      "rank": "Deputy U.S Marshal",
+      "full_name": "Rimas Carter",
+      "period_key": "import-previous-2026-08-29",
+      "period_label": "Poprzedni tydzień — import 29.08.2026",
+      "hours": 0.29,
+      "amount": 870.0,
+      "received": false,
+      "history": true
+    },
+    {
+      "discord_id": 1035639441143906365,
+      "badge": "756",
+      "rank": "Deputy U.S Marshal",
+      "full_name": "Ahmed De La Fuente",
+      "period_key": "import-previous-2026-08-29",
+      "period_label": "Poprzedni tydzień — import 29.08.2026",
+      "hours": 0.0,
+      "amount": 0.0,
+      "received": false,
+      "history": true
+    },
+    {
+      "discord_id": 1305852039028281410,
+      "badge": "757",
+      "rank": "Deputy U.S Marshal",
+      "full_name": "Diego El Mudo Salazar",
+      "period_key": "import-previous-2026-08-29",
+      "period_label": "Poprzedni tydzień — import 29.08.2026",
+      "hours": 0.0,
+      "amount": 0.0,
+      "received": false,
+      "history": true
+    },
+    {
+      "discord_id": 711945703684833340,
+      "badge": "781",
+      "rank": "Deputy U.S Marshal Trainee",
+      "full_name": "James Drago",
+      "period_key": "import-previous-2026-08-29",
+      "period_label": "Poprzedni tydzień — import 29.08.2026",
+      "hours": 0.0,
+      "amount": 0.0,
+      "received": false,
+      "history": true
+    },
+    {
+      "discord_id": 1123328275889016873,
+      "badge": "783",
+      "rank": "Deputy U.S Marshal Trainee",
+      "full_name": "William Parker",
+      "period_key": "import-previous-2026-08-29",
+      "period_label": "Poprzedni tydzień — import 29.08.2026",
+      "hours": 0.0,
+      "amount": 0.0,
+      "received": false,
+      "history": true
+    },
+    {
+      "discord_id": 1525528201256763413,
+      "badge": "785",
+      "rank": "Deputy U.S Marshal Trainee",
+      "full_name": "Lucas Morgan",
+      "period_key": "import-previous-2026-08-29",
+      "period_label": "Poprzedni tydzień — import 29.08.2026",
+      "hours": 0.0,
+      "amount": 0.0,
+      "received": false,
+      "history": true
+    },
+    {
+      "discord_id": 787302079999115335,
+      "badge": "787",
+      "rank": "Deputy U.S Marshal Trainee",
+      "full_name": "Dwayne Holloway",
+      "period_key": "import-previous-2026-08-29",
+      "period_label": "Poprzedni tydzień — import 29.08.2026",
+      "hours": 0.0,
+      "amount": 0.0,
+      "received": false,
+      "history": true
+    },
+    {
+      "discord_id": 413315821159317505,
+      "badge": "789",
+      "rank": "Deputy U.S Marshal Trainee",
+      "full_name": "John Mayers",
+      "period_key": "import-previous-2026-08-29",
+      "period_label": "Poprzedni tydzień — import 29.08.2026",
+      "hours": 0.0,
+      "amount": 0.0,
+      "received": false,
+      "history": true
+    },
+    {
+      "discord_id": 1067069995214974976,
+      "badge": "791",
+      "rank": "Deputy U.S Marshal Trainee",
+      "full_name": "James Carter",
+      "period_key": "import-previous-2026-08-29",
+      "period_label": "Poprzedni tydzień — import 29.08.2026",
+      "hours": 0.0,
+      "amount": 0.0,
+      "received": false,
+      "history": true
+    },
+    {
+      "discord_id": 1136571646547861504,
+      "badge": "793",
+      "rank": "Deputy U.S Marshal Trainee",
+      "full_name": "John Miller",
+      "period_key": "import-previous-2026-08-29",
+      "period_label": "Poprzedni tydzień — import 29.08.2026",
+      "hours": 0.0,
+      "amount": 0.0,
+      "received": false,
+      "history": true
+    }
+  ]
+}

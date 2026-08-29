@@ -1,17 +1,17 @@
-# USMS Web Panel v1
+# USMS Web Panel v19
 
-Pierwsza działająca wersja panelu internetowego dla USMS.
+Panel internetowy USMS — PostgreSQL jako źródło danych panelu.
 
 ## Co już działa
 
 - ciemny dashboard w stylu USMS,
 - logowanie przez Discord OAuth2,
 - blokada dostępu dla osób spoza wskazanego serwera Discord,
-- baza funkcjonariuszy z Google Sheets (`USMS`),
+- baza funkcjonariuszy z PostgreSQL,
 - profil funkcjonariusza,
-- szkolenia z karty `Szkolenia`,
-- akta z karty `Akta`,
-- odczyt aktywnej służby, czasu, urlopu i zawieszenia z `sluzby.db`,
+- szkolenia z PostgreSQL (`officer_trainings`),
+- akta z PostgreSQL (`officer_records`),
+- odczyt aktywnej służby, czasu, urlopu i zawieszenia z tabeli `users` PostgreSQL,
 - podstawowy podział zwykły użytkownik / administrator strony.
 
 ## Ważne
@@ -39,11 +39,9 @@ Panel jest na razie **tylko do odczytu**. To celowe — najpierw uruchamiamy bez
 
 Nie wpisuj tokenu do kodu ani nie wysyłaj go nikomu.
 
-## Wspólna baza SQLite
+## Wspólna baza PostgreSQL
 
-Jeżeli bot i strona są osobnymi Railway Services, pojedynczego Railway Volume nie da się po prostu współdzielić między niezależnymi usługami tak jak zwykłego folderu. Jeżeli strona nie widzi `/data/sluzby.db`, panel nadal uruchomi się i pokaże dane z Google Sheets, ale dane czasu służby będą puste.
-
-W następnym etapie najlepiej przenieść dane operacyjne do wspólnej bazy PostgreSQL w Railway. Wtedy bot i strona będą korzystać dokładnie z tej samej bazy i nie będzie problemu z Volume.
+Web i bot korzystają z tej samej usługi PostgreSQL na Railway. Panel nie potrzebuje Google Sheets do wyświetlania Funkcjonariuszy, Szkoleń ani Akt. SQLite `DB_PATH` może pozostać przy bocie jako kopia/fallback, ale produkcyjny web korzysta z `DATABASE_URL`.
 
 ## Role administracyjne
 
@@ -60,7 +58,7 @@ Jeśli zmienna jest pusta, nikt nie otrzyma uprawnień administratora strony.
 - urlopy i zawieszenia,
 - statusy na żywo,
 - zarządzanie funkcjonariuszem z panelu,
-- wykonywanie akcji na Discordzie i Google Sheets z poziomu strony.
+- przełączenie pozostałych komend kadrowych bota z Google Sheets na PostgreSQL.
 
 
 ## PostgreSQL (v2)
@@ -173,3 +171,19 @@ Usunięto z Kompendium informację o 2-minutowym prawie zatrzymanego do telefonu
 - bank pytań pozostaje nienaruszony,
 - backend blokuje usunięcie aktywnej sesji oraz sesji, w której ktoś nadal pisze egzamin,
 - operacja jest dostępna wyłącznie dla administratora, przez POST i z walidacją CSRF.
+
+## v19 — PostgreSQL zamiast Google Sheets
+
+Panel nie wykonuje już żadnych odczytów z Google Sheets podczas normalnego działania. Funkcjonariusze, szkolenia i akta są odczytywane z PostgreSQL. Do paczki dołączony jest `seed_database_usms.json`, czyli jednorazowy snapshot danych z przesłanego `DATABASE USMS.xlsx` z 29.08.2026. Przy pierwszym uruchomieniu v19 dane są automatycznie importowane do tabel `officers`, `officer_trainings`, `officer_records` i `payroll_entries`, a migracja jest oznaczana w `web_migrations`, więc nie uruchamia się ponownie.
+
+Aktualna odznaka i aktywność są dodatkowo synchronizowane z tabelą `users` używaną przez bota: jeżeli bot ma nowszy numer odznaki, panel użyje go; jeżeli istniejący użytkownik ma wyczyszczoną odznakę, nie pojawia się na aktywnej liście. Stopień jest wyliczany z obowiązujących zakresów odznak 701–799.
+
+Zmienne `GOOGLE_TOKEN_JSON`, `SHEET_ID`, `ROSTER_SHEET_NAME`, `TRAINING_SHEET_NAME` i `AKTA_SHEET_NAME` nie są już potrzebne w usłudze WEB. Nie usuwaj ich jeszcze z usługi bota, dopóki komendy kadrowe bota nie zostaną przełączone w całości na PostgreSQL.
+
+## v20 — wspólna baza kadrowa z botem v91
+- `officers` jest wspólną listą zatrudnionych dla panelu i bota.
+- `/add` w bocie v91 tworzy/reaktywuje funkcjonariusza w PostgreSQL.
+- `/zwolnij` ustawia `active=false`; historia nie jest kasowana.
+- szkolenia są w `officer_trainings`, a plusy/minusy/pochwały/nagany w `officer_records`.
+- dodano audyt: `officer_history`, `training_history`, `record_history`.
+- Google Sheets nie jest używane przez panel WWW.

@@ -13,10 +13,8 @@ except ImportError:
     RealDictCursor = None
 from functools import wraps
 
-import gspread
 import requests
 from flask import Flask, abort, redirect, render_template, request, send_file, session, url_for
-from google.oauth2.credentials import Credentials
 
 
 app = Flask(__name__)
@@ -28,11 +26,6 @@ DISCORD_GUILD_ID = os.environ.get("DISCORD_GUILD_ID", "").strip()
 DISCORD_TOKEN = os.environ.get("DISCORD_TOKEN", "").strip()
 PUBLIC_URL = os.environ.get("PUBLIC_URL", "").rstrip("/")
 
-GOOGLE_TOKEN_JSON = os.environ.get("GOOGLE_TOKEN_JSON", "")
-SHEET_ID = os.environ.get("SHEET_ID", "")
-ROSTER_SHEET_NAME = os.environ.get("ROSTER_SHEET_NAME", "USMS")
-TRAINING_SHEET_NAME = os.environ.get("TRAINING_SHEET_NAME", "Szkolenia")
-AKTA_SHEET_NAME = os.environ.get("AKTA_SHEET_NAME", "Akta")
 
 DATABASE_URL = (os.environ.get("DATABASE_URL") or "").strip()
 DB_PATH = (os.environ.get("DB_PATH") or "").strip()
@@ -47,7 +40,6 @@ else:
 
 
 DISCORD_API = "https://discord.com/api/v10"
-GOOGLE_SCOPES = ["https://www.googleapis.com/auth/spreadsheets.readonly"]
 
 PROFILE_PHOTO_MAX_BYTES = 5 * 1024 * 1024
 DOCUMENT_MAX_BYTES = 10 * 1024 * 1024
@@ -78,6 +70,226 @@ def pg_connect(application_name="usms-web-panel"):
         connect_timeout=10,
         application_name=application_name,
     )
+
+
+RANK_RANGES = [
+    (701, 701, "U.S Marshal"),
+    (702, 702, "Chief Deputy U.S Marshal Service"),
+    (703, 703, "Asisstant Chief Deputy U.S Marshal"),
+    (704, 704, "Associate Chief Deputy U.S Marshal"),
+    (705, 705, "Chief of Staff"),
+    (706, 710, "Supervisiory U.S Marshal"),
+    (711, 720, "Lead Deputy U.S Marshal"),
+    (721, 730, "Special Deputy U.S Marshal"),
+    (731, 750, "Senior Deputy U.S Marshal"),
+    (751, 780, "Deputy U.S Marshal"),
+    (781, 799, "Deputy U.S Marshal Trainee"),
+]
+
+
+def rank_for_badge(badge, fallback="Brak"):
+    try:
+        number = int(str(badge).strip())
+    except Exception:
+        return fallback or "Brak"
+    for start, end, rank in RANK_RANGES:
+        if start <= number <= end:
+            return rank
+    return fallback or "Brak"
+
+
+def ensure_roster_tables():
+    """Tworzy PostgreSQL jako źródło danych kadrowych panelu i wykonuje jednorazowy import snapshotu XLSX."""
+    if not DATABASE_URL:
+        return
+
+    conn = pg_connect("usms-roster-init")
+    try:
+        with conn.cursor() as cur:
+            cur.execute("""
+                CREATE TABLE IF NOT EXISTS officers (
+                    discord_id BIGINT PRIMARY KEY,
+                    badge_number TEXT,
+                    rank TEXT NOT NULL DEFAULT '',
+                    full_name TEXT NOT NULL,
+                    csn TEXT NOT NULL DEFAULT '',
+                    vacation_start DATE NULL,
+                    vacation_end DATE NULL,
+                    suspended BOOLEAN NOT NULL DEFAULT FALSE,
+                    suspension_until TIMESTAMPTZ NULL,
+                    suspension_reason TEXT NULL,
+                    last_promotion DATE NULL,
+                    active BOOLEAN NOT NULL DEFAULT TRUE,
+                    hired_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+                    terminated_at TIMESTAMPTZ NULL,
+                    termination_reason TEXT NULL,
+                    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+                    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+                )
+            """)
+            for column, definition in {
+                "vacation_end": "DATE NULL",
+                "suspension_until": "TIMESTAMPTZ NULL",
+                "suspension_reason": "TEXT NULL",
+                "hired_at": "TIMESTAMPTZ NOT NULL DEFAULT NOW()",
+                "terminated_at": "TIMESTAMPTZ NULL",
+                "termination_reason": "TEXT NULL",
+            }.items():
+                cur.execute(f"ALTER TABLE officers ADD COLUMN IF NOT EXISTS {column} {definition}")
+            # Unikalność dotyczy aktywnych odznak; była osoba może zachować badge w historii.
+            cur.execute("DROP INDEX IF EXISTS idx_officers_badge_unique")
+            cur.execute("CREATE UNIQUE INDEX IF NOT EXISTS idx_officers_badge_active_unique ON officers (badge_number) WHERE active=TRUE AND badge_number IS NOT NULL AND BTRIM(badge_number) <> ''")
+            cur.execute("""
+                CREATE TABLE IF NOT EXISTS officer_trainings (
+                    discord_id BIGINT NOT NULL,
+                    training_code TEXT NOT NULL,
+                    completed BOOLEAN NOT NULL DEFAULT TRUE,
+                    granted_by BIGINT NULL,
+                    granted_at TIMESTAMPTZ NULL,
+                    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+                    PRIMARY KEY (discord_id, training_code)
+                )
+            """)
+            cur.execute("ALTER TABLE officer_trainings ADD COLUMN IF NOT EXISTS granted_by BIGINT NULL")
+            cur.execute("ALTER TABLE officer_trainings ADD COLUMN IF NOT EXISTS granted_at TIMESTAMPTZ NULL")
+            cur.execute("""
+                CREATE TABLE IF NOT EXISTS officer_history (
+                    id BIGSERIAL PRIMARY KEY,
+                    discord_id BIGINT NOT NULL,
+                    event_type TEXT NOT NULL,
+                    old_value TEXT NULL,
+                    new_value TEXT NULL,
+                    reason TEXT NULL,
+                    actor_id BIGINT NULL,
+                    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+                )
+            """)
+            cur.execute("CREATE INDEX IF NOT EXISTS idx_officer_history_user ON officer_history(discord_id, created_at DESC)")
+            cur.execute("""
+                CREATE TABLE IF NOT EXISTS training_history (
+                    id BIGSERIAL PRIMARY KEY,
+                    discord_id BIGINT NOT NULL,
+                    training_code TEXT NOT NULL,
+                    action TEXT NOT NULL,
+                    actor_id BIGINT NULL,
+                    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+                )
+            """)
+            cur.execute("CREATE INDEX IF NOT EXISTS idx_training_history_user ON training_history(discord_id, created_at DESC)")
+            cur.execute("""
+                CREATE TABLE IF NOT EXISTS record_history (
+                    id BIGSERIAL PRIMARY KEY,
+                    discord_id BIGINT NOT NULL,
+                    record_type TEXT NOT NULL,
+                    old_count INTEGER NOT NULL,
+                    new_count INTEGER NOT NULL,
+                    reason TEXT NULL,
+                    actor_id BIGINT NULL,
+                    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+                )
+            """)
+            cur.execute("CREATE INDEX IF NOT EXISTS idx_record_history_user ON record_history(discord_id, created_at DESC)")
+
+            cur.execute("""
+                CREATE TABLE IF NOT EXISTS officer_records (
+                    discord_id BIGINT PRIMARY KEY,
+                    plus_count INTEGER NOT NULL DEFAULT 0,
+                    minus_count INTEGER NOT NULL DEFAULT 0,
+                    praise_count INTEGER NOT NULL DEFAULT 0,
+                    reprimand_count INTEGER NOT NULL DEFAULT 0,
+                    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+                )
+            """)
+            cur.execute("""
+                CREATE TABLE IF NOT EXISTS payroll_entries (
+                    id BIGSERIAL PRIMARY KEY,
+                    discord_id BIGINT NULL,
+                    badge_snapshot TEXT NOT NULL,
+                    rank_snapshot TEXT NOT NULL DEFAULT '',
+                    name_snapshot TEXT NOT NULL DEFAULT '',
+                    period_key TEXT NOT NULL,
+                    period_label TEXT NOT NULL,
+                    hours NUMERIC(10,2) NOT NULL DEFAULT 0,
+                    amount NUMERIC(12,2) NOT NULL DEFAULT 0,
+                    received BOOLEAN NOT NULL DEFAULT FALSE,
+                    is_history BOOLEAN NOT NULL DEFAULT FALSE,
+                    imported_from TEXT NULL,
+                    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+                    UNIQUE (period_key, badge_snapshot)
+                )
+            """)
+            cur.execute("""
+                CREATE TABLE IF NOT EXISTS web_migrations (
+                    migration_key TEXT PRIMARY KEY,
+                    applied_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+                    details TEXT NULL
+                )
+            """)
+
+            cur.execute("SELECT 1 FROM web_migrations WHERE migration_key=%s", ("database-usms-xlsx-2026-08-29",))
+            already = cur.fetchone() is not None
+            if not already:
+                seed_path = os.path.join(os.path.dirname(__file__), "seed_database_usms.json")
+                if os.path.exists(seed_path):
+                    with open(seed_path, "r", encoding="utf-8") as fh:
+                        seed = json.load(fh)
+                    for officer in seed.get("officers", []):
+                        cur.execute("""
+                            INSERT INTO officers (discord_id, badge_number, rank, full_name, csn, vacation_start, suspended, last_promotion, active)
+                            VALUES (%s,%s,%s,%s,%s,%s,%s,%s,TRUE)
+                            ON CONFLICT (discord_id) DO UPDATE SET
+                                badge_number=EXCLUDED.badge_number,
+                                rank=EXCLUDED.rank,
+                                full_name=EXCLUDED.full_name,
+                                csn=EXCLUDED.csn,
+                                vacation_start=EXCLUDED.vacation_start,
+                                suspended=EXCLUDED.suspended,
+                                last_promotion=EXCLUDED.last_promotion,
+                                active=TRUE,
+                                updated_at=NOW()
+                        """, (
+                            int(officer["discord_id"]), str(officer.get("badge") or ""), officer.get("rank") or "",
+                            officer.get("full_name") or "", officer.get("csn") or "", officer.get("vacation_start"),
+                            bool(officer.get("suspended")), officer.get("last_promotion"),
+                        ))
+                        for code in officer.get("trainings", []):
+                            cur.execute("""
+                                INSERT INTO officer_trainings (discord_id, training_code, completed)
+                                VALUES (%s,%s,TRUE)
+                                ON CONFLICT (discord_id, training_code) DO UPDATE SET completed=TRUE, updated_at=NOW()
+                            """, (int(officer["discord_id"]), str(code)))
+                        rec = officer.get("records") or {}
+                        cur.execute("""
+                            INSERT INTO officer_records (discord_id, plus_count, minus_count, praise_count, reprimand_count)
+                            VALUES (%s,%s,%s,%s,%s)
+                            ON CONFLICT (discord_id) DO UPDATE SET
+                                plus_count=EXCLUDED.plus_count, minus_count=EXCLUDED.minus_count,
+                                praise_count=EXCLUDED.praise_count, reprimand_count=EXCLUDED.reprimand_count,
+                                updated_at=NOW()
+                        """, (int(officer["discord_id"]), int(rec.get("plus",0)), int(rec.get("minus",0)), int(rec.get("praise",0)), int(rec.get("reprimand",0))))
+                    for row in seed.get("payroll", []):
+                        cur.execute("""
+                            INSERT INTO payroll_entries (
+                                discord_id, badge_snapshot, rank_snapshot, name_snapshot, period_key, period_label,
+                                hours, amount, received, is_history, imported_from
+                            ) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
+                            ON CONFLICT (period_key, badge_snapshot) DO NOTHING
+                        """, (
+                            row.get("discord_id"), str(row.get("badge") or ""), row.get("rank") or "", row.get("full_name") or "",
+                            row.get("period_key") or "", row.get("period_label") or "", float(row.get("hours") or 0),
+                            float(row.get("amount") or 0), bool(row.get("received")), bool(row.get("history")), seed.get("source")
+                        ))
+                    cur.execute("INSERT INTO web_migrations (migration_key, details) VALUES (%s,%s)", (
+                        "database-usms-xlsx-2026-08-29",
+                        f"Zaimportowano {len(seed.get('officers', []))} funkcjonariuszy i {len(seed.get('payroll', []))} pozycji wypłat z lokalnego snapshotu."
+                    ))
+                    print("✅ WEB: jednorazowy import DATABASE USMS.xlsx do PostgreSQL zakończony.", flush=True)
+                else:
+                    print("⚠️ WEB: brak seed_database_usms.json — pominięto import początkowy.", flush=True)
+        conn.commit()
+        print("✅ WEB: tabele kadrowe PostgreSQL gotowe.", flush=True)
+    finally:
+        conn.close()
 
 
 def ensure_web_profile_tables():
@@ -206,6 +418,11 @@ def _read_upload(file_storage, max_bytes: int):
 
 
 try:
+    ensure_roster_tables()
+except Exception as exc:
+    print(f"⚠️ WEB: nie udało się przygotować danych kadrowych PostgreSQL: {exc!r}", flush=True)
+
+try:
     ensure_web_profile_tables()
 except Exception as exc:
     print(f"⚠️ WEB: nie udało się przygotować tabel profili/dokumentów: {exc!r}", flush=True)
@@ -238,15 +455,6 @@ def admin_required(view):
     return wrapped
 
 
-def get_spreadsheet():
-    if not GOOGLE_TOKEN_JSON or not SHEET_ID:
-        raise RuntimeError("Brak GOOGLE_TOKEN_JSON lub SHEET_ID.")
-    token_info = json.loads(GOOGLE_TOKEN_JSON)
-    creds = Credentials.from_authorized_user_info(token_info)
-    client = gspread.authorize(creds)
-    return client.open_by_key(SHEET_ID)
-
-
 def checkbox_to_bool(value):
     return str(value or "").strip().casefold() in {"true", "prawda", "1", "yes", "tak"}
 
@@ -259,66 +467,76 @@ def normalize_badge(value):
 
 
 def load_officers():
-    spreadsheet = get_spreadsheet()
-    roster = spreadsheet.worksheet(ROSTER_SHEET_NAME).get(
-        "A:E", value_render_option="FORMATTED_VALUE"
-    )
-    trainings = spreadsheet.worksheet(TRAINING_SHEET_NAME).get(
-        "A:L", value_render_option="FORMATTED_VALUE"
-    )
-    akta = spreadsheet.worksheet(AKTA_SHEET_NAME).get(
-        "A:L", value_render_option="FORMATTED_VALUE"
-    )
+    """Ładuje listę funkcjonariuszy wyłącznie z PostgreSQL. Google Sheets nie jest używane."""
+    if not DATABASE_URL:
+        return []
 
-    training_names = ["FLETC", "RO", "KPP", "NL I", "NL II", "SV", "MEERY", "SEU", "ASU", "HAW"]
-    training_by_badge = {}
+    conn = pg_connect("usms-load-officers")
+    try:
+        with conn.cursor(cursor_factory=RealDictCursor) as cur:
+            # `users` jest tabelą bota. Gdy istnieje rekord użytkownika, jego aktualna
+            # odznaka decyduje o aktywności. Dzięki temu /zwolnij (badge=NULL) usuwa osobę
+            # z aktywnej listy bez kontaktu z Google Sheets.
+            cur.execute("""
+                SELECT
+                    o.discord_id,
+                    o.badge_number AS seeded_badge,
+                    o.rank AS seeded_rank,
+                    o.full_name,
+                    o.csn,
+                    o.active,
+                    u.user_id AS bot_user_id,
+                    CAST(u.badge_number AS TEXT) AS bot_badge
+                FROM officers o
+                LEFT JOIN users u ON u.user_id = o.discord_id
+                WHERE o.active = TRUE
+                  AND (u.user_id IS NULL OR (u.badge_number IS NOT NULL AND BTRIM(CAST(u.badge_number AS TEXT)) <> ''))
+                UNION ALL
+                SELECT
+                    u.user_id AS discord_id,
+                    NULL AS seeded_badge,
+                    '' AS seeded_rank,
+                    COALESCE(NULLIF(BTRIM(u.original_nick), ''), 'Discord ' || CAST(u.user_id AS TEXT)) AS full_name,
+                    '' AS csn,
+                    TRUE AS active,
+                    u.user_id AS bot_user_id,
+                    CAST(u.badge_number AS TEXT) AS bot_badge
+                FROM users u
+                LEFT JOIN officers o ON o.discord_id = u.user_id
+                WHERE o.discord_id IS NULL
+                  AND u.badge_number IS NOT NULL
+                  AND BTRIM(CAST(u.badge_number AS TEXT)) <> ''
+            """)
+            base_rows = [dict(r) for r in cur.fetchall()]
 
-    for row in trainings:
-        row = list(row) + [""] * (12 - len(row))
-        badge = normalize_badge(row[0])
-        if not badge or not badge.isdigit():
-            continue
-        training_by_badge[badge] = [
-            name for idx, name in enumerate(training_names, start=2)
-            if checkbox_to_bool(row[idx])
-        ]
+            cur.execute("SELECT discord_id, training_code FROM officer_trainings WHERE completed=TRUE ORDER BY training_code")
+            training_rows = cur.fetchall()
+            cur.execute("SELECT discord_id, plus_count, minus_count, praise_count, reprimand_count FROM officer_records")
+            record_rows = cur.fetchall()
+    finally:
+        conn.close()
 
-    akta_by_badge = {}
-    for row in akta:
-        row = list(row) + [""] * (12 - len(row))
-        badge = normalize_badge(row[0])
-        if not badge or not badge.isdigit():
-            continue
-        akta_by_badge[badge] = {
-            "plus": sum(checkbox_to_bool(v) for v in row[2:5]),
-            "minus": sum(checkbox_to_bool(v) for v in row[5:8]),
-            "praise": sum(checkbox_to_bool(v) for v in row[8:10]),
-            "reprimand": sum(checkbox_to_bool(v) for v in row[10:12]),
-        }
+    trainings = {}
+    for row in training_rows:
+        trainings.setdefault(int(row["discord_id"]), []).append(row["training_code"])
+    records = {int(r["discord_id"]): dict(r) for r in record_rows}
 
-    records = []
-    for row in roster:
-        row = list(row) + [""] * (5 - len(row))
-        rank = str(row[0] or "").strip()
-        badge = normalize_badge(row[1])
-        full_name = str(row[2] or "").strip()
-        csn = str(row[3] or "").strip()
-        discord_id = str(row[4] or "").strip()
-
-        if not full_name or not discord_id.isdigit():
-            continue
-
-        stats = akta_by_badge.get(
-            badge, {"plus": 0, "minus": 0, "praise": 0, "reprimand": 0}
-        )
-        records.append({
-            "rank": rank or "Brak",
+    result = []
+    for row in base_rows:
+        discord_id = int(row["discord_id"])
+        badge = normalize_badge(row.get("bot_badge") or row.get("seeded_badge"))
+        rec = records.get(discord_id, {})
+        result.append({
+            "rank": rank_for_badge(badge, row.get("seeded_rank") or "Brak"),
             "badge": badge or "Brak",
-            "full_name": full_name,
-            "csn": csn,
-            "discord_id": int(discord_id),
-            "trainings": training_by_badge.get(badge, []),
-            **stats,
+            "full_name": row.get("full_name") or f"Discord {discord_id}",
+            "csn": row.get("csn") or "",
+            "discord_id": discord_id,
+            "trainings": trainings.get(discord_id, []),
+            "plus": int(rec.get("plus_count") or 0),
+            "minus": int(rec.get("minus_count") or 0),
+            "praise": int(rec.get("praise_count") or 0),
+            "reprimand": int(rec.get("reprimand_count") or 0),
         })
 
     def key(item):
@@ -326,84 +544,14 @@ def load_officers():
             return int(item["badge"])
         except Exception:
             return 999999
-
-    return sorted(records, key=key)
+    return sorted(result, key=key)
 
 
 def load_exam_officers():
-    """
-    Lista funkcjonariuszy do administracji egzaminem.
-
-    Najpierw korzystamy z istniejącej listy funkcjonariuszy (Google Sheets),
-    ale panel egzaminu nie może przestać działać tylko dlatego, że API Sheets
-    chwilowo nie odpowiada. Wtedy pobieramy aktywne osoby z PostgreSQL z
-    tabeli `users`, której używa bot.
-    """
-    officers = []
-    try:
-        officers = load_officers()
-    except Exception as exc:
-        print(f"[EXAM] Nie udało się pobrać funkcjonariuszy z arkusza: {exc!r}", flush=True)
-
-    normalized = []
-    seen = set()
-    for officer in officers or []:
-        discord_id = officer.get("discord_id")
-        if discord_id is None:
-            continue
-        try:
-            discord_id = int(discord_id)
-        except (TypeError, ValueError):
-            continue
-        seen.add(discord_id)
-        normalized.append({
-            "discord_id": discord_id,
-            "badge": str(officer.get("badge") or "—"),
-            "full_name": str(officer.get("full_name") or officer.get("name") or f"Discord {discord_id}"),
-        })
-
-    # PostgreSQL jest awaryjnym źródłem oraz uzupełnia osoby, których nie ma
-    # w arkuszu, ale mają aktywny numer odznaki w bazie bota.
-    if DATABASE_URL:
-        conn = None
-        try:
-            conn = pg_connect("usms-exam-officers")
-            with conn.cursor(cursor_factory=RealDictCursor) as cur:
-                cur.execute("""
-                    SELECT user_id, badge_number, original_nick
-                    FROM users
-                    WHERE badge_number IS NOT NULL
-                      AND BTRIM(CAST(badge_number AS TEXT)) <> ''
-                    ORDER BY CASE
-                        WHEN CAST(badge_number AS TEXT) ~ '^[0-9]+$'
-                        THEN CAST(badge_number AS INTEGER)
-                        ELSE 999999
-                    END, user_id
-                """)
-                rows = cur.fetchall()
-            for row in rows:
-                discord_id = int(row["user_id"])
-                if discord_id in seen:
-                    continue
-                normalized.append({
-                    "discord_id": discord_id,
-                    "badge": str(row.get("badge_number") or "—"),
-                    "full_name": str(row.get("original_nick") or f"Discord {discord_id}"),
-                })
-                seen.add(discord_id)
-        except Exception as exc:
-            print(f"[EXAM] Nie udało się pobrać funkcjonariuszy z PostgreSQL: {exc!r}", flush=True)
-        finally:
-            if conn is not None:
-                conn.close()
-
-    def exam_key(item):
-        try:
-            return int(item["badge"])
-        except Exception:
-            return 999999
-
-    return sorted(normalized, key=exam_key)
+    return [
+        {"discord_id": int(o["discord_id"]), "badge": str(o["badge"]), "full_name": o["full_name"]}
+        for o in load_officers()
+    ]
 
 
 def _load_duty_rows():
