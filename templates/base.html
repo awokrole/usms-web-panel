@@ -25,6 +25,7 @@
             <a href="{{ url_for('officers') }}" class="{% if request.endpoint in ['officers','officer_detail'] %}active{% endif %}">♙ Funkcjonariusze</a>
             <a href="{{ url_for('trainings') }}" class="{% if request.endpoint == 'trainings' %}active{% endif %}">✚ Szkolenia</a>
             <a href="{{ url_for('akta') }}" class="{% if request.endpoint == 'akta' %}active{% endif %}">▤ Akta</a>
+            <a href="{{ url_for('kompendium') }}" class="{% if request.endpoint == 'kompendium' %}active{% endif %}">⌘ Kompendium</a>
 
             <span class="nav-label">SYSTEM</span>
             <a href="#">◉ Służba</a>

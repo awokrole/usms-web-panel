@@ -44,17 +44,18 @@
     </div>
 </div>
 
-{% if is_admin %}
+{% if can_upload_own_profile %}
 <section class="panel full admin-profile-tools">
     <div class="panel-title">
-        <h2>Administracja profilu</h2>
-        <span class="badge green-badge">Tylko administrator</span>
+        <h2>Dodaj materiały do swojego profilu</h2>
+        <span class="badge green-badge">Twój profil</span>
     </div>
 
     <div class="admin-tools-grid">
         <form class="upload-box" method="post" enctype="multipart/form-data" action="{{ url_for('upload_officer_photo', badge=officer.badge) }}">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
             <strong>Zdjęcie funkcjonariusza</strong>
+            <small>Możesz dodać lub zmienić zdjęcie tylko na swoim profilu. Usunąć może tylko administrator.</small>
             <small>PNG, JPG lub WEBP • maks. 5 MB</small>
 
             <label class="drop-zone" data-drop-zone>
@@ -68,7 +69,7 @@
             <button class="small-button" type="submit">{% if profile_meta.has_photo %}Zmień zdjęcie{% else %}Dodaj zdjęcie{% endif %}</button>
         </form>
 
-        {% if profile_meta.has_photo %}
+        {% if profile_meta.has_photo and is_admin %}
         <form method="post" action="{{ url_for('delete_officer_photo', badge=officer.badge) }}" class="delete-photo-form">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
             <button class="danger-button" type="submit">Usuń zdjęcie</button>
@@ -78,6 +79,7 @@
         <form class="upload-box" method="post" enctype="multipart/form-data" action="{{ url_for('upload_officer_document', badge=officer.badge) }}">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
             <strong>Dodaj dokument / screenshot</strong>
+            <small>Możesz dodać dokument tylko do swojego profilu. Usunąć może tylko administrator.</small>
             <small>PNG, JPG lub WEBP • maks. 10 MB</small>
             <input type="text" name="title" maxlength="120" placeholder="Np. Legitymacja, raport, zaświadczenie" required>
 
