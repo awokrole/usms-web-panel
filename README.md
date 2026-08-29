@@ -103,3 +103,21 @@ Zdjęcie funkcjonariusza oraz screenshot dokumentu można teraz:
 - albo kliknąć pole i wybrać plik normalnie.
 
 Po upuszczeniu pliku panel pokazuje jego nazwę przed wysłaniem.
+
+
+## v7 — poprawka drag & drop
+
+Naprawiono błąd, przez który przeciągnięte zdjęcie otwierało się w nowej karcie.
+Skrypt drag & drop jest teraz uruchamiany po załadowaniu strony i blokuje
+domyślne zachowanie przeglądarki dla upuszczanych plików.
+
+
+## v8 — wklejanie screenshotów przez Ctrl+V
+
+W formularzu zdjęcia profilowego oraz dokumentu można teraz:
+- przeciągnąć obraz,
+- kliknąć i wybrać plik,
+- wkleić screenshot bezpośrednio ze schowka przez `Ctrl+V`.
+
+Po `Win + Shift + S` wystarczy kliknąć odpowiednie pole uploadu i nacisnąć `Ctrl+V`.
+Panel automatycznie tworzy nazwę typu `screenshot-2026-...png`.
