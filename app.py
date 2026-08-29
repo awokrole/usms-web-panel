@@ -1020,11 +1020,14 @@ if __name__ == "__main__":
     app.run(host="0.0.0.0", port=int(os.environ.get("PORT", "8080")), debug=False)
 
 # ============================================================
-# V12 — EGZAMINY Z KOMPENDIUM
+# V13 — EGZAMINY OTWARTE Z WERYFIKACJĄ ODPOWIEDZI
 # ============================================================
 from datetime import timedelta
 from zoneinfo import ZoneInfo
 import random
+import re
+import unicodedata
+from difflib import SequenceMatcher
 
 EXAM_TZ = ZoneInfo("Europe/Warsaw")
 EXAM_QUESTION_COUNT = 20
@@ -1211,6 +1214,15 @@ def ensure_exam_tables():
                     UNIQUE(attempt_id, position)
                 )
             """)
+            # V13 — odpowiedzi otwarte i audyt oceniania. ALTER-y są idempotentne,
+            # dzięki czemu aktualizacja działa również na istniejącej bazie z v12.
+            cur.execute("ALTER TABLE exam_attempt_questions ADD COLUMN IF NOT EXISTS grading_status TEXT")
+            cur.execute("ALTER TABLE exam_attempt_questions ADD COLUMN IF NOT EXISTS grading_reason TEXT")
+            cur.execute("ALTER TABLE exam_attempt_questions ADD COLUMN IF NOT EXISTS similarity_score INTEGER")
+            cur.execute("ALTER TABLE exam_attempt_questions ADD COLUMN IF NOT EXISTS reviewed_by BIGINT")
+            cur.execute("ALTER TABLE exam_attempt_questions ADD COLUMN IF NOT EXISTS reviewed_at TIMESTAMPTZ")
+            cur.execute("ALTER TABLE exam_attempts ADD COLUMN IF NOT EXISTS pending_review INTEGER NOT NULL DEFAULT 0")
+
             for category, question, options, correct in EXAM_QUESTIONS:
                 cur.execute("""
                     INSERT INTO exam_questions(category, question, options, correct_answer)
@@ -1293,32 +1305,145 @@ def get_exam_access(discord_id):
         conn.close()
 
 
-def finalize_attempt(attempt_id, forced=False):
-    conn = pg_connect("usms-exam-finalize")
+def _normalize_exam_text(value):
+    """Normalizacja odpowiedzi bez zmiany znaczenia: wielkość liter, polskie znaki, interpunkcja."""
+    text = unicodedata.normalize("NFKD", (value or "").strip().lower())
+    text = "".join(ch for ch in text if not unicodedata.combining(ch))
+    text = text.replace("u.s.", "us").replace("u.s", "us")
+    text = re.sub(r"[^a-z0-9]+", " ", text)
+    return " ".join(text.split())
+
+
+_EXAM_STOPWORDS = {
+    "a", "albo", "ale", "by", "byc", "czy", "dla", "do", "i", "jak", "jest", "ma", "na",
+    "niego", "o", "od", "oraz", "po", "pod", "przed", "przez", "sie", "to", "w", "we",
+    "z", "za", "ze", "osoba", "osoby", "jednostka", "jednostki", "funkcjonariusz", "funkcjonariusza"
+}
+
+# Najczęściej spotykane równoważne skróty / sformułowania. Nie są to nowe odpowiedzi merytoryczne —
+# to tylko warianty zapisu odpowiedzi już istniejących w banku pytań.
+_EXAM_ALIASES = {
+    "pwc": ["primary watch commander"],
+    "sog": ["special operations group"],
+    "senior inspector": ["senior inspectors"],
+    "senior inspectors": ["senior inspector"],
+    "jednostke powietrzna": ["jednostka powietrzna", "u0", "eagle"],
+    "pasazer radio operator": ["pasazer", "radio operator", "ro", "pasazer ro"],
+    "swiatla i syrena": ["swiatla syrena", "sygnalizacja swietlna i dzwiekowa", "code 3"],
+    "procedury zatrzymania na komendzie": ["procedury zatrzymania", "status 10"],
+    "rozpoczynam poscig": ["rozpoczecie poscigu", "rozpoczynam poscig", "start poscigu"],
+    "poscig zakonczony powodzeniem": ["zakonczenie poscigu powodzeniem", "poscig udany"],
+    "poscig zakonczony porazka": ["zakonczenie poscigu porazka", "poscig nieudany"],
+    "wznowienie poscigu": ["wznowienie poscigu za", "wznawiam poscig"],
+    "potrzebne wsparcie": ["potrzebuje wsparcia", "prosba o wsparcie"],
+    "sprzedaz narkotykow": ["handel narkotykami", "sprzedawanie narkotykow"],
+    "ranny funkcjonariusz inne jednostki moga dojechac": ["ranny funkcjonariusz mozna dojechac", "ranny fp inne jednostki moga dojechac"],
+    "ranny funkcjonariusz inne jednostki nie moga dojechac": ["ranny funkcjonariusz nie mozna dojechac", "ranny fp inne jednostki nie moga dojechac"],
+    "ranny straznik wiezienny": ["ranny prison guard", "ranny straznik"],
+    "bezpieczenstwo federalnego sadownictwa i rozpraw": ["ochrona federalnego sadownictwa i rozpraw", "ochrona sadow i rozpraw", "bezpieczenstwo sadow i rozpraw"],
+    "ewakuacja sedziego i lawnikow do bezpiecznej strefy": ["ewakuacja sedziego i lawnikow", "ochrona i ewakuacja sedziego i lawnikow"],
+    "wylegitymowac sprawdzic w bazie i przeszukac": ["wylegitymowac sprawdzic baze przeszukac", "id baza przeszukanie"],
+}
+
+
+def _meaningful_tokens(text):
+    return [t for t in _normalize_exam_text(text).split() if t not in _EXAM_STOPWORDS and len(t) > 1]
+
+
+def grade_free_text(answer, expected):
+    """
+    Trzystopniowe ocenianie:
+    - correct: odpowiedź jednoznacznie poprawna,
+    - incorrect: odpowiedź jednoznacznie błędna/pusta,
+    - review: odpowiedź podobna, ale wymaga decyzji administratora/TD.
+    Dzięki temu system nie oblewa za literówkę, ale nie zgaduje przy odpowiedziach niejednoznacznych.
+    """
+    raw = (answer or "").strip()
+    a = _normalize_exam_text(raw)
+    e = _normalize_exam_text(expected)
+    if not a:
+        return "incorrect", False, 0, "Brak odpowiedzi"
+
+    accepted = {e, *(_EXAM_ALIASES.get(e, []))}
+    accepted = {_normalize_exam_text(x) for x in accepted if x}
+    if a in accepted:
+        return "correct", True, 100, "Zgodna z zaakceptowanym wariantem"
+
+    # Krótkie odpowiedzi (PWC/SOG/Tak/Nie/U1/12 itp.) — akceptujemy je także w pełnym zdaniu,
+    # ale unikamy automatycznej decyzji, gdy pojawia się jednocześnie sprzeczne Tak/Nie.
+    if e in {"tak", "nie"}:
+        toks = set(a.split())
+        if e in toks and not ({"tak", "nie"} - {e}) & toks:
+            return "correct", True, 100, "Jednoznaczna odpowiedź Tak/Nie"
+        return "incorrect", False, 0, "Odpowiedź przeczy oczekiwanej odpowiedzi Tak/Nie"
+
+    e_tokens = _meaningful_tokens(e)
+    a_tokens = set(_meaningful_tokens(a))
+    if len(e_tokens) == 1 and e_tokens[0] in a_tokens:
+        return "correct", True, 100, "Kluczowa odpowiedź występuje w zdaniu"
+
+    # Odpowiedzi liczbowe: wystarczy właściwa wartość, o ile użytkownik nie podał innej konkurencyjnej liczby.
+    expected_numbers = re.findall(r"\d+", e)
+    answer_numbers = re.findall(r"\d+", a)
+    if expected_numbers and set(expected_numbers).issubset(set(answer_numbers)):
+        unexpected = set(answer_numbers) - set(expected_numbers)
+        if not unexpected:
+            return "correct", True, 100, "Zawiera prawidłową wartość liczbową"
+
+    # Porównujemy z najlepszym wariantem. SequenceMatcher daje miarę podobieństwa 0..1.
+    best_ratio = max(SequenceMatcher(None, a, x, autojunk=False).ratio() for x in accepted)
+    similarity = int(round(best_ratio * 100))
+
+    unique_expected = set(e_tokens)
+    coverage = (len(unique_expected & a_tokens) / len(unique_expected)) if unique_expected else 0.0
+
+    # Mocna zgodność tekstu albo prawie wszystkie istotne elementy — zalicz automatycznie.
+    if best_ratio >= 0.84:
+        return "correct", True, similarity, "Wysokie podobieństwo treści"
+    if len(unique_expected) >= 2 and coverage >= 0.85:
+        return "correct", True, max(similarity, int(coverage * 100)), "Zawiera wymagane elementy odpowiedzi"
+
+    # Jednoznacznie daleka odpowiedź — odrzuć. Graniczne przypadki idą do ręcznej weryfikacji.
+    if best_ratio < 0.34 and coverage < 0.34:
+        return "incorrect", False, similarity, "Brak wymaganych elementów odpowiedzi"
+    return "review", None, similarity, "Odpowiedź niejednoznaczna — wymaga ręcznej weryfikacji"
+
+
+def recalculate_attempt(attempt_id):
+    conn = pg_connect("usms-exam-recalculate")
     try:
         with conn.cursor(cursor_factory=RealDictCursor) as cur:
             cur.execute("SELECT * FROM exam_attempts WHERE id=%s FOR UPDATE", (attempt_id,))
             attempt = cur.fetchone()
-            if not attempt or attempt["status"] != "in_progress":
-                conn.rollback()
-                return dict(attempt) if attempt else None
-            cur.execute("SELECT COUNT(*) AS total, COUNT(*) FILTER (WHERE is_correct=TRUE) AS score FROM exam_attempt_questions WHERE attempt_id=%s", (attempt_id,))
-            result = cur.fetchone()
-            total = int(result["total"] or 0)
-            score = int(result["score"] or 0)
+            if not attempt:
+                return
+            cur.execute("""
+                SELECT COUNT(*) AS total,
+                       COUNT(*) FILTER (WHERE is_correct=TRUE) AS score,
+                       COUNT(*) FILTER (WHERE grading_status='review') AS pending
+                FROM exam_attempt_questions WHERE attempt_id=%s
+            """, (attempt_id,))
+            stats = cur.fetchone()
+            total = int(stats["total"] or 0); score = int(stats["score"] or 0); pending = int(stats["pending"] or 0)
             percent = round((score / total) * 100) if total else 0
             cur.execute("SELECT pass_percent FROM exam_sessions WHERE id=%s", (attempt["session_id"],))
-            pass_percent = int(cur.fetchone()["pass_percent"])
+            pass_percent = int(cur.fetchone()["pass_percent"] or EXAM_PASS_PERCENT)
+            status = "pending_review" if pending else "completed"
+            passed = None if pending else (percent >= pass_percent)
             cur.execute("""
                 UPDATE exam_attempts
-                SET submitted_at=NOW(), score=%s, total=%s, percent=%s, passed=%s, status='completed'
-                WHERE id=%s RETURNING *
-            """, (score, total, percent, percent >= pass_percent, attempt_id))
-            out = dict(cur.fetchone())
+                SET score=%s,total=%s,percent=%s,passed=%s,status=%s,pending_review=%s,
+                    submitted_at=COALESCE(submitted_at,NOW())
+                WHERE id=%s
+            """, (score,total,percent,passed,status,pending,attempt_id))
         conn.commit()
-        return out
     finally:
         conn.close()
+
+
+def finalize_attempt(attempt_id, forced=False):
+    # Ocenianie jest wykonywane przy zapisie odpowiedzi. Ta funkcja tylko podsumowuje próbę.
+    recalculate_attempt(attempt_id)
 
 
 @app.route("/egzamin")
@@ -1411,7 +1536,7 @@ def exam_take(attempt_id):
             if exam_now() >= attempt["deadline_at"]:
                 finalize_attempt(attempt_id, forced=True)
                 return redirect(url_for("exam_result", attempt_id=attempt_id))
-            cur.execute("SELECT id, position, question_text, options, selected_answer FROM exam_attempt_questions WHERE attempt_id=%s ORDER BY position", (attempt_id,))
+            cur.execute("SELECT id, position, question_text, selected_answer FROM exam_attempt_questions WHERE attempt_id=%s ORDER BY position", (attempt_id,))
             questions = [dict(r) for r in cur.fetchall()]
     finally:
         conn.close()
@@ -1431,8 +1556,14 @@ def exam_submit(attempt_id):
             if not attempt: abort(404)
             cur.execute("SELECT id, correct_answer FROM exam_attempt_questions WHERE attempt_id=%s", (attempt_id,))
             for q in cur.fetchall():
-                answer = request.form.get(f"q_{q['id']}")
-                cur.execute("UPDATE exam_attempt_questions SET selected_answer=%s, is_correct=%s WHERE id=%s", (answer, bool(answer and answer == q["correct_answer"]), q["id"]))
+                answer = (request.form.get(f"q_{q['id']}") or "").strip()[:1200]
+                grading_status, is_correct, similarity, reason = grade_free_text(answer, q["correct_answer"])
+                cur.execute("""
+                    UPDATE exam_attempt_questions
+                    SET selected_answer=%s, is_correct=%s, grading_status=%s, grading_reason=%s,
+                        similarity_score=%s, reviewed_by=NULL, reviewed_at=NULL
+                    WHERE id=%s
+                """, (answer, is_correct, grading_status, reason, similarity, q["id"]))
         conn.commit()
     finally:
         conn.close()
@@ -1452,9 +1583,15 @@ def exam_result(attempt_id):
             if not attempt: abort(404)
             if attempt["status"] == "in_progress":
                 return redirect(url_for("exam_take", attempt_id=attempt_id))
+            cur.execute("""
+                SELECT position, question_text, selected_answer, correct_answer, is_correct,
+                       grading_status, grading_reason, similarity_score
+                FROM exam_attempt_questions WHERE attempt_id=%s ORDER BY position
+            """, (attempt_id,))
+            questions = [dict(r) for r in cur.fetchall()]
     finally:
         conn.close()
-    return render_template("exam_result.html", attempt=dict(attempt))
+    return render_template("exam_result.html", attempt=dict(attempt), questions=questions)
 
 
 @app.route("/egzamin/admin")
@@ -1534,6 +1671,56 @@ def exam_admin_session(session_id):
     try: officers = load_officers()
     except Exception: officers = []
     return render_template("exam_admin_session.html", exam_session=dict(exam_session), attempts=attempts, overrides=overrides, officers=officers)
+
+
+@app.route("/egzamin/admin/attempt/<int:attempt_id>")
+@admin_required
+def exam_admin_attempt(attempt_id):
+    conn = pg_connect("usms-exam-admin-attempt")
+    try:
+        with conn.cursor(cursor_factory=RealDictCursor) as cur:
+            cur.execute("""
+                SELECT a.*, s.title, s.pass_percent FROM exam_attempts a
+                JOIN exam_sessions s ON s.id=a.session_id WHERE a.id=%s
+            """, (attempt_id,))
+            attempt = cur.fetchone()
+            if not attempt: abort(404)
+            cur.execute("""
+                SELECT id, position, question_text, selected_answer, correct_answer, is_correct,
+                       grading_status, grading_reason, similarity_score, reviewed_by, reviewed_at
+                FROM exam_attempt_questions WHERE attempt_id=%s ORDER BY position
+            """, (attempt_id,))
+            questions = [dict(r) for r in cur.fetchall()]
+    finally:
+        conn.close()
+    return render_template("exam_admin_attempt.html", attempt=dict(attempt), questions=questions)
+
+
+@app.route("/egzamin/admin/attempt/<int:attempt_id>/review/<int:answer_id>", methods=["POST"])
+@admin_required
+def exam_admin_review_answer(attempt_id, answer_id):
+    validate_csrf()
+    decision = request.form.get("decision")
+    if decision not in {"correct", "incorrect"}:
+        abort(400)
+    admin_id = int(session["discord_user"]["id"])
+    conn = pg_connect("usms-exam-admin-review")
+    try:
+        with conn.cursor() as cur:
+            cur.execute("""
+                UPDATE exam_attempt_questions
+                SET is_correct=%s, grading_status=%s, grading_reason=%s,
+                    reviewed_by=%s, reviewed_at=NOW()
+                WHERE id=%s AND attempt_id=%s
+            """, (decision == "correct", "manual_correct" if decision == "correct" else "manual_incorrect",
+                  "Zweryfikowano ręcznie przez administratora", admin_id, answer_id, attempt_id))
+            if cur.rowcount != 1:
+                abort(404)
+        conn.commit()
+    finally:
+        conn.close()
+    recalculate_attempt(attempt_id)
+    return redirect(url_for("exam_admin_attempt", attempt_id=attempt_id))
 
 
 @app.route("/egzamin/admin/session/<int:session_id>/override", methods=["POST"])
