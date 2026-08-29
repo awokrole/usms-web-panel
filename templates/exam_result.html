@@ -22,7 +22,7 @@
 
 <section class="panel answer-review-section">
   <h2>Twoje odpowiedzi</h2>
-  <p class="muted">Możesz sprawdzić, które odpowiedzi zostały uznane za błędne. Odpowiedzi niejednoznaczne trafiają do ręcznej weryfikacji.</p>
+  <p class="muted">Możesz sprawdzić swój zaznaczony zestaw oraz poprawny zestaw odpowiedzi.</p>
   <div class="answer-review-list">
     {% for q in questions %}
       <article class="answer-review-card {% if q.grading_status == 'review' %}review{% elif q.is_correct %}correct{% else %}incorrect{% endif %}">
@@ -34,8 +34,8 @@
         </div>
         <h3>{{ q.question_text }}</h3>
         <div class="answer-line"><span>Twoja odpowiedź:</span><b>{{ q.selected_answer or 'Brak odpowiedzi' }}</b></div>
-        {% if q.grading_status != 'review' and not q.is_correct %}
-          <div class="answer-line expected"><span>Poprawna odpowiedź:</span><b>{{ q.correct_answer }}</b></div>
+        {% if not q.is_correct %}
+          <div class="answer-line expected"><span>Poprawny zestaw:</span><b>{% if q.correct_answers %}{{ q.correct_answers|join(' • ') }}{% else %}Żadna z powyższych odpowiedzi{% endif %}</b></div>
         {% endif %}
         {% if q.grading_status == 'review' %}<p class="muted small">Ta odpowiedź nie została automatycznie odrzucona — administrator musi ją ocenić ręcznie.</p>{% endif %}
       </article>

@@ -18,7 +18,7 @@
 
 <section class="panel">
   <h2>Odpowiedzi funkcjonariusza</h2>
-  <p class="muted">Widzisz dokładnie, co funkcjonariusz wpisał, jaka była odpowiedź wzorcowa i jak system ją ocenił. Odpowiedzi graniczne możesz zatwierdzić albo odrzucić ręcznie.</p>
+  <p class="muted">Widzisz dokładnie, jaki zestaw odpowiedzi zaznaczył funkcjonariusz i jaki zestaw był poprawny.</p>
   <div class="answer-review-list admin-review-list">
   {% for q in questions %}
     <article class="answer-review-card {% if q.grading_status == 'review' %}review{% elif q.is_correct %}correct{% else %}incorrect{% endif %}">
@@ -29,8 +29,8 @@
         {% else %}<span class="pill bad">Błędna</span>{% endif %}
       </div>
       <h3>{{ q.question_text }}</h3>
-      <div class="answer-line"><span>Wpisał:</span><b>{{ q.selected_answer or 'Brak odpowiedzi' }}</b></div>
-      <div class="answer-line expected"><span>Wzorzec:</span><b>{{ q.correct_answer }}</b></div>
+      <div class="answer-line"><span>Zaznaczył:</span><b>{{ q.selected_answer or 'Brak odpowiedzi' }}</b></div>
+      <div class="answer-line expected"><span>Poprawny zestaw:</span><b>{% if q.correct_answers %}{{ q.correct_answers|join(' • ') }}{% else %}Żadna z powyższych odpowiedzi{% endif %}</b></div>
       <div class="grading-meta"><span>{{ q.grading_reason or 'Brak informacji o ocenie' }}</span>{% if q.similarity_score is not none %}<span>Zgodność: {{ q.similarity_score }}%</span>{% endif %}</div>
       {% if q.grading_status == 'review' %}
       <form class="manual-review-actions" method="post" action="{{ url_for('exam_admin_review_answer', attempt_id=attempt.id, answer_id=q.id) }}">
