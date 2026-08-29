@@ -1,3 +1,0 @@
-{% extends "base.html" %}
-{% block title %}Wynik egzaminu — USMS Panel{% endblock %}
-{% block content %}<div class="result-wrap panel"><div class="result-icon">{% if attempt.passed %}✓{% else %}×{% endif %}</div><div class="exam-status {% if attempt.passed %}open{% else %}closed{% endif %}">{% if attempt.passed %}ZALICZONY{% else %}NIEZALICZONY{% endif %}</div><h1>{{ attempt.title }}</h1><div class="score-big">{{ attempt.score }}/{{ attempt.total }}</div><div class="score-percent">{{ attempt.percent }}%</div><p>Próg zaliczenia: {{ attempt.pass_percent }}%</p><a class="btn primary" href="{{ url_for('exam_home') }}">Wróć do egzaminów</a></div>{% endblock %}
