@@ -187,3 +187,9 @@ Zmienne `GOOGLE_TOKEN_JSON`, `SHEET_ID`, `ROSTER_SHEET_NAME`, `TRAINING_SHEET_NA
 - szkolenia są w `officer_trainings`, a plusy/minusy/pochwały/nagany w `officer_records`.
 - dodano audyt: `officer_history`, `training_history`, `record_history`.
 - Google Sheets nie jest używane przez panel WWW.
+
+## v21 — aktywni funkcjonariusze
+- Lista WWW uznaje `officers.active` za jedyne źródło prawdy o zatrudnieniu.
+- Brak/pusta odznaka w technicznej tabeli `users` nie ukrywa już aktywnego funkcjonariusza.
+- `/add` i `/zwolnij` w bocie v92 nadal odpowiednio aktywują/dezaktywują rekord `officers`.
+- Google Sheets pozostaje całkowicie niezależny od WWW.

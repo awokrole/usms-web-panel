@@ -474,9 +474,9 @@ def load_officers():
     conn = pg_connect("usms-load-officers")
     try:
         with conn.cursor(cursor_factory=RealDictCursor) as cur:
-            # `users` jest tabelą bota. Gdy istnieje rekord użytkownika, jego aktualna
-            # odznaka decyduje o aktywności. Dzięki temu /zwolnij (badge=NULL) usuwa osobę
-            # z aktywnej listy bez kontaktu z Google Sheets.
+            # `officers.active` jest jedynym źródłem prawdy o zatrudnieniu dla WWW.
+            # Tabela `users` przechowuje stan służby bota i może dostarczyć aktualną
+            # odznakę, ale brak odznaki w `users` NIE ukrywa aktywnego funkcjonariusza.
             cur.execute("""
                 SELECT
                     o.discord_id,
@@ -490,22 +490,6 @@ def load_officers():
                 FROM officers o
                 LEFT JOIN users u ON u.user_id = o.discord_id
                 WHERE o.active = TRUE
-                  AND (u.user_id IS NULL OR (u.badge_number IS NOT NULL AND BTRIM(CAST(u.badge_number AS TEXT)) <> ''))
-                UNION ALL
-                SELECT
-                    u.user_id AS discord_id,
-                    NULL AS seeded_badge,
-                    '' AS seeded_rank,
-                    COALESCE(NULLIF(BTRIM(u.original_nick), ''), 'Discord ' || CAST(u.user_id AS TEXT)) AS full_name,
-                    '' AS csn,
-                    TRUE AS active,
-                    u.user_id AS bot_user_id,
-                    CAST(u.badge_number AS TEXT) AS bot_badge
-                FROM users u
-                LEFT JOIN officers o ON o.discord_id = u.user_id
-                WHERE o.discord_id IS NULL
-                  AND u.badge_number IS NOT NULL
-                  AND BTRIM(CAST(u.badge_number AS TEXT)) <> ''
             """)
             base_rows = [dict(r) for r in cur.fetchall()]
 
