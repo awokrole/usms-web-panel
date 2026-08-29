@@ -1,3 +1,45 @@
 {% extends "base.html" %}
 {% block title %}Wynik egzaminu — USMS Panel{% endblock %}
-{% block content %}<div class="result-wrap panel"><div class="result-icon">{% if attempt.passed %}✓{% else %}×{% endif %}</div><div class="exam-status {% if attempt.passed %}open{% else %}closed{% endif %}">{% if attempt.passed %}ZALICZONY{% else %}NIEZALICZONY{% endif %}</div><h1>{{ attempt.title }}</h1><div class="score-big">{{ attempt.score }}/{{ attempt.total }}</div><div class="score-percent">{{ attempt.percent }}%</div><p>Próg zaliczenia: {{ attempt.pass_percent }}%</p><a class="btn primary" href="{{ url_for('exam_home') }}">Wróć do egzaminów</a></div>{% endblock %}
+{% block content %}
+<div class="result-wrap panel">
+  {% if attempt.status == 'pending_review' %}
+    <div class="result-icon pending">?</div>
+    <div class="exam-status pending">DO WERYFIKACJI</div>
+    <h1>{{ attempt.title }}</h1>
+    <div class="score-big">{{ attempt.score }}/{{ attempt.total }}</div>
+    <div class="score-percent">{{ attempt.percent }}%</div>
+    <p>{{ attempt.pending_review }} odpowiedzi wymaga ręcznej weryfikacji. Wynik końcowy może się zmienić.</p>
+  {% else %}
+    <div class="result-icon">{% if attempt.passed %}✓{% else %}×{% endif %}</div>
+    <div class="exam-status {% if attempt.passed %}open{% else %}closed{% endif %}">{% if attempt.passed %}ZALICZONY{% else %}NIEZALICZONY{% endif %}</div>
+    <h1>{{ attempt.title }}</h1>
+    <div class="score-big">{{ attempt.score }}/{{ attempt.total }}</div>
+    <div class="score-percent">{{ attempt.percent }}%</div>
+    <p>Próg zaliczenia: {{ attempt.pass_percent }}%</p>
+  {% endif %}
+  <a class="btn primary" href="{{ url_for('exam_home') }}">Wróć do egzaminów</a>
+</div>
+
+<section class="panel answer-review-section">
+  <h2>Twoje odpowiedzi</h2>
+  <p class="muted">Możesz sprawdzić, które odpowiedzi zostały uznane za błędne. Odpowiedzi niejednoznaczne trafiają do ręcznej weryfikacji.</p>
+  <div class="answer-review-list">
+    {% for q in questions %}
+      <article class="answer-review-card {% if q.grading_status == 'review' %}review{% elif q.is_correct %}correct{% else %}incorrect{% endif %}">
+        <div class="answer-review-head">
+          <strong>Pytanie {{ q.position }}</strong>
+          {% if q.grading_status == 'review' %}<span class="pill warn">Do weryfikacji</span>
+          {% elif q.is_correct %}<span class="pill ok">Poprawna</span>
+          {% else %}<span class="pill bad">Błędna</span>{% endif %}
+        </div>
+        <h3>{{ q.question_text }}</h3>
+        <div class="answer-line"><span>Twoja odpowiedź:</span><b>{{ q.selected_answer or 'Brak odpowiedzi' }}</b></div>
+        {% if q.grading_status != 'review' and not q.is_correct %}
+          <div class="answer-line expected"><span>Poprawna odpowiedź:</span><b>{{ q.correct_answer }}</b></div>
+        {% endif %}
+        {% if q.grading_status == 'review' %}<p class="muted small">Ta odpowiedź nie została automatycznie odrzucona — administrator musi ją ocenić ręcznie.</p>{% endif %}
+      </article>
+    {% endfor %}
+  </div>
+</section>
+{% endblock %}
