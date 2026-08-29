@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}Logowanie — USMS Panel{% endblock %}
+{% block public_content %}
+<div class="login-page">
+    <div class="login-glow"></div>
+    <div class="login-card">
+        <div class="big-seal">★</div>
+        <p class="eyebrow">UNITED STATES MARSHALS SERVICE</p>
+        <h1>USMS Panel</h1>
+        <p class="muted">Wewnętrzny panel funkcjonariuszy. Dostęp wyłącznie dla członków serwera USMS.</p>
+        <a class="discord-button" href="{{ url_for('discord_login') }}">
+            <span class="discord-logo">☁</span>
+            Zaloguj przez Discord
+        </a>
+        <p class="login-note">Nie tworzymy osobnego hasła. Tożsamość jest potwierdzana przez Discord OAuth2.</p>
+    </div>
+</div>
+{% endblock %}
