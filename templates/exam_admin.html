@@ -1,5 +1,40 @@
 {% extends "base.html" %}{% block title %}Egzaminy — Admin{% endblock %}{% block content %}
 <div class="page-head"><div><h1>Egzaminy — Panel administratora</h1><p>Otwieraj sesje tylko wtedy, kiedy funkcjonariusze mają pisać egzamin.</p></div></div>
-<div class="admin-exam-grid"><section class="panel"><h2>Nowa sesja</h2><form method="post" action="{{ url_for('exam_admin_create') }}" class="form-stack"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><label>Nazwa<input name="title" value="Egzamin z Kompendium" required></label><div class="rule-box"><strong>Stałe zasady</strong><span>20 pytań • 20 minut • próg 80%</span></div><button class="btn primary" name="mode" value="now">Otwórz teraz na 30 minut</button><hr><label>Otwarcie<input type="datetime-local" name="opens_at"></label><label>Zamknięcie możliwości rozpoczęcia<input type="datetime-local" name="closes_at"></label><button class="btn" name="mode" value="schedule">Zaplanuj sesję</button></form></section>
-<section class="panel"><h2>Sesje egzaminacyjne</h2>{% if sessions %}<div class="session-list">{% for s in sessions %}<a class="session-row" href="{{ url_for('exam_admin_session', session_id=s.id) }}"><div><strong>{{ s.title }}</strong><small>#{{ s.id }} • prób: {{ s.attempts }} • zaliczonych: {{ s.passed_count }}</small></div><span>Otwórz →</span></a>{% endfor %}</div>{% else %}<p class="muted">Nie utworzono jeszcze żadnej sesji.</p>{% endif %}</section></div>
+<div class="admin-exam-grid">
+  <section class="panel">
+    <h2>Nowa sesja</h2>
+    <form method="post" action="{{ url_for('exam_admin_create') }}" class="form-stack">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <label>Nazwa<input name="title" value="Egzamin z Kompendium" required></label>
+      <div class="rule-box"><strong>Stałe zasady</strong><span>20 pytań • 10 minut • próg 80%</span></div>
+      <button class="btn primary" name="mode" value="now">Otwórz teraz na 30 minut</button>
+      <hr>
+      <label>Otwarcie<input type="datetime-local" name="opens_at"></label>
+      <label>Zamknięcie możliwości rozpoczęcia<input type="datetime-local" name="closes_at"></label>
+      <button class="btn" name="mode" value="schedule">Zaplanuj sesję</button>
+    </form>
+  </section>
+  <section class="panel">
+    <h2>Sesje egzaminacyjne</h2>
+    <p class="muted exam-delete-hint">Zakończone sesje możesz trwale usunąć. Usunięcie sesji kasuje również jej wyniki, odpowiedzi i indywidualne terminy.</p>
+    {% if sessions %}
+      <div class="session-list">
+        {% for s in sessions %}
+          <div class="session-row session-row-admin">
+            <a class="session-row-main" href="{{ url_for('exam_admin_session', session_id=s.id) }}">
+              <div><strong>{{ s.title }}</strong><small>#{{ s.id }} • prób: {{ s.attempts }} • zaliczonych: {{ s.passed_count }}</small></div>
+              <span>Otwórz →</span>
+            </a>
+            {% if s.closes_at and s.closes_at <= now_local.astimezone(s.closes_at.tzinfo) %}
+              <form method="post" action="{{ url_for('exam_admin_delete', session_id=s.id) }}" class="session-delete-form">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button class="btn danger smallbtn" type="submit" onclick="return confirm('Trwale usunąć sesję „{{ s.title|e }}”?\n\nUsunięte zostaną także wszystkie wyniki, odpowiedzi i indywidualne terminy tej sesji. Tej operacji nie można cofnąć.')">Usuń</button>
+              </form>
+            {% endif %}
+          </div>
+        {% endfor %}
+      </div>
+    {% else %}<p class="muted">Nie utworzono jeszcze żadnej sesji.</p>{% endif %}
+  </section>
+</div>
 {% endblock %}
