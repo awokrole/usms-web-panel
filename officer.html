@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% block title %}Dashboard — USMS Panel{% endblock %}
+{% block content %}
+<div class="page-head">
+    <div>
+        <h1>Dashboard</h1>
+        <p>Witaj z powrotem, {{ current_user.username }}.</p>
+    </div>
+    <div class="date-chip">Panel danych USMS</div>
+</div>
+
+{% if sheet_error %}
+<div class="alert error">Nie udało się pobrać Google Sheets: {{ sheet_error }}</div>
+{% endif %}
+
+<div class="stats-grid">
+    <div class="stat-card blue"><span>FUNKCJONARIUSZE</span><strong>{{ officers|length }}</strong><small>Łącznie w bazie</small></div>
+    <div class="stat-card green"><span>NA SŁUŻBIE</span><strong>{{ active|length }}</strong><small>Aktualnie aktywni</small></div>
+    <div class="stat-card yellow"><span>NA URLOPIE</span><strong>{{ vacation_count }}</strong><small>Aktywne urlopy</small></div>
+    <div class="stat-card purple"><span>ZAWIESZENI</span><strong>{{ suspended_count }}</strong><small>Aktywne zawieszenia</small></div>
+    <div class="stat-card cyan"><span>ŁĄCZNE GODZINY</span><strong>{{ total_hours }}h</strong><small>Aktualny stan bazy</small></div>
+</div>
+
+<div class="dashboard-grid">
+    <section class="panel">
+        <div class="panel-title">
+            <h2>Aktualnie na służbie</h2>
+            <a href="{{ url_for('officers') }}">Zobacz wszystkich →</a>
+        </div>
+        {% if active %}
+        <div class="table-wrap">
+            <table>
+                <thead><tr><th>Funkcjonariusz</th><th>Stopień</th><th>Czas</th></tr></thead>
+                <tbody>
+                {% for officer in active %}
+                <tr>
+                    <td><span class="online-dot"></span><a href="{{ url_for('officer_detail', badge=officer.badge) }}"><strong>{{ officer.full_name }}</strong></a><small>#{{ officer.badge }}</small></td>
+                    <td>{{ officer.rank }}</td>
+                    <td class="time">{{ officer.current_shift_text }}</td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="empty">Aktualnie nikt nie jest na służbie.</div>
+        {% endif %}
+    </section>
+
+    <section class="panel">
+        <div class="panel-title"><h2>Szybki podgląd</h2></div>
+        <div class="quick-list">
+            <a href="{{ url_for('officers') }}"><span>♙</span><div><strong>Baza funkcjonariuszy</strong><small>Odznaki, stopnie i status</small></div><b>→</b></a>
+            <a href="{{ url_for('trainings') }}"><span>✚</span><div><strong>Szkolenia</strong><small>FLETC, RO, KPP, NL i pozostałe</small></div><b>→</b></a>
+            <a href="{{ url_for('akta') }}"><span>▤</span><div><strong>Akta</strong><small>Plusy, minusy, pochwały i nagany</small></div><b>→</b></a>
+        </div>
+    </section>
+</div>
+
+<section class="panel full">
+    <div class="panel-title">
+        <h2>Ostatni podgląd funkcjonariuszy</h2>
+        <a href="{{ url_for('officers') }}">Pełna baza →</a>
+    </div>
+    <div class="officer-cards">
+        {% for officer in officers[:8] %}
+        <a class="officer-card" href="{{ url_for('officer_detail', badge=officer.badge) }}">
+            <div class="avatar-fallback">{{ officer.full_name[:1] }}</div>
+            <div><strong>{{ officer.full_name }}</strong><span>#{{ officer.badge }}</span><small>{{ officer.rank }}</small></div>
+        </a>
+        {% endfor %}
+    </div>
+</section>
+{% endblock %}
