@@ -123,3 +123,11 @@ nav{display:flex;flex-direction:column;gap:5px;overflow:auto}.nav-label{font-siz
 .drop-zone.has-file .drop-filename{
     color:#65d28f;
 }
+
+
+/* v8 — clipboard paste */
+.drop-zone:focus{
+    outline:none;
+    border-color:#5aa7ff;
+    box-shadow:0 0 0 2px rgba(90,167,255,.14);
+}
