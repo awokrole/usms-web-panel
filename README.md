@@ -68,3 +68,10 @@ Jeśli zmienna jest pusta, nikt nie otrzyma uprawnień administratora strony.
 Na Railway ustaw `DATABASE_URL=${{database.DATABASE_URL}}`.
 Panel czyta tabelę `users` z tej samej bazy PostgreSQL co bot.
 `DB_PATH` nie jest potrzebne na produkcyjnym serwisie WWW.
+
+
+## v3 — czas bieżącej służby
+
+Sekcja „Aktualnie na służbie” pokazuje teraz wyłącznie czas od ostatniego
+START SŁUŻBY. Karta „Łączne godziny” nadal sumuje zapisany czas historyczny
+oraz trwającą aktualnie służbę.

@@ -236,13 +236,15 @@ def load_duty_state():
     now = datetime.now(timezone.utc)
 
     for row in rows:
-        total = int(row["total_seconds"] or 0)
+        # total_saved = wyłącznie zakończone służby zapisane przez bota.
+        total_saved = int(row["total_seconds"] or 0)
         start_time = row["start_time"]
         pause_start = row["pause_start"]
         paused = int(row["paused_seconds"] or 0)
 
         active = bool(start_time)
         on_pause = bool(start_time and pause_start)
+        current_shift_seconds = 0
 
         if start_time:
             try:
@@ -252,19 +254,28 @@ def load_duty_state():
 
                 end = now
 
-                # Gdy trwa przerwa, czas służby zatrzymuje się w pause_start.
+                # Jeśli trwa przerwa, bieżąca służba zatrzymuje się w momencie
+                # rozpoczęcia przerwy.
                 if pause_start:
                     p = datetime.fromisoformat(str(pause_start))
                     if p.tzinfo is None:
                         p = p.replace(tzinfo=timezone.utc)
                     end = p
 
-                total += max(0, int((end - start).total_seconds()) - paused)
+                current_shift_seconds = max(
+                    0,
+                    int((end - start).total_seconds()) - paused,
+                )
             except Exception:
-                pass
+                current_shift_seconds = 0
+
+        # Łączny czas = zakończone służby + aktualnie trwająca.
+        total_with_current = total_saved + current_shift_seconds
 
         result[int(row["user_id"])] = {
-            "total_seconds": total,
+            "total_seconds": total_with_current,
+            "saved_total_seconds": total_saved,
+            "current_shift_seconds": current_shift_seconds,
             "active": active,
             "on_pause": on_pause,
             "suspension_until": row["suspension_until"],
@@ -438,7 +449,17 @@ def dashboard():
     for officer in officers:
         state = duty.get(officer["discord_id"], {})
         officer["duty"] = state
+
+        # time_text pozostaje łącznym czasem i jest używany w pozostałych
+        # widokach panelu.
         officer["time_text"] = format_seconds(state.get("total_seconds", 0))
+
+        # Na dashboardzie w sekcji "Aktualnie na służbie" pokazujemy WYŁĄCZNIE
+        # czas bieżącej sesji od ostatniego START SŁUŻBY.
+        officer["current_shift_text"] = format_seconds(
+            state.get("current_shift_seconds", 0)
+        )
+
         total_seconds += state.get("total_seconds", 0)
 
         if state.get("active"):
@@ -460,7 +481,7 @@ def dashboard():
             except Exception:
                 pass
 
-    active = sorted(active, key=lambda x: x["duty"].get("total_seconds", 0), reverse=True)
+    active = sorted(active, key=lambda x: x["duty"].get("current_shift_seconds", 0), reverse=True)
 
     return render_template(
         "dashboard.html",
