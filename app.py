@@ -75,7 +75,7 @@ def get_spreadsheet():
     if not GOOGLE_TOKEN_JSON or not SHEET_ID:
         raise RuntimeError("Brak GOOGLE_TOKEN_JSON lub SHEET_ID.")
     token_info = json.loads(GOOGLE_TOKEN_JSON)
-    creds = Credentials.from_authorized_user_info(token_info, GOOGLE_SCOPES)
+    creds = Credentials.from_authorized_user_info(token_info)
     client = gspread.authorize(creds)
     return client.open_by_key(SHEET_ID)
 
