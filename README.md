@@ -121,3 +121,25 @@ W formularzu zdjęcia profilowego oraz dokumentu można teraz:
 
 Po `Win + Shift + S` wystarczy kliknąć odpowiednie pole uploadu i nacisnąć `Ctrl+V`.
 Panel automatycznie tworzy nazwę typu `screenshot-2026-...png`.
+
+
+## v9 — upload dla wszystkich, usuwanie tylko dla administratora
+
+- Każdy zalogowany użytkownik panelu może dodać lub zmienić zdjęcie funkcjonariusza.
+- Każdy zalogowany użytkownik panelu może dodać screenshot dokumentu.
+- Tylko administrator może usuwać zdjęcie lub dokument.
+- Drag & drop oraz Ctrl+V nadal działają.
+
+
+## v10 — dodawanie tylko na własnym profilu
+
+- Zalogowany użytkownik może dodać lub zmienić zdjęcie tylko na profilu,
+  którego `Discord ID` w rosterze jest zgodne z jego kontem Discord.
+- Dokument/screenshot można dodać tylko do własnego profilu.
+- Próba ręcznego wysłania pliku do cudzego profilu kończy się HTTP 403.
+- Tylko administrator może usuwać zdjęcia i dokumenty.
+- Drag & drop oraz Ctrl+V nadal działają.
+
+
+## v11 — Kompendium
+Dodano zakładkę Kompendium na bazie v10, zachowując ograniczenie dodawania zdjęć i dokumentów wyłącznie do własnego profilu.

@@ -124,6 +124,25 @@ def ensure_web_profile_tables():
         conn.close()
 
 
+
+def get_officer_by_badge(badge: str):
+    for officer in load_officers():
+        if str(officer.get("badge")) == str(badge):
+            return officer
+    return None
+
+
+def current_user_owns_officer(officer) -> bool:
+    if not officer:
+        return False
+
+    user = session.get("discord_user") or {}
+    current_id = str(user.get("id", "")).strip()
+    officer_id = str(officer.get("discord_id", "")).strip()
+
+    return bool(current_id and officer_id and current_id == officer_id)
+
+
 def get_profile_meta(badge: str):
     if not DATABASE_URL:
         return {"has_photo": False}
@@ -746,18 +765,24 @@ def officer_detail(badge):
         officer=officer,
         profile_meta=profile_meta,
         documents=documents,
+        can_upload_own_profile=current_user_owns_officer(officer),
     )
 
 
 
 @app.route("/funkcjonariusze/<badge>/zdjecie", methods=["POST"])
-@admin_required
+@logged_in_required
 def upload_officer_photo(badge):
     validate_csrf()
 
-    # Sprawdź, czy profil istnieje w rosterze.
-    if not any(str(x["badge"]) == str(badge) for x in load_officers()):
+    officer = get_officer_by_badge(badge)
+    if not officer:
         abort(404)
+
+    # Każdy zalogowany użytkownik może dodać/zmienić zdjęcie WYŁĄCZNIE
+    # na swoim własnym profilu (Discord ID z rosteru musi pasować do sesji).
+    if not current_user_owns_officer(officer):
+        abort(403)
 
     try:
         mime, data = _read_upload(request.files.get("photo"), PROFILE_PHOTO_MAX_BYTES)
@@ -851,12 +876,17 @@ def officer_photo_media(badge):
 
 
 @app.route("/funkcjonariusze/<badge>/dokumenty", methods=["POST"])
-@admin_required
+@logged_in_required
 def upload_officer_document(badge):
     validate_csrf()
 
-    if not any(str(x["badge"]) == str(badge) for x in load_officers()):
+    officer = get_officer_by_badge(badge)
+    if not officer:
         abort(404)
+
+    # Dokumenty można dodawać tylko do własnego profilu.
+    if not current_user_owns_officer(officer):
+        abort(403)
 
     title = (request.form.get("title") or "").strip()
     if not title:
@@ -965,6 +995,12 @@ def akta():
 def trainings():
     records = load_officers()
     return render_template("trainings.html", officers=records)
+
+
+@app.route("/kompendium")
+@logged_in_required
+def kompendium():
+    return render_template("kompendium.html")
 
 
 @app.route("/logi")
