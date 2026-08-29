@@ -1,5 +1,51 @@
 {% extends "base.html" %}
-{% block title %}{{ officer.full_name }} — USMS Panel{% endblock %}
+{% block title %}{{ officer.full_name }} — USMS Panel
+<script>
+document.querySelectorAll('[data-drop-zone]').forEach((zone) => {
+    const input = zone.querySelector('.drop-input');
+    const filename = zone.querySelector('[data-drop-filename]');
+
+    const setFileName = () => {
+        if (input.files && input.files.length) {
+            filename.textContent = input.files[0].name;
+            zone.classList.add('has-file');
+        } else {
+            filename.textContent = 'Nie wybrano pliku';
+            zone.classList.remove('has-file');
+        }
+    };
+
+    ['dragenter', 'dragover'].forEach((eventName) => {
+        zone.addEventListener(eventName, (event) => {
+            event.preventDefault();
+            event.stopPropagation();
+            zone.classList.add('drag-over');
+        });
+    });
+
+    ['dragleave', 'drop'].forEach((eventName) => {
+        zone.addEventListener(eventName, (event) => {
+            event.preventDefault();
+            event.stopPropagation();
+            zone.classList.remove('drag-over');
+        });
+    });
+
+    zone.addEventListener('drop', (event) => {
+        const files = event.dataTransfer.files;
+        if (!files || !files.length) return;
+
+        const transfer = new DataTransfer();
+        transfer.items.add(files[0]);
+        input.files = transfer.files;
+        setFileName();
+    });
+
+    input.addEventListener('change', setFileName);
+});
+</script>
+
+{% endblock %}
 {% block content %}
 
 <div class="profile-head panel">
@@ -56,7 +102,15 @@
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
             <strong>Zdjęcie funkcjonariusza</strong>
             <small>PNG, JPG lub WEBP • maks. 5 MB</small>
-            <input type="file" name="photo" accept="image/png,image/jpeg,image/webp" required>
+
+            <label class="drop-zone" data-drop-zone>
+                <input class="drop-input" type="file" name="photo" accept="image/png,image/jpeg,image/webp" required>
+                <span class="drop-icon">⬆</span>
+                <span class="drop-title">Przeciągnij zdjęcie tutaj</span>
+                <span class="drop-subtitle">albo kliknij, aby wybrać plik</span>
+                <span class="drop-filename" data-drop-filename>Nie wybrano pliku</span>
+            </label>
+
             <button class="small-button" type="submit">{% if profile_meta.has_photo %}Zmień zdjęcie{% else %}Dodaj zdjęcie{% endif %}</button>
         </form>
 
@@ -72,7 +126,15 @@
             <strong>Dodaj dokument / screenshot</strong>
             <small>PNG, JPG lub WEBP • maks. 10 MB</small>
             <input type="text" name="title" maxlength="120" placeholder="Np. Legitymacja, raport, zaświadczenie" required>
-            <input type="file" name="document" accept="image/png,image/jpeg,image/webp" required>
+
+            <label class="drop-zone" data-drop-zone>
+                <input class="drop-input" type="file" name="document" accept="image/png,image/jpeg,image/webp" required>
+                <span class="drop-icon">⬆</span>
+                <span class="drop-title">Przeciągnij screenshot tutaj</span>
+                <span class="drop-subtitle">albo kliknij, aby wybrać plik</span>
+                <span class="drop-filename" data-drop-filename>Nie wybrano pliku</span>
+            </label>
+
             <button class="small-button" type="submit">Dodaj dokument</button>
         </form>
     </div>
