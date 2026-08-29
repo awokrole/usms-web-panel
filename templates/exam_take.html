@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}Trwa egzamin — USMS Panel{% endblock %}
+{% block content %}
+<div class="exam-run-head"><div><h1>{{ attempt.title }}</h1><p>Próba #{{ attempt.attempt_no }} • {{ questions|length }} pytań</p></div><div class="exam-timer" id="timer" data-deadline="{{ attempt.deadline_at.isoformat() }}">--:--</div></div>
+<form id="examForm" method="post" action="{{ url_for('exam_submit', attempt_id=attempt.id) }}"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+<div class="exam-questions">{% for q in questions %}<article class="panel question-card"><div class="q-number">PYTANIE {{ q.position }} / {{ questions|length }}</div><h3>{{ q.question_text }}</h3><div class="answers">{% for option in q.options %}<label><input type="radio" name="q_{{ q.id }}" value="{{ option }}" {% if q.selected_answer == option %}checked{% endif %}><span>{{ option }}</span></label>{% endfor %}</div></article>{% endfor %}</div>
+<div class="exam-submitbar"><span id="answered">0/{{ questions|length }} odpowiedzi</span><button class="btn primary big" type="submit" onclick="return confirm('Zakończyć i oddać egzamin?')">Zakończ egzamin</button></div></form>
+<script>
+const timer=document.getElementById('timer'), form=document.getElementById('examForm'), answered=document.getElementById('answered');
+function tick(){const end=new Date(timer.dataset.deadline).getTime(), d=end-Date.now(); if(d<=0){timer.textContent='00:00'; form.submit(); return;} const m=Math.floor(d/60000),s=Math.floor((d%60000)/1000); timer.textContent=String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');}
+function count(){answered.textContent=document.querySelectorAll('.answers input:checked').length+'/{{ questions|length }} odpowiedzi';}
+document.querySelectorAll('.answers input').forEach(x=>x.addEventListener('change',count)); count(); tick(); setInterval(tick,1000);
+</script>
+{% endblock %}
