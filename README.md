@@ -143,3 +143,20 @@ Panel automatycznie tworzy nazwę typu `screenshot-2026-...png`.
 
 ## v11 — Kompendium
 Dodano zakładkę Kompendium na bazie v10, zachowując ograniczenie dodawania zdjęć i dokumentów wyłącznie do własnego profilu.
+
+
+## v14 — korekta prawa do telefonu
+Usunięto z Kompendium informację o 2-minutowym prawie zatrzymanego do telefonu oraz usunięto odpowiadające temu pytanie z banku egzaminacyjnego. Zatrzymanemu nie przysługuje obecnie prawo do telefonu.
+
+
+## v15 — pula 300 pytań
+- Pula egzaminacyjna została rozszerzona do 300 pozycji na bazie zatwierdzonej wiedzy z Kompendium.
+- Warianty pytań nie wprowadzają nowych zasad — zmieniają sposób sformułowania sprawdzanego faktu.
+- Jeden egzamin nadal losuje 20 pytań.
+- Backend pilnuje, aby w jednym podejściu nie pojawiły się dwa warianty tego samego faktu (ta sama odpowiedź wzorcowa).
+
+
+## v16 — równoczesne egzaminy + 10 minut
+- Wielu funkcjonariuszy może rozpocząć tę samą sesję egzaminacyjną równocześnie; każde podejście jest osobne i przypisane do Discord ID.
+- Czas pojedynczego egzaminu: 10 minut.
+- Istniejące aktywne/przyszłe sesje są automatycznie aktualizowane do 10 minut przy starcie aplikacji.

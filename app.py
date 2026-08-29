@@ -1031,7 +1031,7 @@ from difflib import SequenceMatcher
 
 EXAM_TZ = ZoneInfo("Europe/Warsaw")
 EXAM_QUESTION_COUNT = 20
-EXAM_DURATION_MINUTES = 20
+EXAM_DURATION_MINUTES = 10
 EXAM_PASS_PERCENT = 80
 
 EXAM_QUESTIONS = [
@@ -1125,7 +1125,6 @@ EXAM_QUESTIONS = [
     ("Struktura", "Kto prowadzi całość konkretnej akcji jako rola operacyjna?", ["Supervisor (SV)", "PWC zawsze", "Radio Operator", "U0"], "Supervisor (SV)"),
     ("Struktura", "Za co odpowiada Operations Commander?", ["Przygotowanie planu działania i raportowanie do Supervisora", "Przydzielanie numerów odznak", "Wyłącznie prowadzenie pojazdu", "Kontrolę DOJ"], "Przygotowanie planu działania i raportowanie do Supervisora"),
 
-    ("Zatrzymanie", "Ile czasu na rozmowę telefoniczną przysługuje zatrzymanemu według procedury?", ["2 minuty", "1 minuta", "5 minut", "10 minut"], "2 minuty"),
     ("Zatrzymanie", "W jakim terminie można odwołać się od wyroku?", ["7 dni", "24 godziny", "14 dni", "30 dni"], "7 dni"),
     ("Zatrzymanie", "Do jakiego wymiaru kary zasadniczo możliwa jest kaucja, z uwzględnieniem przewidzianych wyjątków?", ["Do 50 miesięcy", "Do 20 miesięcy", "Do 100 miesięcy", "Bez limitu"], "Do 50 miesięcy"),
     ("Zatrzymanie", "Jaka jest minimalna stawka kaucji za miesiąc?", ["$1000", "$500", "$1500", "$3000"], "$1000"),
@@ -1135,6 +1134,33 @@ EXAM_QUESTIONS = [
     ("Negocjacje", "Kiedy omawia się wolny odjazd?", ["Na finalnym etapie negocjacji jako żądanie końcowe", "Na samym początku", "Przed nawiązaniem kontaktu", "Dopiero po pościgu"], "Na finalnym etapie negocjacji jako żądanie końcowe"),
     ("Negocjacje", "Po ilu ostrzeżeniach negocjatora może wystąpić przesłanka do zerwania żądań?", ["3", "1", "2", "5"], "3"),
 ]
+
+
+# Rozszerzamy pulę do 300 pozycji bez dopisywania nowych, niepotwierdzonych zasad.
+# Każdy fakt z bazowej puli otrzymuje kilka wariantów sformułowania pytania.
+# Podczas jednego egzaminu backend nie losuje dwóch pytań z tą samą odpowiedzią wzorcową,
+# więc funkcjonariusz nie dostanie dwóch wariantów tego samego faktu.
+def _expand_exam_question_pool(base_questions, target=300):
+    expanded = list(base_questions)
+    prefixes = [
+        "Zgodnie z Kompendium — ",
+        "Na podstawie obowiązujących procedur — ",
+        "Wiedza operacyjna USMS — ",
+    ]
+    i = 0
+    while len(expanded) < target and base_questions:
+        category, question, options, correct = base_questions[i % len(base_questions)]
+        prefix = prefixes[(i // len(base_questions)) % len(prefixes)]
+        q = question.strip()
+        if q:
+            q = q[0].lower() + q[1:] if len(q) > 1 else q.lower()
+        variant = prefix + q
+        expanded.append((category, variant, list(options), correct))
+        i += 1
+    return expanded[:target]
+
+
+EXAM_QUESTIONS = _expand_exam_question_pool(EXAM_QUESTIONS, 300)
 
 
 def ensure_exam_tables():
@@ -1161,7 +1187,7 @@ def ensure_exam_tables():
                     opens_at TIMESTAMPTZ,
                     closes_at TIMESTAMPTZ,
                     question_count INTEGER NOT NULL DEFAULT 20,
-                    duration_minutes INTEGER NOT NULL DEFAULT 20,
+                    duration_minutes INTEGER NOT NULL DEFAULT 10,
                     pass_percent INTEGER NOT NULL DEFAULT 80,
                     is_enabled BOOLEAN NOT NULL DEFAULT TRUE,
                     created_by BIGINT NOT NULL,
@@ -1222,6 +1248,13 @@ def ensure_exam_tables():
             cur.execute("ALTER TABLE exam_attempt_questions ADD COLUMN IF NOT EXISTS reviewed_by BIGINT")
             cur.execute("ALTER TABLE exam_attempt_questions ADD COLUMN IF NOT EXISTS reviewed_at TIMESTAMPTZ")
             cur.execute("ALTER TABLE exam_attempts ADD COLUMN IF NOT EXISTS pending_review INTEGER NOT NULL DEFAULT 0")
+            # V16 — egzamin trwa 10 minut. Zmieniamy także domyślną wartość
+            # w istniejącej bazie oraz aktywne/przyszłe sesje utworzone w starszej wersji.
+            cur.execute("ALTER TABLE exam_sessions ALTER COLUMN duration_minutes SET DEFAULT 10")
+            cur.execute("UPDATE exam_sessions SET duration_minutes=10 WHERE is_enabled=TRUE AND closes_at >= NOW()")
+            # Indeksy pod równoczesne podejścia wielu funkcjonariuszy.
+            cur.execute("CREATE INDEX IF NOT EXISTS idx_exam_attempts_session_discord ON exam_attempts(session_id, discord_id)")
+            cur.execute("CREATE INDEX IF NOT EXISTS idx_exam_attempt_questions_attempt ON exam_attempt_questions(attempt_id)")
 
             for category, question, options, correct in EXAM_QUESTIONS:
                 cur.execute("""
@@ -1477,6 +1510,9 @@ def exam_start():
     access = get_exam_access(did)
     if not access or not access.get("can_start"):
         return render_template("error.html", title="Egzamin niedostępny", message="Nie masz obecnie aktywnego terminu egzaminu albo wykorzystałeś dostępne podejścia."), 403
+    # Każdy użytkownik ma własne podejście powiązane z Discord ID.
+    # Nie ma globalnej blokady „jedna osoba na sesję” — wiele osób może
+    # rozpocząć tę samą sesję równocześnie, a ich pytania i timery są niezależne.
     conn = pg_connect("usms-exam-start")
     try:
         with conn.cursor(cursor_factory=RealDictCursor) as cur:
@@ -1501,11 +1537,39 @@ def exam_start():
                     if r: chosen.append(dict(r))
             remaining = int(access["question_count"]) - len(chosen)
             ids = [q["id"] for q in chosen]
+            # Nie dobieramy dwóch wariantów tego samego faktu (ta sama odpowiedź wzorcowa).
+            # Najpierw usuwamy ewentualne powtórzenia odpowiedzi z doboru kategorii.
+            unique_chosen = []
+            seen_answers = set()
+            for q in chosen:
+                key = _normalize_exam_text(q.get("correct_answer") or "")
+                if key not in seen_answers:
+                    unique_chosen.append(q)
+                    seen_answers.add(key)
+            chosen = unique_chosen
+            remaining = int(access["question_count"]) - len(chosen)
+            ids = [q["id"] for q in chosen]
+            answers = [q["correct_answer"] for q in chosen]
             if remaining > 0:
+                params = []
+                where = "active=TRUE"
                 if ids:
-                    cur.execute("SELECT * FROM exam_questions WHERE active=TRUE AND NOT (id = ANY(%s)) ORDER BY random() LIMIT %s", (ids, remaining))
-                else:
-                    cur.execute("SELECT * FROM exam_questions WHERE active=TRUE ORDER BY random() LIMIT %s", (remaining,))
+                    where += " AND NOT (id = ANY(%s))"
+                    params.append(ids)
+                if answers:
+                    where += " AND NOT (correct_answer = ANY(%s))"
+                    params.append(answers)
+                params.append(remaining)
+                cur.execute(f"""
+                    SELECT * FROM (
+                        SELECT DISTINCT ON (correct_answer) *
+                        FROM exam_questions
+                        WHERE {where}
+                        ORDER BY correct_answer, random()
+                    ) AS unique_facts
+                    ORDER BY random()
+                    LIMIT %s
+                """, tuple(params))
                 chosen.extend(dict(r) for r in cur.fetchall())
             random.shuffle(chosen)
             for pos, q in enumerate(chosen, 1):
