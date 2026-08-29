@@ -1,51 +1,5 @@
 {% extends "base.html" %}
-{% block title %}{{ officer.full_name }} — USMS Panel
-<script>
-document.querySelectorAll('[data-drop-zone]').forEach((zone) => {
-    const input = zone.querySelector('.drop-input');
-    const filename = zone.querySelector('[data-drop-filename]');
-
-    const setFileName = () => {
-        if (input.files && input.files.length) {
-            filename.textContent = input.files[0].name;
-            zone.classList.add('has-file');
-        } else {
-            filename.textContent = 'Nie wybrano pliku';
-            zone.classList.remove('has-file');
-        }
-    };
-
-    ['dragenter', 'dragover'].forEach((eventName) => {
-        zone.addEventListener(eventName, (event) => {
-            event.preventDefault();
-            event.stopPropagation();
-            zone.classList.add('drag-over');
-        });
-    });
-
-    ['dragleave', 'drop'].forEach((eventName) => {
-        zone.addEventListener(eventName, (event) => {
-            event.preventDefault();
-            event.stopPropagation();
-            zone.classList.remove('drag-over');
-        });
-    });
-
-    zone.addEventListener('drop', (event) => {
-        const files = event.dataTransfer.files;
-        if (!files || !files.length) return;
-
-        const transfer = new DataTransfer();
-        transfer.items.add(files[0]);
-        input.files = transfer.files;
-        setFileName();
-    });
-
-    input.addEventListener('change', setFileName);
-});
-</script>
-
-{% endblock %}
+{% block title %}{{ officer.full_name }} — USMS Panel{% endblock %}
 {% block content %}
 
 <div class="profile-head panel">
@@ -107,7 +61,7 @@ document.querySelectorAll('[data-drop-zone]').forEach((zone) => {
                 <input class="drop-input" type="file" name="photo" accept="image/png,image/jpeg,image/webp" required>
                 <span class="drop-icon">⬆</span>
                 <span class="drop-title">Przeciągnij zdjęcie tutaj</span>
-                <span class="drop-subtitle">albo kliknij, aby wybrać plik</span>
+                <span class="drop-subtitle">kliknij, wybierz plik lub użyj Ctrl+V</span>
                 <span class="drop-filename" data-drop-filename>Nie wybrano pliku</span>
             </label>
 
@@ -131,7 +85,7 @@ document.querySelectorAll('[data-drop-zone]').forEach((zone) => {
                 <input class="drop-input" type="file" name="document" accept="image/png,image/jpeg,image/webp" required>
                 <span class="drop-icon">⬆</span>
                 <span class="drop-title">Przeciągnij screenshot tutaj</span>
-                <span class="drop-subtitle">albo kliknij, aby wybrać plik</span>
+                <span class="drop-subtitle">kliknij, wybierz plik lub użyj Ctrl+V</span>
                 <span class="drop-filename" data-drop-filename>Nie wybrano pliku</span>
             </label>
 
@@ -203,4 +157,151 @@ document.querySelectorAll('[data-drop-zone]').forEach((zone) => {
         <div><span>Urlop do</span><strong>{{ officer.vacation_end or 'Brak' }}</strong></div>
     </div>
 </section>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    // Zablokuj domyślne otwieranie przeciągniętych plików przez przeglądarkę.
+    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach((eventName) => {
+        document.addEventListener(eventName, (event) => {
+            event.preventDefault();
+        }, false);
+    });
+
+    const allowedTypes = ['image/png', 'image/jpeg', 'image/webp'];
+
+    document.querySelectorAll('[data-drop-zone]').forEach((zone) => {
+        const input = zone.querySelector('.drop-input');
+        const filename = zone.querySelector('[data-drop-filename]');
+
+        const setFile = (file, source = 'plik') => {
+            if (!file) return false;
+
+            if (!allowedTypes.includes(file.type)) {
+                filename.textContent = 'Nieobsługiwany format pliku';
+                zone.classList.remove('has-file');
+                return false;
+            }
+
+            const transfer = new DataTransfer();
+
+            // Screenshot ze schowka często nie ma nazwy. Nadajemy czytelną nazwę.
+            let preparedFile = file;
+            if (!file.name || file.name === 'image.png') {
+                const ext = file.type === 'image/jpeg' ? 'jpg' : (file.type === 'image/webp' ? 'webp' : 'png');
+                const now = new Date();
+                const stamp = now.toISOString().replace(/[:.]/g, '-');
+                preparedFile = new File([file], `screenshot-${stamp}.${ext}`, { type: file.type });
+            }
+
+            transfer.items.add(preparedFile);
+            input.files = transfer.files;
+
+            filename.textContent = `${preparedFile.name} (${source})`;
+            zone.classList.add('has-file');
+            zone.focus();
+            return true;
+        };
+
+        const updateFromInput = () => {
+            if (input.files && input.files.length) {
+                setFile(input.files[0], 'wybrany plik');
+            } else {
+                filename.textContent = 'Nie wybrano pliku';
+                zone.classList.remove('has-file');
+            }
+        };
+
+        // Drag & drop
+        ['dragenter', 'dragover'].forEach((eventName) => {
+            zone.addEventListener(eventName, (event) => {
+                event.preventDefault();
+                event.stopPropagation();
+                if (event.dataTransfer) {
+                    event.dataTransfer.dropEffect = 'copy';
+                }
+                zone.classList.add('drag-over');
+            });
+        });
+
+        zone.addEventListener('dragleave', (event) => {
+            event.preventDefault();
+            event.stopPropagation();
+            if (!zone.contains(event.relatedTarget)) {
+                zone.classList.remove('drag-over');
+            }
+        });
+
+        zone.addEventListener('drop', (event) => {
+            event.preventDefault();
+            event.stopPropagation();
+            zone.classList.remove('drag-over');
+
+            const files = event.dataTransfer && event.dataTransfer.files;
+            if (!files || !files.length) return;
+            setFile(files[0], 'przeciągnięty');
+        });
+
+        input.addEventListener('change', updateFromInput);
+
+        // Ctrl+V działa, kiedy pole uploadu jest aktywne/kliknięte.
+        zone.setAttribute('tabindex', '0');
+
+        zone.addEventListener('paste', (event) => {
+            const items = event.clipboardData && event.clipboardData.items;
+            if (!items) return;
+
+            for (const item of items) {
+                if (item.kind === 'file' && item.type.startsWith('image/')) {
+                    const file = item.getAsFile();
+                    if (setFile(file, 'schowek Ctrl+V')) {
+                        event.preventDefault();
+                    }
+                    return;
+                }
+            }
+        });
+
+        zone.addEventListener('click', () => {
+            zone.focus();
+        });
+    });
+
+    // Dodatkowo: jeśli użytkownik nacisnął Ctrl+V będąc gdziekolwiek
+    // w formularzu uploadu, przypisz obraz do najbliższej strefy.
+    document.addEventListener('paste', (event) => {
+        if (!event.clipboardData) return;
+
+        const active = document.activeElement;
+        const form = active && active.closest ? active.closest('.upload-box') : null;
+        if (!form) return;
+
+        const zone = form.querySelector('[data-drop-zone]');
+        if (!zone) return;
+
+        const input = zone.querySelector('.drop-input');
+        const filename = zone.querySelector('[data-drop-filename]');
+
+        for (const item of event.clipboardData.items) {
+            if (item.kind !== 'file' || !item.type.startsWith('image/')) continue;
+
+            const file = item.getAsFile();
+            if (!file || !allowedTypes.includes(file.type)) return;
+
+            const ext = file.type === 'image/jpeg' ? 'jpg' : (file.type === 'image/webp' ? 'webp' : 'png');
+            const stamp = new Date().toISOString().replace(/[:.]/g, '-');
+            const preparedFile = new File([file], `screenshot-${stamp}.${ext}`, { type: file.type });
+
+            const transfer = new DataTransfer();
+            transfer.items.add(preparedFile);
+            input.files = transfer.files;
+
+            filename.textContent = `${preparedFile.name} (schowek Ctrl+V)`;
+            zone.classList.add('has-file');
+            event.preventDefault();
+            return;
+        }
+    });
+});
+</script>
+
 {% endblock %}
