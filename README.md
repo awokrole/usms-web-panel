@@ -94,3 +94,12 @@ oraz trwającą aktualnie służbę.
   albo opcjonalnie po `WEB_ADMIN_ROLE_IDS`.
 - Zdjęcie profilu: do 5 MB.
 - Dokument/screenshot: do 10 MB.
+
+
+## v6 — drag & drop
+
+Zdjęcie funkcjonariusza oraz screenshot dokumentu można teraz:
+- przeciągnąć bezpośrednio na pole uploadu,
+- albo kliknąć pole i wybrać plik normalnie.
+
+Po upuszczeniu pliku panel pokazuje jego nazwę przed wysłaniem.
