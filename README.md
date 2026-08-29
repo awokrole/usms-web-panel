@@ -160,3 +160,16 @@ Usunięto z Kompendium informację o 2-minutowym prawie zatrzymanego do telefonu
 - Wielu funkcjonariuszy może rozpocząć tę samą sesję egzaminacyjną równocześnie; każde podejście jest osobne i przypisane do Discord ID.
 - Czas pojedynczego egzaminu: 10 minut.
 - Istniejące aktywne/przyszłe sesje są automatycznie aktualizowane do 10 minut przy starcie aplikacji.
+
+
+## v17 — poprawka indywidualnych terminów
+- naprawiono pustą listę funkcjonariuszy w formularzu (używany jest `full_name`, a nie nieistniejące `name`),
+- dodano awaryjne/uzupełniające pobieranie funkcjonariuszy z PostgreSQL `users`,
+- formularz indywidualnego terminu jest responsywny i nie wychodzi poza panel.
+
+## V18 — usuwanie starych egzaminów
+- administrator może trwale usunąć zakończoną sesję egzaminacyjną,
+- usunięcie sesji usuwa także jej podejścia, zapisane odpowiedzi oraz indywidualne terminy/poprawki,
+- bank pytań pozostaje nienaruszony,
+- backend blokuje usunięcie aktywnej sesji oraz sesji, w której ktoś nadal pisze egzamin,
+- operacja jest dostępna wyłącznie dla administratora, przez POST i z walidacją CSRF.

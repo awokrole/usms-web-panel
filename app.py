@@ -330,6 +330,82 @@ def load_officers():
     return sorted(records, key=key)
 
 
+def load_exam_officers():
+    """
+    Lista funkcjonariuszy do administracji egzaminem.
+
+    Najpierw korzystamy z istniejącej listy funkcjonariuszy (Google Sheets),
+    ale panel egzaminu nie może przestać działać tylko dlatego, że API Sheets
+    chwilowo nie odpowiada. Wtedy pobieramy aktywne osoby z PostgreSQL z
+    tabeli `users`, której używa bot.
+    """
+    officers = []
+    try:
+        officers = load_officers()
+    except Exception as exc:
+        print(f"[EXAM] Nie udało się pobrać funkcjonariuszy z arkusza: {exc!r}", flush=True)
+
+    normalized = []
+    seen = set()
+    for officer in officers or []:
+        discord_id = officer.get("discord_id")
+        if discord_id is None:
+            continue
+        try:
+            discord_id = int(discord_id)
+        except (TypeError, ValueError):
+            continue
+        seen.add(discord_id)
+        normalized.append({
+            "discord_id": discord_id,
+            "badge": str(officer.get("badge") or "—"),
+            "full_name": str(officer.get("full_name") or officer.get("name") or f"Discord {discord_id}"),
+        })
+
+    # PostgreSQL jest awaryjnym źródłem oraz uzupełnia osoby, których nie ma
+    # w arkuszu, ale mają aktywny numer odznaki w bazie bota.
+    if DATABASE_URL:
+        conn = None
+        try:
+            conn = pg_connect("usms-exam-officers")
+            with conn.cursor(cursor_factory=RealDictCursor) as cur:
+                cur.execute("""
+                    SELECT user_id, badge_number, original_nick
+                    FROM users
+                    WHERE badge_number IS NOT NULL
+                      AND BTRIM(CAST(badge_number AS TEXT)) <> ''
+                    ORDER BY CASE
+                        WHEN CAST(badge_number AS TEXT) ~ '^[0-9]+$'
+                        THEN CAST(badge_number AS INTEGER)
+                        ELSE 999999
+                    END, user_id
+                """)
+                rows = cur.fetchall()
+            for row in rows:
+                discord_id = int(row["user_id"])
+                if discord_id in seen:
+                    continue
+                normalized.append({
+                    "discord_id": discord_id,
+                    "badge": str(row.get("badge_number") or "—"),
+                    "full_name": str(row.get("original_nick") or f"Discord {discord_id}"),
+                })
+                seen.add(discord_id)
+        except Exception as exc:
+            print(f"[EXAM] Nie udało się pobrać funkcjonariuszy z PostgreSQL: {exc!r}", flush=True)
+        finally:
+            if conn is not None:
+                conn.close()
+
+    def exam_key(item):
+        try:
+            return int(item["badge"])
+        except Exception:
+            return 999999
+
+    return sorted(normalized, key=exam_key)
+
+
 def _load_duty_rows():
     """
     Czyta stan służby z tej samej bazy co bot.
@@ -1721,6 +1797,55 @@ def exam_admin_close(session_id):
     return redirect(url_for("exam_admin"))
 
 
+@app.route("/egzamin/admin/session/<int:session_id>/delete", methods=["POST"])
+@admin_required
+def exam_admin_delete(session_id):
+    """Trwale usuwa zakończoną sesję egzaminacyjną wraz z jej podejściami.
+
+    Dzięki kluczom obcym ON DELETE CASCADE PostgreSQL usuwa również
+    indywidualne terminy, podejścia i zapisane odpowiedzi. Bank pytań
+    pozostaje bez zmian. Aktywnej sesji ani sesji z podejściem w toku
+    nie można usunąć przypadkowo.
+    """
+    validate_csrf()
+    conn = pg_connect("usms-exam-delete")
+    try:
+        with conn.cursor(cursor_factory=RealDictCursor) as cur:
+            cur.execute("""
+                SELECT s.id, s.title, s.opens_at, s.closes_at,
+                       EXISTS(
+                           SELECT 1 FROM exam_attempts a
+                           WHERE a.session_id=s.id AND a.status='in_progress'
+                       ) AS has_in_progress
+                FROM exam_sessions s
+                WHERE s.id=%s
+                FOR UPDATE
+            """, (session_id,))
+            exam_session = cur.fetchone()
+            if not exam_session:
+                abort(404)
+
+            now = exam_now()
+            if exam_session["has_in_progress"]:
+                return render_template(
+                    "error.html",
+                    title="Nie można usunąć egzaminu",
+                    message="W tej sesji ktoś nadal pisze egzamin. Poczekaj na zakończenie podejścia albo najpierw zamknij sesję."
+                ), 409
+            if not exam_session["closes_at"] or exam_session["closes_at"] > now:
+                return render_template(
+                    "error.html",
+                    title="Nie można usunąć aktywnej sesji",
+                    message="Najpierw zamknij sesję egzaminacyjną. Usuwanie jest dostępne dopiero po jej zakończeniu."
+                ), 409
+
+            cur.execute("DELETE FROM exam_sessions WHERE id=%s", (session_id,))
+        conn.commit()
+    finally:
+        conn.close()
+    return redirect(url_for("exam_admin"))
+
+
 @app.route("/egzamin/admin/session/<int:session_id>")
 @admin_required
 def exam_admin_session(session_id):
@@ -1732,9 +1857,14 @@ def exam_admin_session(session_id):
             cur.execute("SELECT * FROM exam_attempts WHERE session_id=%s ORDER BY id DESC", (session_id,)); attempts = [dict(r) for r in cur.fetchall()]
             cur.execute("SELECT * FROM exam_overrides WHERE session_id=%s ORDER BY updated_at DESC", (session_id,)); overrides = [dict(r) for r in cur.fetchall()]
     finally: conn.close()
-    try: officers = load_officers()
-    except Exception: officers = []
-    return render_template("exam_admin_session.html", exam_session=dict(exam_session), attempts=attempts, overrides=overrides, officers=officers)
+    officers = load_exam_officers()
+    exam_session = dict(exam_session)
+    can_delete = bool(
+        exam_session.get("closes_at")
+        and exam_session["closes_at"] <= exam_now()
+        and not any(a.get("status") == "in_progress" for a in attempts)
+    )
+    return render_template("exam_admin_session.html", exam_session=exam_session, attempts=attempts, overrides=overrides, officers=officers, can_delete=can_delete)
 
 
 @app.route("/egzamin/admin/attempt/<int:attempt_id>")
