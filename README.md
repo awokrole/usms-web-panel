@@ -193,3 +193,15 @@ Zmienne `GOOGLE_TOKEN_JSON`, `SHEET_ID`, `ROSTER_SHEET_NAME`, `TRAINING_SHEET_NA
 - Brak/pusta odznaka w technicznej tabeli `users` nie ukrywa już aktywnego funkcjonariusza.
 - `/add` i `/zwolnij` w bocie v92 nadal odpowiednio aktywują/dezaktywują rekord `officers`.
 - Google Sheets pozostaje całkowicie niezależny od WWW.
+
+## V23 — Dyrektywy PIA w egzaminie
+- Dodano pytania egzaminacyjne z Dyrektyw PIA nr 4 (RFN), 14 (3P), 22 (PUP) i 24 (RS1).
+- Każda dyrektywa ma osobną kategorię egzaminacyjną, więc standardowy egzamin 20-pytaniowy losuje co najmniej jedno pytanie z każdej z tych czterech dyrektyw.
+- Pytania są oparte wyłącznie na treści dyrektyw dodanych w v22.
+- Bank nadal jest rozwijany do 300 pozycji, z wariantami sformułowań odpowiednimi dla Kompendium lub Dyrektyw PIA.
+
+## v24 — po jednym pytaniu z każdej Dyrektywy PIA
+- Egzamin zawiera dokładnie 4 aktywne pytania o dyrektywy: po jednym dla nr 4, 14, 22 i 24.
+- Każde pytanie ma formę „Co oznacza Dyrektywa PIA nr ...?”.
+- Pytania z dyrektyw nie są powielane przez generator wariantów puli 300.
+- Przy starcie starsze pytania kategorii `Dyrektywa PIA%` są dezaktywowane, a cztery aktualne pytania aktywowane.

@@ -1211,6 +1211,12 @@ def kompendium():
     return render_template("kompendium.html")
 
 
+@app.route("/dyrektywy")
+@logged_in_required
+def directives():
+    return render_template("directives.html")
+
+
 @app.route("/logi")
 @admin_required
 def logs():
@@ -1338,32 +1344,85 @@ EXAM_QUESTIONS = [
     ("Zatrzymanie", "Jaka jest minimalna stawka kaucji za miesiąc?", ["$1000", "$500", "$1500", "$3000"], "$1000"),
     ("Zatrzymanie", "Jaki kanał taktyczny przewidziano do procedur Status 10?", ["TAC 8", "TAC 1", "MAIN", "TAC 3"], "TAC 8"),
 
+    # Dyrektywy PIA — dokładnie jedno pytanie z każdej dyrektywy.
+    # Te cztery pytania nie są rozszerzane o warianty językowe.
+    ("UoF", "Jakie elementy obejmuje zasada BLOS?", ["Broń", "Lufa", "Otoczenie", "Spust", "Balistyka", "Status radiowy"], "Broń | Lufa | Otoczenie | Spust"),
+    ("Struktura operacyjna", "Które role operacyjne wymagają minimum stopnia Senior Deputy U.S Marshal?", ["PWC", "APWC", "OC", "SV", "U1"], "PWC | APWC | OC"),
+    ("Pościgi", "Który z poniższych manewrów RUCHOMA jest dozwolony podczas pościgu?", ["RUCHOMA przy kodzie zielonym", "RUCHOMA przy kodzie żółtym", "RUCHOMA po zgodzie U1", "RUCHOMA wyłącznie przez EDWARD"], ""),
+
+    ("Dyrektywa PIA 4 (RFN)", "Co oznacza Dyrektywa PIA nr 4 — Rozdział Floty Niejednorodnej (RFN)?", [], "Dyrektywa RFN oznacza, że podczas konwojów nie należy wykorzystywać prywatnych pojazdów; konwój ma zachować spójność i czytelność, aby nie powodować chaosu ani problemów z identyfikacją pojazdów."),
+    ("Dyrektywa PIA 14 (3P)", "Co oznacza Dyrektywa PIA nr 14 — Procedura Przemyślanego Pasa (3P)?", [], "Dyrektywa 3P oznacza zachowanie bezpieczeństwa przy zatrzymanym: przy bezpośrednim kontakcie należy zdjąć pas taktyczny lub wyposażenie możliwe do wykorzystania przez zatrzymanego, a gdy kontakt fizyczny nie jest potrzebny zachować co najmniej metr odstępu od krat."),
+    ("Dyrektywa PIA 22 (PUP)", "Co oznacza Dyrektywa PIA nr 22 — Przechowywanie Ujawnionych Przedmiotów (PUP)?", [], "Dyrektywa PUP oznacza zabezpieczanie przedmiotów zatrzymanego, które mogą umożliwiać kontakt ze światem zewnętrznym lub obchodzenie procedur, w indywidualnej szafce depozytowej przypisanej do zatrzymanego."),
+    ("Dyrektywa PIA 24 (RS1)", "Co oznacza Dyrektywa PIA nr 24 — Równe Szanse 1 (RS1)?", [], "Dyrektywa RS1 oznacza równe traktowanie funkcjonariuszy: te same zasady i konsekwencje mają obowiązywać niezależnie od płci, wyglądu lub osobistych relacji, bez faworyzowania."),
+
     ("Negocjacje", "Jakie określenie jest prawidłowe w negocjacjach?", ["Wolny odjazd", "Swobodny odjazd", "Zielone światło", "Bezwarunkowy odjazd"], "Wolny odjazd"),
     ("Negocjacje", "Kiedy omawia się wolny odjazd?", ["Na finalnym etapie negocjacji jako żądanie końcowe", "Na samym początku", "Przed nawiązaniem kontaktu", "Dopiero po pościgu"], "Na finalnym etapie negocjacji jako żądanie końcowe"),
     ("Negocjacje", "Po ilu ostrzeżeniach negocjatora może wystąpić przesłanka do zerwania żądań?", ["3", "1", "2", "5"], "3"),
 ]
 
 
-# Rozszerzamy pulę do 300 pozycji bez dopisywania nowych, niepotwierdzonych zasad.
+# Rozszerzamy pulę do 300 pozycji na podstawie Kompendium i Dyrektyw PIA, bez dopisywania niepotwierdzonych zasad.
 # Każdy fakt z bazowej puli otrzymuje kilka wariantów sformułowania pytania.
 # Podczas jednego egzaminu backend nie losuje dwóch pytań z tą samą odpowiedzią wzorcową,
 # więc funkcjonariusz nie dostanie dwóch wariantów tego samego faktu.
+# V25 — wielokrotny wybór. Pytanie może mieć 0, 1 lub wiele poprawnych odpowiedzi.
+_MULTI_CORRECT_OVERRIDES = {
+    "Co powinna zawierać ciągła radiówka U1?": ["Kierunek geograficzny", "Ulice lub charakterystyczne punkty", "Kierunek/pas poruszania się pojazdu"],
+    "Jakie elementy obejmuje zasada BLOS?": ["Broń", "Lufa", "Otoczenie", "Spust"],
+    "Które role operacyjne wymagają minimum stopnia Senior Deputy U.S Marshal?": ["PWC", "APWC", "OC"],
+}
+_ZERO_CORRECT_OVERRIDES = {"Który z poniższych manewrów RUCHOMA jest dozwolony podczas pościgu?"}
+_OPTION_OVERRIDES = {
+    "Co powinna zawierać ciągła radiówka U1?": ["Kierunek geograficzny", "Ulice lub charakterystyczne punkty", "Kierunek/pas poruszania się pojazdu", "Wyłącznie prędkość pojazdu", "Wyłącznie model pojazdu"],
+    "Jakie elementy obejmuje zasada BLOS?": ["Broń", "Lufa", "Otoczenie", "Spust", "Balistyka", "Status radiowy"],
+    "Które role operacyjne wymagają minimum stopnia Senior Deputy U.S Marshal?": ["PWC", "APWC", "OC", "SV", "U1"],
+    "Który z poniższych manewrów RUCHOMA jest dozwolony podczas pościgu?": ["RUCHOMA przy kodzie zielonym", "RUCHOMA przy kodzie żółtym", "RUCHOMA po zgodzie U1", "RUCHOMA wyłącznie przez EDWARD"],
+}
+_DIRECTIVE_OPTIONS = {
+    "Co oznacza Dyrektywa PIA nr 4 — Rozdział Floty Niejednorodnej (RFN)?": ["Podczas konwojów nie należy wykorzystywać prywatnych pojazdów; konwój ma zachować spójność i czytelność.", "Każdy funkcjonariusz powinien używać prywatnego pojazdu, aby utrudnić rozpoznanie konwoju.", "Dyrektywa określa zasady używania tasera.", "Dyrektywa dotyczy przechowywania rzeczy zatrzymanego."],
+    "Co oznacza Dyrektywa PIA nr 14 — Procedura Przemyślanego Pasa (3P)?": ["Przy bezpośrednim kontakcie z zatrzymanym należy zdjąć pas/wyposażenie możliwe do wykorzystania przez niego, a bez potrzeby kontaktu zachować co najmniej metr od krat.", "Przy każdej rozmowie z zatrzymanym trzeba wejść do celi z pełnym wyposażeniem.", "Dyrektywa pozwala pozostawić telefon zatrzymanemu.", "Dyrektywa określa formację konwoju na autostradzie."],
+    "Co oznacza Dyrektywa PIA nr 22 — Przechowywanie Ujawnionych Przedmiotów (PUP)?": ["Przedmioty zatrzymanego umożliwiające kontakt z zewnątrz lub obchodzenie procedur zabezpiecza się w indywidualnej szafce depozytowej.", "Wszystkie przedmioty zatrzymanego pozostają przy nim w celi.", "Telefony przekazuje się dowolnemu funkcjonariuszowi do prywatnego przechowania.", "Dyrektywa reguluje przydział jednostek EDWARD."],
+    "Co oznacza Dyrektywa PIA nr 24 — Równe Szanse 1 (RS1)?": ["Funkcjonariuszy obowiązują równe zasady i konsekwencje bez faworyzowania ze względu na płeć, wygląd lub osobiste relacje.", "Przełożony może odstąpić od konsekwencji z powodów osobistych.", "Dyrektywa dotyczy wyłącznie zasad ubioru.", "Dyrektywa pozwala różnicować konsekwencje za tę samą pomyłkę zależnie od osoby."],
+}
+
+def _base_question_text(question):
+    for prefix in ("Zgodnie z Kompendium — ", "Na podstawie obowiązujących procedur — ", "Wiedza operacyjna USMS — "):
+        if question.startswith(prefix):
+            q = question[len(prefix):]
+            return q[:1].upper() + q[1:]
+    return question
+
+def _mcq_payload(question, options, correct_answer):
+    base = _base_question_text(question)
+    opts = list(_OPTION_OVERRIDES.get(base) or _DIRECTIVE_OPTIONS.get(base) or options or [])
+    if base in _ZERO_CORRECT_OVERRIDES:
+        correct = []
+    elif base in _MULTI_CORRECT_OVERRIDES:
+        correct = list(_MULTI_CORRECT_OVERRIDES[base])
+    elif base in _DIRECTIVE_OPTIONS:
+        correct = [opts[0]]
+    else:
+        correct = [correct_answer] if correct_answer else []
+    return opts, correct
+
 def _expand_exam_question_pool(base_questions, target=300):
     expanded = list(base_questions)
-    prefixes = [
+    # Dyrektywy mają pozostać dokładnie czterema pytaniami (po jednym na dyrektywę).
+    # Do 300 pozycji rozszerzamy wyłącznie pytania z Kompendium/procedur.
+    expansion_source = [q for q in base_questions if not str(q[0]).startswith("Dyrektywa PIA")]
+    default_prefixes = [
         "Zgodnie z Kompendium — ",
         "Na podstawie obowiązujących procedur — ",
         "Wiedza operacyjna USMS — ",
     ]
     i = 0
-    while len(expanded) < target and base_questions:
-        category, question, options, correct = base_questions[i % len(base_questions)]
-        prefix = prefixes[(i // len(base_questions)) % len(prefixes)]
+    while len(expanded) < target and expansion_source:
+        category, question, options, correct = expansion_source[i % len(expansion_source)]
+        prefix = default_prefixes[(i // len(expansion_source)) % len(default_prefixes)]
         q = question.strip()
         if q:
             q = q[0].lower() + q[1:] if len(q) > 1 else q.lower()
-        variant = prefix + q
-        expanded.append((category, variant, list(options), correct))
+        expanded.append((category, prefix + q, list(options), correct))
         i += 1
     return expanded[:target]
 
@@ -1455,6 +1514,9 @@ def ensure_exam_tables():
             cur.execute("ALTER TABLE exam_attempt_questions ADD COLUMN IF NOT EXISTS similarity_score INTEGER")
             cur.execute("ALTER TABLE exam_attempt_questions ADD COLUMN IF NOT EXISTS reviewed_by BIGINT")
             cur.execute("ALTER TABLE exam_attempt_questions ADD COLUMN IF NOT EXISTS reviewed_at TIMESTAMPTZ")
+            cur.execute("ALTER TABLE exam_questions ADD COLUMN IF NOT EXISTS correct_answers JSONB")
+            cur.execute("ALTER TABLE exam_attempt_questions ADD COLUMN IF NOT EXISTS correct_answers JSONB")
+            cur.execute("ALTER TABLE exam_attempt_questions ADD COLUMN IF NOT EXISTS selected_answers JSONB")
             cur.execute("ALTER TABLE exam_attempts ADD COLUMN IF NOT EXISTS pending_review INTEGER NOT NULL DEFAULT 0")
             # V16 — egzamin trwa 10 minut. Zmieniamy także domyślną wartość
             # w istniejącej bazie oraz aktywne/przyszłe sesje utworzone w starszej wersji.
@@ -1464,12 +1526,19 @@ def ensure_exam_tables():
             cur.execute("CREATE INDEX IF NOT EXISTS idx_exam_attempts_session_discord ON exam_attempts(session_id, discord_id)")
             cur.execute("CREATE INDEX IF NOT EXISTS idx_exam_attempt_questions_attempt ON exam_attempt_questions(attempt_id)")
 
+            # V24 — usuwamy z aktywnej puli wszystkie starsze pytania z dyrektyw.
+            # Historia zakończonych podejść pozostaje w exam_attempt_questions.
+            cur.execute("UPDATE exam_questions SET active=FALSE WHERE category LIKE 'Dyrektywa PIA%'")
+
             for category, question, options, correct in EXAM_QUESTIONS:
+                mc_options, mc_correct = _mcq_payload(question, options, correct)
+                legacy_correct = " | ".join(mc_correct)
                 cur.execute("""
-                    INSERT INTO exam_questions(category, question, options, correct_answer)
-                    VALUES (%s, %s, %s::jsonb, %s)
-                    ON CONFLICT (question) DO NOTHING
-                """, (category, question, json.dumps(options, ensure_ascii=False), correct))
+                    INSERT INTO exam_questions(category, question, options, correct_answer, correct_answers)
+                    VALUES(%s,%s,%s::jsonb,%s,%s::jsonb)
+                    ON CONFLICT (question) DO UPDATE SET category=EXCLUDED.category, options=EXCLUDED.options,
+                        correct_answer=EXCLUDED.correct_answer, correct_answers=EXCLUDED.correct_answers, active=TRUE
+                """, (category, question, json.dumps(mc_options, ensure_ascii=False), legacy_correct, json.dumps(mc_correct, ensure_ascii=False)))
         conn.commit()
         print(f"✅ WEB: system egzaminów gotowy ({len(EXAM_QUESTIONS)} pytań startowych).", flush=True)
     finally:
@@ -1783,10 +1852,14 @@ def exam_start():
             for pos, q in enumerate(chosen, 1):
                 opts = list(q["options"])
                 random.shuffle(opts)
+                correct_answers = q.get("correct_answers")
+                if correct_answers is None:
+                    correct_answers = [q["correct_answer"]] if q.get("correct_answer") else []
                 cur.execute("""
-                    INSERT INTO exam_attempt_questions(attempt_id, question_id, position, question_text, options, correct_answer)
-                    VALUES(%s,%s,%s,%s,%s::jsonb,%s)
-                """, (attempt_id, q["id"], pos, q["question"], json.dumps(opts, ensure_ascii=False), q["correct_answer"]))
+                    INSERT INTO exam_attempt_questions(attempt_id, question_id, position, question_text, options, correct_answer, correct_answers)
+                    VALUES(%s,%s,%s,%s,%s::jsonb,%s,%s::jsonb)
+                """, (attempt_id, q["id"], pos, q["question"], json.dumps(opts, ensure_ascii=False),
+                      q["correct_answer"], json.dumps(correct_answers, ensure_ascii=False)))
         conn.commit()
     finally:
         conn.close()
@@ -1808,7 +1881,7 @@ def exam_take(attempt_id):
             if exam_now() >= attempt["deadline_at"]:
                 finalize_attempt(attempt_id, forced=True)
                 return redirect(url_for("exam_result", attempt_id=attempt_id))
-            cur.execute("SELECT id, position, question_text, selected_answer FROM exam_attempt_questions WHERE attempt_id=%s ORDER BY position", (attempt_id,))
+            cur.execute("SELECT id, position, question_text, options, selected_answer, selected_answers FROM exam_attempt_questions WHERE attempt_id=%s ORDER BY position", (attempt_id,))
             questions = [dict(r) for r in cur.fetchall()]
     finally:
         conn.close()
@@ -1826,16 +1899,26 @@ def exam_submit(attempt_id):
             cur.execute("SELECT * FROM exam_attempts WHERE id=%s AND discord_id=%s AND status='in_progress' FOR UPDATE", (attempt_id, int(did)))
             attempt = cur.fetchone()
             if not attempt: abort(404)
-            cur.execute("SELECT id, correct_answer FROM exam_attempt_questions WHERE attempt_id=%s", (attempt_id,))
+            cur.execute("SELECT id, correct_answer, correct_answers FROM exam_attempt_questions WHERE attempt_id=%s", (attempt_id,))
             for q in cur.fetchall():
-                answer = (request.form.get(f"q_{q['id']}") or "").strip()[:1200]
-                grading_status, is_correct, similarity, reason = grade_free_text(answer, q["correct_answer"])
+                selected = request.form.getlist(f"q_{q['id']}")
+                none_selected = request.form.get(f"q_{q['id']}_none") == "1"
+                if none_selected:
+                    selected = []
+                selected = list(dict.fromkeys(x for x in selected if x))
+                correct = q.get("correct_answers")
+                if correct is None:
+                    correct = [q["correct_answer"]] if q.get("correct_answer") else []
+                is_correct = set(selected) == set(correct)
+                answer_text = "Żadna z powyższych" if none_selected else (" | ".join(selected) if selected else "Brak odpowiedzi")
+                reason = "Dokładnie poprawny zestaw odpowiedzi" if is_correct else "Zaznaczony zestaw nie jest kompletnym poprawnym zestawem"
                 cur.execute("""
                     UPDATE exam_attempt_questions
-                    SET selected_answer=%s, is_correct=%s, grading_status=%s, grading_reason=%s,
+                    SET selected_answer=%s, selected_answers=%s::jsonb, is_correct=%s, grading_status=%s, grading_reason=%s,
                         similarity_score=%s, reviewed_by=NULL, reviewed_at=NULL
                     WHERE id=%s
-                """, (answer, is_correct, grading_status, reason, similarity, q["id"]))
+                """, (answer_text, json.dumps(selected, ensure_ascii=False), is_correct,
+                      "correct" if is_correct else "incorrect", reason, 100 if is_correct else 0, q["id"]))
         conn.commit()
     finally:
         conn.close()
@@ -1856,7 +1939,7 @@ def exam_result(attempt_id):
             if attempt["status"] == "in_progress":
                 return redirect(url_for("exam_take", attempt_id=attempt_id))
             cur.execute("""
-                SELECT position, question_text, selected_answer, correct_answer, is_correct,
+                SELECT position, question_text, options, selected_answer, selected_answers, correct_answer, correct_answers, is_correct,
                        grading_status, grading_reason, similarity_score
                 FROM exam_attempt_questions WHERE attempt_id=%s ORDER BY position
             """, (attempt_id,))
@@ -2012,7 +2095,7 @@ def exam_admin_attempt(attempt_id):
             attempt = cur.fetchone()
             if not attempt: abort(404)
             cur.execute("""
-                SELECT id, position, question_text, selected_answer, correct_answer, is_correct,
+                SELECT id, position, question_text, options, selected_answer, selected_answers, correct_answer, correct_answers, is_correct,
                        grading_status, grading_reason, similarity_score, reviewed_by, reviewed_at
                 FROM exam_attempt_questions WHERE attempt_id=%s ORDER BY position
             """, (attempt_id,))
