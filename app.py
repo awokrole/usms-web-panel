@@ -1217,6 +1217,12 @@ def directives():
     return render_template("directives.html")
 
 
+@app.route("/akty-prawne")
+@logged_in_required
+def legal_acts():
+    return render_template("legal_acts.html")
+
+
 @app.route("/logi")
 @admin_required
 def logs():
