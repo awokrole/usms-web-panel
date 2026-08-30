@@ -898,8 +898,10 @@ def get_current_officer():
 
 
 def current_payroll_period():
+    # Tydzień pracy USMS: niedziela–sobota.
     today = datetime.now(timezone.utc).date()
-    start = today - timedelta(days=today.weekday())
+    days_since_sunday = (today.weekday() + 1) % 7
+    start = today - timedelta(days=days_since_sunday)
     end = start + timedelta(days=6)
     return start, end, f"{start.isoformat()}_{end.isoformat()}", f"{start.strftime('%d.%m.%Y')} – {end.strftime('%d.%m.%Y')}"
 
@@ -1407,26 +1409,76 @@ def my_profile():
 def payroll_page():
     if not session.get("is_admin", False):
         return redirect(url_for("my_payroll"))
-    rows = []
+
+    periods = []
     if DATABASE_URL:
-        conn = pg_connect("usms-payroll-page")
+        conn = pg_connect("usms-payroll-periods")
         try:
             with conn.cursor(cursor_factory=RealDictCursor) as cur:
                 cur.execute("""
-                    SELECT period_label, badge_snapshot, rank_snapshot, name_snapshot,
-                           hours, amount, received, is_history, multiplier, created_at
+                    SELECT period_key, period_label,
+                           COUNT(*) AS entries_count,
+                           COUNT(*) FILTER (WHERE received) AS received_count,
+                           COUNT(*) FILTER (WHERE NOT received) AS pending_count,
+                           COALESCE(SUM(amount), 0) AS total_amount,
+                           MAX(created_at) AS newest_entry
                     FROM payroll_entries
-                    ORDER BY created_at DESC, id DESC
-                    LIMIT 300
+                    WHERE is_history = TRUE
+                    GROUP BY period_key, period_label
+                    ORDER BY MAX(created_at) DESC, period_label DESC
                 """)
-                rows = [dict(r) for r in cur.fetchall()]
+                periods = [dict(r) for r in cur.fetchall()]
         finally:
             conn.close()
+
+    return render_template(
+        "system_payroll.html",
+        periods=periods,
+        payroll_multiplier=get_payroll_multiplier(),
+    )
+
+
+@app.route("/system/wyplaty/<path:period_key>")
+@admin_required
+def payroll_period_detail(period_key):
+    rows = []
+    period_label = period_key
+    if DATABASE_URL:
+        conn = pg_connect("usms-payroll-period-detail")
+        try:
+            with conn.cursor(cursor_factory=RealDictCursor) as cur:
+                cur.execute("""
+                    SELECT id, period_key, period_label, badge_snapshot, rank_snapshot, name_snapshot,
+                           hours, amount, received, is_history, multiplier, created_at
+                    FROM payroll_entries
+                    WHERE period_key = %s AND is_history = TRUE
+                    ORDER BY CAST(NULLIF(regexp_replace(badge_snapshot, '[^0-9]', '', 'g'), '') AS INTEGER) NULLS LAST,
+                             badge_snapshot, name_snapshot
+                """, (period_key,))
+                rows = [dict(r) for r in cur.fetchall()]
+                if rows:
+                    period_label = rows[0].get("period_label") or period_key
+        finally:
+            conn.close()
+
+    if not rows:
+        return render_template(
+            "error.html",
+            title="Nie znaleziono wypłat",
+            message="Nie znaleziono zestawienia wypłat dla wybranego tygodnia.",
+        ), 404
+
     received_count = sum(1 for r in rows if r.get("received"))
     total_amount = sum(float(r.get("amount") or 0) for r in rows)
-    return render_template("system_payroll.html", rows=rows, received_count=received_count,
-                           pending_count=len(rows)-received_count, total_amount=total_amount,
-                           payroll_multiplier=get_payroll_multiplier())
+    return render_template(
+        "system_payroll_period.html",
+        rows=rows,
+        period_key=period_key,
+        period_label=period_label,
+        received_count=received_count,
+        pending_count=len(rows) - received_count,
+        total_amount=total_amount,
+    )
 
 
 @app.route("/system/wyplaty/mnoznik", methods=["POST"])
