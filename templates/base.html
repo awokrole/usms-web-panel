@@ -33,12 +33,13 @@
             {% if is_admin %}<a href="{{ url_for('exam_admin') }}" class="{% if request.endpoint and request.endpoint.startswith('exam_admin') %}active{% endif %}">⚙ Egzaminy — Admin</a>{% endif %}
 
             <span class="nav-label">SYSTEM</span>
-            <a href="#">◉ Służba</a>
-            <a href="#">▣ Wypłaty</a>
-            <a href="#">⌁ Urlopy i zawieszenia</a>
-            <a href="#">◁ Ogłoszenia</a>
+            <a href="{{ url_for('duty_page') }}" class="{% if request.endpoint == 'duty_page' %}active{% endif %}"><span class="nav-ico">◷</span> Służba</a>
+            <a href="{{ url_for('payroll_page') }}" class="{% if request.endpoint == 'payroll_page' %}active{% endif %}"><span class="nav-ico">$</span> Wypłaty</a>
+            <a href="{{ url_for('absences_page') }}" class="{% if request.endpoint == 'absences_page' %}active{% endif %}"><span class="nav-ico">□</span> Urlopy i zawieszenia</a>
+            <a href="{{ url_for('announcements_page') }}" class="{% if request.endpoint == 'announcements_page' %}active{% endif %}"><span class="nav-ico">◁</span> Ogłoszenia</a>
             {% if is_admin %}
-            <a href="{{ url_for('logs') }}" class="{% if request.endpoint == 'logs' %}active{% endif %}">▥ Logi komend</a>
+            <a href="{{ url_for('logs') }}" class="{% if request.endpoint == 'logs' %}active{% endif %}"><span class="nav-ico">≡</span> Logi komend</a>
+            <a href="{{ url_for('system_status') }}" class="{% if request.endpoint == 'system_status' %}active{% endif %}"><span class="nav-ico">●</span> Stan systemu</a>
             {% endif %}
         </nav>
 

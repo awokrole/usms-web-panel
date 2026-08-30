@@ -1,0 +1,4 @@
+{% extends "base.html" %}{% block title %}Logi komend — USMS Panel{% endblock %}{% block content %}
+<div class="page-head"><div><h1>Logi komend</h1><p>Ostatnie wiadomości z kanału logów bota. Widok tylko dla administracji.</p></div><div class="date-chip">{{ rows|length }} wpisów</div></div>
+{% if error %}<div class="alert error">{{ error }}</div>{% endif %}<section class="panel full"><div class="system-log-list">{% for r in rows %}<article class="system-log"><div class="system-log-head"><strong>{{ r.author }}</strong><span>{{ r.timestamp }}</span></div>{% if r.content %}<p>{{ r.content }}</p>{% endif %}{% for e in r.embeds %}<div class="log-embed">{% if e.title %}<b>{{ e.title }}</b>{% endif %}{% if e.description %}<p>{{ e.description }}</p>{% endif %}</div>{% endfor %}</article>{% else %}<div class="empty">Brak wpisów do wyświetlenia.</div>{% endfor %}</div></section>
+{% endblock %}
