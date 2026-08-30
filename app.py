@@ -1223,11 +1223,175 @@ def legal_acts():
     return render_template("legal_acts.html")
 
 
+def _as_utc_datetime(value):
+    if not value:
+        return None
+    if isinstance(value, datetime):
+        dt = value
+    else:
+        try:
+            dt = datetime.fromisoformat(str(value))
+        except Exception:
+            return None
+    if dt.tzinfo is None:
+        dt = dt.replace(tzinfo=timezone.utc)
+    return dt.astimezone(timezone.utc)
+
+
+def _system_officer_rows():
+    officers = load_officers()
+    duty = load_duty_state()
+    rows = []
+    for officer in officers:
+        state = duty.get(officer["discord_id"], {})
+        officer["duty"] = state
+        officer["current_shift_text"] = format_seconds(state.get("current_shift_seconds", 0))
+        officer["weekly_text"] = format_seconds(state.get("weekly_seconds", 0))
+        officer["lifetime_text"] = format_seconds(state.get("lifetime_seconds", 0))
+        rows.append(officer)
+    return rows
+
+
+@app.route("/system/sluzba")
+@logged_in_required
+def duty_page():
+    rows = _system_officer_rows()
+    active = [o for o in rows if o["duty"].get("active")]
+    paused = [o for o in active if o["duty"].get("on_pause")]
+    weekly = sum(o["duty"].get("weekly_seconds", 0) for o in rows)
+    lifetime = sum(o["duty"].get("lifetime_seconds", 0) for o in rows)
+    rows.sort(key=lambda o: (not o["duty"].get("active"), -int(o["duty"].get("current_shift_seconds", 0)), str(o["badge"])))
+    return render_template("system_duty.html", rows=rows, active=active, paused=paused,
+                           weekly_hours=round(weekly / 3600, 1), lifetime_hours=round(lifetime / 3600, 1))
+
+
+@app.route("/system/wyplaty")
+@logged_in_required
+def payroll_page():
+    rows = []
+    if DATABASE_URL:
+        conn = pg_connect("usms-payroll-page")
+        try:
+            with conn.cursor(cursor_factory=RealDictCursor) as cur:
+                cur.execute("""
+                    SELECT period_label, badge_snapshot, rank_snapshot, name_snapshot,
+                           hours, amount, received, is_history, created_at
+                    FROM payroll_entries
+                    ORDER BY created_at DESC, id DESC
+                    LIMIT 300
+                """)
+                rows = [dict(r) for r in cur.fetchall()]
+        finally:
+            conn.close()
+    received_count = sum(1 for r in rows if r.get("received"))
+    total_amount = sum(float(r.get("amount") or 0) for r in rows)
+    return render_template("system_payroll.html", rows=rows, received_count=received_count,
+                           pending_count=len(rows)-received_count, total_amount=total_amount)
+
+
+@app.route("/system/urlopy-zawieszenia")
+@logged_in_required
+def absences_page():
+    rows = _system_officer_rows()
+    now = datetime.now(timezone.utc)
+    vacations, suspensions = [], []
+    for o in rows:
+        state = o.get("duty", {})
+        vacation_end = state.get("vacation_end") or o.get("vacation_end")
+        vacation_start = state.get("vacation_start") or o.get("vacation_start")
+        suspension_until = state.get("suspension_until") or o.get("suspension_until")
+        if vacation_end:
+            try:
+                end_date = vacation_end.date() if isinstance(vacation_end, datetime) else vacation_end
+                if isinstance(end_date, str):
+                    end_date = datetime.fromisoformat(end_date).date()
+                if end_date >= now.date():
+                    item = dict(o); item["vacation_end"] = end_date; item["vacation_start"] = vacation_start
+                    vacations.append(item)
+            except Exception:
+                pass
+        dt = _as_utc_datetime(suspension_until)
+        if dt and dt > now:
+            item = dict(o); item["suspension_until"] = dt.strftime("%Y-%m-%d %H:%M")
+            item["suspension_reason"] = o.get("suspension_reason")
+            suspensions.append(item)
+    return render_template("system_absences.html", vacations=vacations, suspensions=suspensions)
+
+
+@app.route("/system/ogloszenia")
+@logged_in_required
+def announcements_page():
+    rows = []
+    if DATABASE_URL:
+        conn = pg_connect("usms-announcements-page")
+        try:
+            with conn.cursor(cursor_factory=RealDictCursor) as cur:
+                cur.execute("SELECT author_id, channel_id, message_id, created_at FROM announcement_sessions ORDER BY created_at DESC LIMIT 100")
+                rows = [dict(r) for r in cur.fetchall()]
+        finally:
+            conn.close()
+    return render_template("system_announcements.html", rows=rows, guild_id=DISCORD_GUILD_ID or "")
+
+
 @app.route("/logi")
 @admin_required
 def logs():
-    return render_template("placeholder.html", title="Logi komend",
-                           message="Sekcję logów podłączymy w kolejnym etapie do kanału Discord lub osobnej tabeli bazy.")
+    rows, error = [], None
+    log_channel_id = os.environ.get("DISCORD_LOG_CHANNEL_ID", "1542575481776373770").strip()
+    if not DISCORD_TOKEN or not log_channel_id:
+        error = "Brak konfiguracji bota Discord lub kanału logów."
+    else:
+        try:
+            r = requests.get(
+                f"{DISCORD_API}/channels/{log_channel_id}/messages?limit=50",
+                headers={"Authorization": f"Bot {DISCORD_TOKEN}"}, timeout=10,
+            )
+            if r.status_code != 200:
+                error = f"Discord API zwróciło kod {r.status_code}."
+            else:
+                for msg in r.json():
+                    author = msg.get("author") or {}
+                    rows.append({
+                        "author": author.get("global_name") or author.get("username") or "Discord",
+                        "timestamp": (msg.get("timestamp") or "").replace("T", " ")[:19],
+                        "content": msg.get("content") or "",
+                        "embeds": msg.get("embeds") or [],
+                    })
+        except Exception as exc:
+            error = f"Nie udało się pobrać logów Discord: {exc}"
+    return render_template("system_logs.html", rows=rows, error=error)
+
+
+@app.route("/system/status")
+@admin_required
+def system_status():
+    db_ok = False; discord_ok = False
+    officer_count = payroll_count = announcement_count = 0
+    if DATABASE_URL:
+        try:
+            conn = pg_connect("usms-system-status")
+            try:
+                with conn.cursor() as cur:
+                    cur.execute("SELECT 1"); db_ok = cur.fetchone()[0] == 1
+                    cur.execute("SELECT COUNT(*) FROM officers WHERE active=TRUE"); officer_count = cur.fetchone()[0]
+                    cur.execute("SELECT COUNT(*) FROM payroll_entries"); payroll_count = cur.fetchone()[0]
+                    cur.execute("SELECT COUNT(*) FROM announcement_sessions"); announcement_count = cur.fetchone()[0]
+            finally:
+                conn.close()
+        except Exception:
+            db_ok = False
+    if DISCORD_TOKEN:
+        try:
+            r = requests.get(f"{DISCORD_API}/users/@me", headers={"Authorization": f"Bot {DISCORD_TOKEN}"}, timeout=7)
+            discord_ok = r.status_code == 200
+        except Exception:
+            discord_ok = False
+    return render_template("system_status.html", db_ok=db_ok, discord_ok=discord_ok,
+                           database_url_set=bool(DATABASE_URL),
+                           discord_configured=bool(DISCORD_TOKEN and DISCORD_GUILD_ID),
+                           officer_count=officer_count, payroll_count=payroll_count,
+                           announcement_count=announcement_count,
+                           checked_at=datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
 
 
 @app.errorhandler(500)
