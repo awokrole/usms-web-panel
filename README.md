@@ -262,3 +262,8 @@ Zmienne `GOOGLE_TOKEN_JSON`, `SHEET_ID`, `ROSTER_SHEET_NAME`, `TRAINING_SHEET_NA
 - Inspekcja bez uprawnień administratora widzi przycisk `KONTROLA DOKUMENTÓW` na dole sidebara, tuż nad profilem użytkownika.
 - Administrator nie ma osobnego przycisku kontroli dokumentów w głównym sidebarze; funkcja znajduje się jako kafelek w `PANEL ADMINA`.
 - Uprawnienia kontroli pozostają tylko do odczytu; sama rola Inspekcji nie otrzymuje uprawnień administratora.
+
+## v44 — stonowany przycisk Kontrola dokumentów
+- Przycisk `KONTROLA DOKUMENTÓW` dla Inspekcji ma teraz ten sam kompaktowy układ co `PANEL ADMINA`.
+- Usunięto jasne niebieskie podświetlenie; zastosowano ciemny granat dopasowany do sidebara.
+- Zachowano dotychczasową logikę uprawnień v43: Inspekcja widzi przycisk na dole, administrator ma Kontrolę dokumentów wewnątrz Panelu Admina.
