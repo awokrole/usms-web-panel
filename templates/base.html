@@ -20,17 +20,31 @@
             </div>
         </a>
 
-        <nav>
-            <span class="nav-label">SYSTEM</span>
-            <a href="{{ url_for('duty_page') }}" class="{% if request.endpoint == 'duty_page' %}active{% endif %}"><span class="nav-ico">◷</span> Służba</a>
+        <nav class="sidebar-panels">
+            <details class="side-panel" {% if request.endpoint in ['officers','officer_detail','trainings','akta'] %}open{% endif %}>
+                <summary><span class="side-panel-icon">☰</span><strong>USMS PANEL</strong><span class="chevron">⌄</span></summary>
+                <div class="side-panel-list">
+                    <a href="{{ url_for('officers') }}" class="{% if request.endpoint in ['officers','officer_detail'] %}active{% endif %}">♙ Funkcjonariusze</a>
+                    <a href="{{ url_for('akta') }}" class="{% if request.endpoint == 'akta' %}active{% endif %}">▤ Akta</a>
+                    <a href="{{ url_for('trainings') }}" class="{% if request.endpoint == 'trainings' %}active{% endif %}">✚ Szkolenia</a>
+                </div>
+            </details>
+
+            <details class="side-panel" {% if request.endpoint in ['kompendium','directives','legal_acts','exam_home','exam_take','exam_result','exam_admin','exam_admin_session','exam_admin_attempt'] %}open{% endif %}>
+                <summary><span class="side-panel-icon">▤</span><strong>BAZA WIEDZY</strong><span class="chevron">⌄</span></summary>
+                <div class="side-panel-list">
+                    <a href="{{ url_for('kompendium') }}" class="{% if request.endpoint == 'kompendium' %}active{% endif %}">⌘ Kompendium</a>
+                    <a href="{{ url_for('directives') }}" class="{% if request.endpoint == 'directives' %}active{% endif %}">▧ Dyrektywy PIA</a>
+                    <a href="{{ url_for('legal_acts') }}" class="{% if request.endpoint == 'legal_acts' %}active{% endif %}">§ Akty prawne</a>
+                    <a href="{{ url_for('exam_home') }}" class="{% if request.endpoint in ['exam_home','exam_take','exam_result'] %}active{% endif %}">✓ Egzaminy</a>
+                    {% if is_admin %}<a href="{{ url_for('exam_admin') }}" class="{% if request.endpoint in ['exam_admin','exam_admin_session','exam_admin_attempt'] %}active{% endif %}">⚙ Egzaminy — Admin</a>{% endif %}
+                </div>
+            </details>
+
             {% if is_admin %}
-            <a href="{{ url_for('payroll_page') }}" class="{% if request.endpoint == 'payroll_page' %}active{% endif %}"><span class="nav-ico">$</span> Wypłaty</a>
-            {% endif %}
-            <a href="{{ url_for('absences_page') }}" class="{% if request.endpoint == 'absences_page' %}active{% endif %}"><span class="nav-ico">□</span> Urlopy i zawieszenia</a>
-            <a href="{{ url_for('announcements_page') }}" class="{% if request.endpoint == 'announcements_page' %}active{% endif %}"><span class="nav-ico">◁</span> Ogłoszenia</a>
-            {% if is_admin %}
-            <a href="{{ url_for('logs') }}" class="{% if request.endpoint == 'logs' %}active{% endif %}"><span class="nav-ico">≡</span> Logi komend</a>
-            <a href="{{ url_for('system_status') }}" class="{% if request.endpoint == 'system_status' %}active{% endif %}"><span class="nav-ico">●</span> Stan systemu</a>
+            <a class="side-admin-panel {% if request.endpoint == 'admin_panel' %}active{% endif %}" href="{{ url_for('admin_panel') }}">
+                <span class="side-panel-icon">⚙</span><strong>PANEL ADMINA</strong><span>→</span>
+            </a>
             {% endif %}
         </nav>
 
@@ -46,27 +60,7 @@
 
     <main class="main">
         <header class="topbar">
-            <div class="topbar-nav">
-                <details class="top-menu" {% if request.endpoint in ['officers','officer_detail','trainings','akta'] %}data-active="true"{% endif %}>
-                    <summary>☰ &nbsp; USMS PANEL <span class="chevron">⌄</span></summary>
-                    <div class="top-menu-list">
-                        <a href="{{ url_for('officers') }}">♙ Funkcjonariusze</a>
-                        <a href="{{ url_for('akta') }}">▤ Akta</a>
-                        <a href="{{ url_for('trainings') }}">✚ Szkolenia</a>
-                    </div>
-                </details>
-
-                <details class="top-menu" {% if request.endpoint in ['kompendium','directives','legal_acts','exam_home','exam_take','exam_result','exam_admin','exam_admin_session','exam_admin_attempt'] %}data-active="true"{% endif %}>
-                    <summary>BAZA WIEDZY <span class="chevron">⌄</span></summary>
-                    <div class="top-menu-list">
-                        <a href="{{ url_for('kompendium') }}">⌘ Kompendium</a>
-                        <a href="{{ url_for('directives') }}">▧ Dyrektywy PIA</a>
-                        <a href="{{ url_for('legal_acts') }}">§ Akty prawne</a>
-                        <a href="{{ url_for('exam_home') }}">✓ Egzaminy</a>
-                        {% if is_admin %}<a href="{{ url_for('exam_admin') }}">⚙ Egzaminy — Admin</a>{% endif %}
-                    </div>
-                </details>
-            </div>
+            <a class="topbar-home" href="{{ url_for('dashboard') }}">USMS PANEL</a>
             <div class="top-user">
                 <span class="status-dot"></span>
                 {{ current_user.username }}
