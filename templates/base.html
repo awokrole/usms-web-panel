@@ -27,6 +27,7 @@
             <a href="{{ url_for('akta') }}" class="{% if request.endpoint == 'akta' %}active{% endif %}">▤ Akta</a>
             <a href="{{ url_for('kompendium') }}" class="{% if request.endpoint == 'kompendium' %}active{% endif %}">⌘ Kompendium</a>
             <a href="{{ url_for('directives') }}" class="{% if request.endpoint == 'directives' %}active{% endif %}">▧ Dyrektywy</a>
+            <a href="{{ url_for('legal_acts') }}" class="{% if request.endpoint == 'legal_acts' %}active{% endif %}">§ Akty prawne</a>
             <a href="{{ url_for('exam_home') }}" class="{% if request.endpoint and request.endpoint.startswith('exam_') and request.endpoint != 'exam_admin' and not request.endpoint.startswith('exam_admin_') %}active{% endif %}">✓ Egzamin</a>
             {% if is_admin %}<a href="{{ url_for('exam_admin') }}" class="{% if request.endpoint and request.endpoint.startswith('exam_admin') %}active{% endif %}">⚙ Egzaminy — Admin</a>{% endif %}
 

@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+{% block title %}Akty prawne — USMS Panel{% endblock %}
+{% block content %}
+<div class="legal-page">
+  <section class="panel legal-hero">
+    <div>
+      <div class="eyebrow">BAZA PRAWNA • SAN ANDREAS</div>
+      <h1>Akty prawne</h1>
+      <p>Wewnętrzna biblioteka aktów obowiązujących w RP. Treść odwzorowana z materiałów Department of Justice.</p>
+    </div>
+    <div class="legal-search-wrap">
+      <input id="legalSearch" class="legal-search" type="search" placeholder="Szukaj: immunitet, przeszukanie, obywatelstwo…" autocomplete="off">
+      <small id="legalCount">2 akty prawne</small>
+    </div>
+  </section>
+
+  <div class="legal-layout">
+    <aside class="panel legal-library">
+      <strong>BIBLIOTEKA</strong>
+      <button class="legal-act-tab active" data-act="constitution"><span>01</span><div>Konstytucja<small>8 artykułów</small></div></button>
+      <button class="legal-act-tab" data-act="state"><span>02</span><div>Prawo Stanowe<small>14 rozdziałów</small></div></button>
+      <div class="legal-hierarchy">
+        <small>HIERARCHIA PRAWA</small>
+        <b>Konstytucja</b><i>↓</i><b>Prawo Federalne</b><i>↓</i><b>Prawo Stanowe</b>
+      </div>
+    </aside>
+
+    <main class="legal-content">
+      <section class="legal-act active" id="act-constitution">
+        <div class="panel legal-act-head">
+          <div class="legal-doc-icon">§</div><div><div class="eyebrow">NAJWYŻSZY AKT PRAWNY</div><h2>Konstytucja Stanów Zjednoczonych Ameryki</h2><p>Opublikowane przez U.S Department of Justice</p></div>
+        </div>
+        <article class="panel law-section searchable"><h3>PREAMBUŁA</h3><p>My, Naród Stanów Zjednoczonych Ameryki, w celu ustanowienia sprawiedliwości, zapewnienia bezpieczeństwa publicznego, utrzymania porządku prawnego, ochrony wolności obywatelskich oraz zagwarantowania trwałości instytucji państwowych, ustanawiamy niniejszą Konstytucję jako najwyższe prawo obowiązujące na terytorium Stanów Zjednoczonych Ameryki.</p></article>
+        <article class="panel law-section searchable"><h3>ARTYKUŁ I <span>Władza Ustawodawcza</span></h3><p><b>Sekcja 1.</b> Władza ustawodawcza należy do organów uprawnionych do stanowienia prawa zgodnie z niniejszą Konstytucją.</p><p><b>Sekcja 2.</b> Prawo może być uchwalane, zmieniane lub uchylane wyłącznie w sposób przewidziany przez obowiązujące przepisy.</p><p><b>Sekcja 3.</b> Żaden akt prawny nie może pozostawać w sprzeczności z niniejszą Konstytucją.</p></article>
+        <article class="panel law-section searchable"><h3>ARTYKUŁ II <span>Władza Wykonawcza</span></h3><p><b>Sekcja 1.</b> Władza wykonawcza sprawowana jest przez organy federalne ustanowione zgodnie z prawem.</p><p><b>Sekcja 2.</b> Department of Justice jest najwyższym organem odpowiedzialnym za nadzór nad wymiarem sprawiedliwości, legalnością działań organów publicznych oraz wykonywaniem prawa federalnego.</p><p><b>Sekcja 3.</b> Organizację, kompetencje oraz zakres działania organów federalnych określa Prawo Federalne.</p></article>
+        <article class="panel law-section searchable"><h3>ARTYKUŁ III <span>Władza Sądownicza</span></h3><p><b>Sekcja 1.</b> Władza sądownicza sprawowana jest przez sądy ustanowione zgodnie z obowiązującym prawem.</p><p><b>Sekcja 2.</b> Sądy są niezależne w zakresie wydawanych orzeczeń.</p><p><b>Sekcja 3.</b> Każda osoba ma prawo do sprawiedliwego i bezstronnego procesu.</p></article>
+        <article class="panel law-section searchable"><h3>ARTYKUŁ IV <span>Obywatele i Państwo</span></h3><p><b>Sekcja 1.</b> Wszyscy obywatele są równi wobec prawa.</p><p><b>Sekcja 2.</b> Nikt nie może zostać pozbawiony życia, wolności lub majątku bez podstawy prawnej.</p><p><b>Sekcja 3.</b> Każdemu przysługuje prawo do obrony oraz korzystania z pomocy adwokata.</p><p><b>Sekcja 4.</b> Każdego uważa się za niewinnego do czasu prawomocnego stwierdzenia winy.</p></article>
+        <article class="panel law-section searchable"><h3>ARTYKUŁ V <span>Prawo Federalne i Stanowe</span></h3><p><b>Sekcja 1.</b> Konstytucja Stanów Zjednoczonych Ameryki jest najwyższym aktem prawnym.</p><p><b>Sekcja 2.</b> Prawo Federalne posiada pierwszeństwo przed Prawem Stanowym.</p><p><b>Sekcja 3.</b> Prawo Stanowe obowiązuje w zakresie nieuregulowanym przez Konstytucję oraz Prawo Federalne.</p></article>
+        <article class="panel law-section searchable"><h3>ARTYKUŁ VI <span>Stany Nadzwyczajne</span></h3><p><b>Sekcja 1.</b> W przypadku zagrożenia bezpieczeństwa państwa, porządku publicznego lub życia obywateli mogą zostać wprowadzone nadzwyczajne środki prawne przewidziane przez Prawo Federalne.</p></article>
+        <article class="panel law-section searchable"><h3>ARTYKUŁ VII <span>Zmiana Konstytucji</span></h3><p><b>Sekcja 1.</b> Zmiana Konstytucji może nastąpić wyłącznie w drodze poprawki konstytucyjnej.</p><p><b>Sekcja 2.</b> Żadna poprawka nie może naruszać podstawowych zasad państwa prawa oraz prawa do sprawiedliwego procesu.</p></article>
+        <article class="panel law-section searchable"><h3>ARTYKUŁ VIII <span>Postanowienia Końcowe</span></h3><p><b>Sekcja 1.</b> Wszystkie akty prawne obowiązujące na terytorium Stanów Zjednoczonych Ameryki podlegają dostosowaniu do postanowień niniejszej Konstytucji.</p></article>
+      </section>
+
+      <section class="legal-act" id="act-state">
+        <div class="panel legal-act-head"><div class="legal-doc-icon">SA</div><div><div class="eyebrow">PRAWO STANU SAN ANDREAS</div><h2>Prawo Stanowe</h2><p>14 rozdziałów • wersja odwzorowana z przekazanych materiałów DOJ</p></div></div>
+        <article class="panel law-section searchable"><h3>PREAMBUŁA</h3><p>Naród Stanów Zjednoczonych, pragnąc udoskonalić Unię, ustanowić sprawiedliwość, zabezpieczyć spokój w kraju, zapewnić wspólną obronę, podnieść ogólny dobrobyt oraz utrzymać dla nas samych i naszego potomstwa dobrodziejstwa wolności, wprowadzamy i ustanawiamy dla Stanów Zjednoczonych Ameryki niniejszą konstytucję.</p></article>
+        {% set chapters = [
+          ('I','System Prawny','Common law, hierarchia źródeł prawa i nadrzędność Konstytucji.'),
+          ('II','Władze i Sądownictwo','Kompetencje Dyrektora DOJ, prawo łaski, stan nadzwyczajny, budżet, nadzór nad służbami, Cayo Perico, sądownictwo i immunitety.'),
+          ('III','Relacje Międzystanowe','Uznawanie aktów i orzeczeń innych stanów, równość przywilejów obywateli i ochrona stanów.'),
+          ('IV','Definicja Obywatela','Status obywatela, prawa i podleganie jurysdykcji federalnej oraz stanowej.'),
+          ('V','Obowiązki Obywatela','Przestrzeganie prawa, pomoc, stawiennictwo, dokument tożsamości, współpraca ze służbami i obowiązki porządkowe.'),
+          ('VI','Prawa Obywatelskie','Obrona, sprawiedliwy proces, odmowa zeznań, zgromadzenia, własność, praca, zdrowie, broń, marihuana i CSN.'),
+          ('VII','Granice Pełnoletności i Status Prawny','Status osób 18–20 lat, pełnoletność od 21 lat oraz programy praktyk i edukacji.'),
+          ('VIII','Obowiązki Obywatela Niepełno/Pełnoletni (18–20 lat)','Odpowiedzialność, dokumenty, praktyki, szkolenia, ograniczenia prawne i dostęp do lokali.'),
+          ('IX','Stan cywilny','Małżeństwo, warunki jego zawarcia oraz rejestracja.'),
+          ('X','Prawa Obywatela w Zakresie Nieruchomości Prywatnej','Własność, prywatność, przeszukanie, imprezy prywatne, broń i prawo odmowy wejścia.'),
+          ('XI','Imigranci','Status imigranta, obywatelstwo, podwójne obywatelstwo, praca tymczasowa i deportacja.'),
+          ('XII','Hazard i Gry Losowe','Definicja hazardu, próg wieku, ograniczenia i obowiązki organizatora.'),
+          ('XIII','Legalność połowów, wydobycia oraz łowiectwa','Połowy, wydobycie, polowania, przedmioty pochodzenia zwierzęcego i uprawnienia W.E.U.'),
+          ('XIV','Postanowienia Końcowe','Nadrzędność prawa oraz zasada ignorantia iuris nocet.')
+        ] %}
+        {% for no,title,desc in chapters %}
+        <article class="panel law-section law-chapter searchable"><div class="chapter-no">{{ no }}</div><h3>ROZDZIAŁ {{ no }} <span>{{ title }}</span></h3><p>{{ desc }}</p>
+          {% if no == 'II' %}<div class="law-highlight"><b>Cayo Perico</b><span>Standardowe działania operacyjne wymagają uprzedniej zgody Zarządu DOJ; wyjątek dotyczy bezpośredniego zagrożenia życia, zdrowia lub bezpieczeństwa publicznego, z raportem w terminie 48 godzin.</span></div>{% endif %}
+          {% if no == 'VI' %}<div class="law-highlight"><b>Art. 3 §2</b><span>Funkcjonariusz jednostki LEA jest zwolniony z Art. 3 §1 dotyczącego odmowy składania zeznań.</span></div>{% endif %}
+          {% if no == 'X' %}<div class="law-highlight"><b>Przeszukanie nieruchomości</b><span>Może nastąpić m.in. na podstawie ważnego nakazu prokuratorskiego, przy bezpośrednim zagrożeniu, podczas interwencji służb lub za wyraźną zgodą uprawnionej osoby.</span></div>{% endif %}
+          {% if no == 'XIII' %}<div class="law-highlight"><b>W.E.U.</b><span>Wildlife Enforcement Unit posiada wskazane w akcie uprawnienia kontrolne na terenach zielonych, leśnych i chronionych przy uzasadnionym podejrzeniu naruszeń.</span></div>{% endif %}
+        </article>
+        {% endfor %}
+        <div class="panel legal-source-note">Ta wersja demonstracyjna pokazuje układ biblioteki. Kolejne akty można dodawać jako osobne pozycje bez przebudowy panelu.</div>
+      </section>
+      <div id="legalNoResults" class="panel legal-no-results" hidden>Brak wyników dla podanej frazy.</div>
+    </main>
+  </div>
+</div>
+<script>
+const tabs=[...document.querySelectorAll('.legal-act-tab')], acts=[...document.querySelectorAll('.legal-act')], search=document.getElementById('legalSearch'), count=document.getElementById('legalCount'), nores=document.getElementById('legalNoResults');
+function activate(id){tabs.forEach(x=>x.classList.toggle('active',x.dataset.act===id));acts.forEach(x=>x.classList.toggle('active',x.id==='act-'+id));search.value='';filter();}
+tabs.forEach(t=>t.addEventListener('click',()=>activate(t.dataset.act)));
+function filter(){const q=search.value.trim().toLocaleLowerCase('pl');const active=document.querySelector('.legal-act.active');let shown=0;active.querySelectorAll('.searchable').forEach(el=>{const ok=!q||el.innerText.toLocaleLowerCase('pl').includes(q);el.hidden=!ok;if(ok)shown++;});nores.hidden=shown!==0;count.textContent=q?`${shown} wyników`:'2 akty prawne';}
+search.addEventListener('input',filter);
+</script>
+{% endblock %}
