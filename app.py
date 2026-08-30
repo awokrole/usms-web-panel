@@ -3,7 +3,7 @@ import os
 import secrets
 import sqlite3
 import io
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 
 try:
     import psycopg2
@@ -218,6 +218,8 @@ def ensure_roster_tables():
                     UNIQUE (period_key, badge_snapshot)
                 )
             """)
+            cur.execute("ALTER TABLE payroll_entries ADD COLUMN IF NOT EXISTS multiplier NUMERIC(4,2) NOT NULL DEFAULT 1.00")
+
             cur.execute("""
                 CREATE TABLE IF NOT EXISTS payroll_settings (
                     id SMALLINT PRIMARY KEY DEFAULT 1 CHECK (id = 1),
@@ -883,6 +885,25 @@ def get_payroll_multiplier():
         return 1.0
 
 
+def get_current_officer():
+    user = session.get("discord_user") or {}
+    try:
+        discord_id = int(user.get("id"))
+    except (TypeError, ValueError):
+        return None
+    try:
+        return next((o for o in load_officers() if int(o.get("discord_id")) == discord_id), None)
+    except Exception:
+        return None
+
+
+def current_payroll_period():
+    today = datetime.now(timezone.utc).date()
+    start = today - timedelta(days=today.weekday())
+    end = start + timedelta(days=6)
+    return start, end, f"{start.isoformat()}_{end.isoformat()}", f"{start.strftime('%d.%m.%Y')} – {end.strftime('%d.%m.%Y')}"
+
+
 @app.route("/dashboard")
 @logged_in_required
 def dashboard():
@@ -951,6 +972,7 @@ def dashboard():
         lifetime_hours=round(lifetime_total_seconds / 3600, 1),
         sheet_error=sheet_error,
         payroll_multiplier=get_payroll_multiplier(),
+        my_officer=get_current_officer(),
     )
 
 
@@ -1295,9 +1317,69 @@ def duty_page():
                            weekly_hours=round(weekly / 3600, 1), lifetime_hours=round(lifetime / 3600, 1))
 
 
+@app.route("/moja-wyplata")
+@logged_in_required
+def my_payroll():
+    officer = get_current_officer()
+    if not officer:
+        return render_template("error.html", title="Brak profilu funkcjonariusza",
+                               message="Twoje Discord ID nie jest przypisane do aktywnej karty funkcjonariusza."), 404
+
+    discord_id = int(officer["discord_id"])
+    badge = str(officer.get("badge") or "")
+    duty = load_duty_state().get(discord_id, {})
+    weekly_seconds = int(duty.get("weekly_seconds", 0) or 0)
+    hours = weekly_seconds / 3600
+    multiplier = get_payroll_multiplier()
+    rate = 1500.0
+    current_amount = hours * rate * multiplier
+    period_start, period_end, period_key, period_label = current_payroll_period()
+
+    history = []
+    current_entry = None
+    if DATABASE_URL:
+        conn = pg_connect("my-payroll")
+        try:
+            with conn.cursor(cursor_factory=RealDictCursor) as cur:
+                cur.execute("""
+                    SELECT period_key, period_label, badge_snapshot, rank_snapshot, name_snapshot,
+                           hours, amount, received, is_history, multiplier, created_at
+                    FROM payroll_entries
+                    WHERE discord_id = %s OR badge_snapshot = %s
+                    ORDER BY created_at DESC, id DESC
+                    LIMIT 200
+                """, (discord_id, badge))
+                rows = [dict(r) for r in cur.fetchall()]
+                for row in rows:
+                    if row.get("period_key") == period_key and current_entry is None:
+                        current_entry = row
+                    else:
+                        history.append(row)
+        finally:
+            conn.close()
+
+    return render_template("my_payroll.html", officer=officer, history=history,
+                           weekly_seconds=weekly_seconds, weekly_time=format_seconds(weekly_seconds),
+                           hours=hours, rate=rate, payroll_multiplier=multiplier,
+                           current_amount=current_amount, current_entry=current_entry,
+                           period_label=period_label)
+
+
+@app.route("/moj-profil")
+@logged_in_required
+def my_profile():
+    officer = get_current_officer()
+    if not officer:
+        return render_template("error.html", title="Brak profilu funkcjonariusza",
+                               message="Twoje Discord ID nie jest przypisane do aktywnej karty funkcjonariusza."), 404
+    return redirect(url_for("officer_detail", badge=officer["badge"]))
+
+
 @app.route("/system/wyplaty")
 @logged_in_required
 def payroll_page():
+    if not session.get("is_admin", False):
+        return redirect(url_for("my_payroll"))
     rows = []
     if DATABASE_URL:
         conn = pg_connect("usms-payroll-page")
@@ -1305,7 +1387,7 @@ def payroll_page():
             with conn.cursor(cursor_factory=RealDictCursor) as cur:
                 cur.execute("""
                     SELECT period_label, badge_snapshot, rank_snapshot, name_snapshot,
-                           hours, amount, received, is_history, created_at
+                           hours, amount, received, is_history, multiplier, created_at
                     FROM payroll_entries
                     ORDER BY created_at DESC, id DESC
                     LIMIT 300
