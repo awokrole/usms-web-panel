@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}Wypłaty {{ period_label }} — USMS Panel{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <a class="back-link" href="{{ url_for('payroll_page') }}">← Wszystkie wypłaty</a>
+    <h1>Wypłaty ({{ period_label }})</h1>
+    <p>Lista wypłat zapisana dla tego tygodnia.</p>
+  </div>
+  <div class="date-chip">{{ rows|length }} pozycji</div>
+</div>
+
+<div class="stats-grid system-stats">
+  <div class="stat-card blue"><span>POZYCJE</span><strong>{{ rows|length }}</strong><small>W tym tygodniu</small></div>
+  <div class="stat-card green"><span>OTRZYMANE</span><strong>{{ received_count }}</strong><small>Oznaczone przez /wydana</small></div>
+  <div class="stat-card yellow"><span>DO OTRZYMANIA</span><strong>{{ pending_count }}</strong><small>Jeszcze niewydane</small></div>
+  <div class="stat-card cyan"><span>ŁĄCZNA KWOTA</span><strong>${{ "{:,.0f}".format(total_amount) }}</strong><small>Cały tydzień</small></div>
+</div>
+
+<section class="panel full">
+  <div class="panel-title"><h2>Lista wypłat</h2></div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Funkcjonariusz</th><th>Odznaka</th><th>Godziny</th><th>Mnożnik</th><th>Kwota</th><th>Status</th></tr></thead>
+      <tbody>
+      {% for r in rows %}
+        <tr>
+          <td><strong>{{ r.name_snapshot }}</strong><small>{{ r.rank_snapshot }}</small></td>
+          <td>#{{ r.badge_snapshot }}</td>
+          <td>{{ r.hours }}h</td>
+          <td>×{{ r.multiplier|float|int if (r.multiplier|float).is_integer() else r.multiplier }}</td>
+          <td>${{ "{:,.0f}".format(r.amount|float) }}</td>
+          <td><span class="status-pill {% if r.received %}ok{% else %}warn{% endif %}">{% if r.received %}OTRZYMANA{% else %}DO OTRZYMANIA{% endif %}</span></td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+{% endblock %}

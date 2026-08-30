@@ -1,7 +1,51 @@
-{% extends "base.html" %}{% block title %}Wypłaty — USMS Panel{% endblock %}{% block content %}
-<div class="page-head"><div><h1>Wypłaty</h1><p>Pozycje wypłat zapisane w PostgreSQL.</p></div><div class="date-chip">{{ rows|length }} pozycji</div></div>
-{% if is_admin %}<section class="panel payroll-settings"><div class="panel-title"><div><h2>Mnożnik wypłat</h2><p>Ustawienie obowiązuje globalnie i steruje komunikatem na Dashboardzie.</p></div></div><form method="post" action="{{ url_for('payroll_multiplier_update') }}" class="multiplier-form"><label><input type="radio" name="multiplier" value="1" {% if payroll_multiplier == 1 %}checked{% endif %}> ×1 — standardowa wypłata</label><label><input type="radio" name="multiplier" value="2" {% if payroll_multiplier == 2 %}checked{% endif %}> ×2 — bonus wypłat</label><button type="submit" class="btn-primary">Zapisz mnożnik</button></form></section>{% endif %}
-{% if payroll_multiplier > 1 %}<div class="payroll-bonus-banner compact"><div class="payroll-bonus-icon">$</div><div><span>AKTYWNY BONUS ZAROBKÓW</span><strong>×{{ payroll_multiplier|int }}</strong><small>Bonus jest obecnie aktywny dla całego USMS.</small></div></div>{% endif %}
-<div class="stats-grid system-stats"><div class="stat-card blue"><span>POZYCJE</span><strong>{{ rows|length }}</strong><small>W wybranym zestawieniu</small></div><div class="stat-card green"><span>OTRZYMANE</span><strong>{{ received_count }}</strong><small>Oznaczone jako otrzymane</small></div><div class="stat-card yellow"><span>DO OTRZYMANIA</span><strong>{{ pending_count }}</strong><small>Nieoznaczone</small></div><div class="stat-card cyan"><span>ŁĄCZNA KWOTA</span><strong>${{ "{:,.0f}".format(total_amount) }}</strong><small>Widoczne pozycje</small></div></div>
-<section class="panel full"><div class="panel-title"><h2>Historia wypłat</h2></div><div class="table-wrap"><table><thead><tr><th>Okres</th><th>Funkcjonariusz</th><th>Odznaka</th><th>Godziny</th><th>Kwota</th><th>Status</th></tr></thead><tbody>{% for r in rows %}<tr><td>{{ r.period_label }}</td><td><strong>{{ r.name_snapshot }}</strong><small>{{ r.rank_snapshot }}</small></td><td>#{{ r.badge_snapshot }}</td><td>{{ r.hours }}h</td><td>${{ "{:,.0f}".format(r.amount|float) }}</td><td><span class="status-pill {% if r.received %}ok{% else %}warn{% endif %}">{% if r.received %}OTRZYMANA{% else %}DO OTRZYMANIA{% endif %}</span></td></tr>{% else %}<tr><td colspan="6" class="empty">Brak zapisanych wypłat.</td></tr>{% endfor %}</tbody></table></div></section>
+{% extends "base.html" %}
+{% block title %}Wypłaty — USMS Panel{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1>Wypłaty</h1>
+    <p>Archiwum wypłat podzielone na tygodnie.</p>
+  </div>
+  <div class="date-chip">{{ periods|length }} tygodni</div>
+</div>
+
+{% if is_admin %}
+<section class="panel payroll-settings payroll-settings-compact">
+  <div class="panel-title">
+    <div>
+      <h2>Bonus zarobków</h2>
+      <p>Stan jest sterowany z Discorda komendami <strong>/bonus</strong> i <strong>/stopbonus</strong>.</p>
+    </div>
+    <div class="date-chip">{% if payroll_multiplier == 2 %}AKTYWNY · ×2{% else %}NIEAKTYWNY · ×1{% endif %}</div>
+  </div>
+</section>
+{% endif %}
+
+<section class="panel full">
+  <div class="panel-title">
+    <div>
+      <h2>Archiwum tygodni</h2>
+      <p>Kliknij wybrany tydzień, aby otworzyć listę wypłat funkcjonariuszy.</p>
+    </div>
+  </div>
+  <div class="payroll-period-list">
+    {% for p in periods %}
+      <a class="payroll-period-row" href="{{ url_for('payroll_period_detail', period_key=p.period_key) }}">
+        <div class="payroll-period-main">
+          <span class="payroll-period-icon">$</span>
+          <div>
+            <strong>Wypłaty ({{ p.period_label }})</strong>
+            <small>{{ p.entries_count }} pozycji · {{ p.received_count }} otrzymanych · {{ p.pending_count }} do otrzymania</small>
+          </div>
+        </div>
+        <div class="payroll-period-side">
+          <strong>${{ "{:,.0f}".format(p.total_amount|float) }}</strong>
+          <span>›</span>
+        </div>
+      </a>
+    {% else %}
+      <div class="empty payroll-empty">Brak zapisanych tygodni wypłat.</div>
+    {% endfor %}
+  </div>
+</section>
 {% endblock %}
