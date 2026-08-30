@@ -43,14 +43,14 @@
 
         </nav>
 
-        {% if is_inspection or is_admin %}
-        <a class="side-inspection-panel {% if request.endpoint == 'inspection_documents' %}active{% endif %}" href="{{ url_for('inspection_documents') }}">
+        {% if is_inspection and not is_admin %}
+        <a class="side-inspection-panel side-inspection-bottom {% if request.endpoint == 'inspection_documents' %}active{% endif %}" href="{{ url_for('inspection_documents') }}">
             <span class="side-panel-icon">▤</span><strong>KONTROLA DOKUMENTÓW</strong><span>→</span>
         </a>
         {% endif %}
 
         {% if is_admin %}
-        <a class="side-admin-panel side-admin-bottom {% if request.endpoint == 'admin_panel' %}active{% endif %}" href="{{ url_for('admin_panel') }}">
+        <a class="side-admin-panel side-admin-bottom {% if request.endpoint in ['admin_panel','inspection_documents'] %}active{% endif %}" href="{{ url_for('admin_panel') }}">
             <span class="side-panel-icon">⚙</span><strong>PANEL ADMINA</strong><span>→</span>
         </a>
         {% endif %}
