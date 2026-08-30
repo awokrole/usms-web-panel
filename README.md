@@ -244,3 +244,7 @@ Zmienne `GOOGLE_TOKEN_JSON`, `SHEET_ID`, `ROSTER_SHEET_NAME`, `TRAINING_SHEET_NA
 - Dashboard poprawnie liczy aktywne urlopy zapisane w PostgreSQL jako DATE.
 - Widok Logi komend pokazuje teraz pola embedów Discorda: komendę, status, użytkownika, kanał, parametry oraz błędy.
 - Każdy log pokazuje także Discord ID autora wiadomości i link do oryginalnej wiadomości na Discordzie, gdy jest dostępny.
+
+## v41
+- Panel Admina > Służba: alert dla aktywnej służby trwającej co najmniej 8 godzin.
+- Alert jest informacyjny i nie kończy służby automatycznie.

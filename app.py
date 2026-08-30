@@ -1355,8 +1355,10 @@ def duty_page():
     weekly = sum(o["duty"].get("weekly_seconds", 0) for o in rows)
     lifetime = sum(o["duty"].get("lifetime_seconds", 0) for o in rows)
     rows.sort(key=lambda o: (not o["duty"].get("active"), -int(o["duty"].get("current_shift_seconds", 0)), str(o["badge"])))
-    return render_template("system_duty.html", rows=rows, active=active, paused=paused,
-                           weekly_hours=round(weekly / 3600, 1), lifetime_hours=round(lifetime / 3600, 1))
+    long_shift_threshold = 8 * 3600
+    long_shifts = [o for o in active if int(o["duty"].get("current_shift_seconds", 0) or 0) >= long_shift_threshold]
+    return render_template("system_duty.html", rows=rows, active=active, paused=paused, long_shifts=long_shifts,
+                           long_shift_threshold_hours=8, weekly_hours=round(weekly / 3600, 1), lifetime_hours=round(lifetime / 3600, 1))
 
 
 @app.route("/moja-wyplata")
