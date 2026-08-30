@@ -278,3 +278,7 @@ nav{display:flex;flex-direction:column;gap:5px;overflow:auto}.nav-label{font-siz
 .side-inspection-panel{display:flex;align-items:center;gap:10px;margin:10px 10px 0;padding:11px 12px;border:1px solid #25425d;border-radius:10px;color:#dcecff;text-decoration:none;background:#0b1b2a}
 .side-inspection-panel strong{flex:1;font-size:12px}.side-inspection-panel:hover,.side-inspection-panel.active{background:#102c46;border-color:#3979ad}
 .inspection-list{display:grid;gap:8px}.inspection-row{display:grid;grid-template-columns:1fr auto 22px;align-items:center;gap:16px;padding:12px 14px;border:1px solid #20384d;border-radius:10px;text-decoration:none;color:inherit;background:#0a1927}.inspection-row:hover{border-color:#3b78aa;background:#0e2234}.inspection-row div{display:flex;flex-direction:column;gap:3px}.inspection-row small{color:#82a6c3}.inspection-doc-count{text-align:right;min-width:76px}.inspection-doc-count strong{font-size:18px;color:#e7f3ff}
+
+/* v43 — Inspekcja: panel na dole; administrator ma kontrolę dokumentów w Panelu Admina */
+.side-inspection-bottom{margin-top:auto}
+.sidebar-user.has-inspection{margin-top:10px}
