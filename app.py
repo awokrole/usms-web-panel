@@ -43,6 +43,7 @@ DISCORD_API = "https://discord.com/api/v10"
 
 PROFILE_PHOTO_MAX_BYTES = 5 * 1024 * 1024
 DOCUMENT_MAX_BYTES = 10 * 1024 * 1024
+DOCUMENT_MAX_COUNT = 6
 ALLOWED_IMAGE_MIMES = {"image/png", "image/jpeg", "image/webp"}
 
 
@@ -1219,6 +1220,16 @@ def upload_officer_document(badge):
     # Dokumenty można dodawać tylko do własnego profilu.
     if not current_user_owns_officer(officer):
         abort(403)
+
+    # Maksymalnie 6 dokumentów na profil. Sprawdzamy limit po stronie serwera,
+    # żeby nie dało się go ominąć przez ręczne wysłanie formularza.
+    existing_documents = get_officer_documents(str(badge))
+    if len(existing_documents) >= DOCUMENT_MAX_COUNT:
+        return render_template(
+            "error.html",
+            title="Limit dokumentów",
+            message=f"Ten funkcjonariusz ma już maksymalną liczbę {DOCUMENT_MAX_COUNT} dokumentów. Usuń jeden z nich, aby dodać nowy.",
+        ), 400
 
     title = (request.form.get("title") or "").strip()
     if not title:
