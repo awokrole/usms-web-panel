@@ -210,3 +210,9 @@ Zmienne `GOOGLE_TOKEN_JSON`, `SHEET_ID`, `ROSTER_SHEET_NAME`, `TRAINING_SHEET_NA
 ## v29
 - Zmieniono wyłącznie znak gwiazdy w nagłówku bocznym na emblemat U.S. Marshals Service przesłany przez użytkownika.
 - Favicon z v28 pozostaje bez zmian.
+
+## v32 — globalny bonus wypłat
+- Dashboard pokazuje panel „AKTYWNY BONUS WYPŁAT ×2”, gdy administrator włączy mnożnik ×2.
+- Administrator ustawia ×1/×2 w SYSTEM → Wypłaty.
+- Ustawienie jest zapisywane w PostgreSQL w tabeli `payroll_settings` i jest wspólne dla całego panelu.
+- Przy ×1 baner na Dashboardzie jest ukryty.

@@ -219,6 +219,19 @@ def ensure_roster_tables():
                 )
             """)
             cur.execute("""
+                CREATE TABLE IF NOT EXISTS payroll_settings (
+                    id SMALLINT PRIMARY KEY DEFAULT 1 CHECK (id = 1),
+                    multiplier NUMERIC(4,2) NOT NULL DEFAULT 1.00,
+                    updated_by BIGINT NULL,
+                    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+                )
+            """)
+            cur.execute("""
+                INSERT INTO payroll_settings (id, multiplier) VALUES (1, 1.00)
+                ON CONFLICT (id) DO NOTHING
+            """)
+
+            cur.execute("""
                 CREATE TABLE IF NOT EXISTS web_migrations (
                     migration_key TEXT PRIMARY KEY,
                     applied_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
@@ -854,6 +867,22 @@ def logout():
     return redirect(url_for("login"))
 
 
+def get_payroll_multiplier():
+    if not DATABASE_URL:
+        return 1.0
+    try:
+        conn = pg_connect("payroll-multiplier")
+        try:
+            with conn.cursor() as cur:
+                cur.execute("SELECT multiplier FROM payroll_settings WHERE id = 1")
+                row = cur.fetchone()
+                return float(row[0]) if row else 1.0
+        finally:
+            conn.close()
+    except Exception:
+        return 1.0
+
+
 @app.route("/dashboard")
 @logged_in_required
 def dashboard():
@@ -921,6 +950,7 @@ def dashboard():
         weekly_hours=round(weekly_total_seconds / 3600, 1),
         lifetime_hours=round(lifetime_total_seconds / 3600, 1),
         sheet_error=sheet_error,
+        payroll_multiplier=get_payroll_multiplier(),
     )
 
 
@@ -1286,7 +1316,39 @@ def payroll_page():
     received_count = sum(1 for r in rows if r.get("received"))
     total_amount = sum(float(r.get("amount") or 0) for r in rows)
     return render_template("system_payroll.html", rows=rows, received_count=received_count,
-                           pending_count=len(rows)-received_count, total_amount=total_amount)
+                           pending_count=len(rows)-received_count, total_amount=total_amount,
+                           payroll_multiplier=get_payroll_multiplier())
+
+
+@app.route("/system/wyplaty/mnoznik", methods=["POST"])
+@admin_required
+def payroll_multiplier_update():
+    raw = str(request.form.get("multiplier", "1")).strip().replace(",", ".")
+    try:
+        multiplier = float(raw)
+    except ValueError:
+        multiplier = 1.0
+    if multiplier not in (1.0, 2.0):
+        return render_template("error.html", title="Nieprawidłowy mnożnik",
+                               message="Dozwolony mnożnik wypłat to x1 albo x2."), 400
+    if not DATABASE_URL:
+        return render_template("error.html", title="Brak bazy danych",
+                               message="Nie można zapisać mnożnika bez PostgreSQL."), 503
+    conn = pg_connect("payroll-multiplier-update")
+    try:
+        with conn.cursor() as cur:
+            cur.execute("""
+                INSERT INTO payroll_settings (id, multiplier, updated_by, updated_at)
+                VALUES (1, %s, %s, NOW())
+                ON CONFLICT (id) DO UPDATE SET
+                    multiplier = EXCLUDED.multiplier,
+                    updated_by = EXCLUDED.updated_by,
+                    updated_at = NOW()
+            """, (multiplier, int(session["discord_user"]["id"])))
+        conn.commit()
+    finally:
+        conn.close()
+    return redirect(url_for("payroll_page"))
 
 
 @app.route("/system/urlopy-zawieszenia")
