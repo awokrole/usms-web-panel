@@ -205,3 +205,8 @@ Zmienne `GOOGLE_TOKEN_JSON`, `SHEET_ID`, `ROSTER_SHEET_NAME`, `TRAINING_SHEET_NA
 - Każde pytanie ma formę „Co oznacza Dyrektywa PIA nr ...?”.
 - Pytania z dyrektyw nie są powielane przez generator wariantów puli 300.
 - Przy starcie starsze pytania kategorii `Dyrektywa PIA%` są dezaktywowane, a cztery aktualne pytania aktywowane.
+
+
+## v29
+- Zmieniono wyłącznie znak gwiazdy w nagłówku bocznym na emblemat U.S. Marshals Service przesłany przez użytkownika.
+- Favicon z v28 pozostaje bez zmian.
