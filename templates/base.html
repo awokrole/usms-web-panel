@@ -11,33 +11,20 @@
 {% if current_user %}
 <div class="layout">
     <aside class="sidebar">
-        <div class="brand">
+        <a class="brand" href="{{ url_for('dashboard') }}" title="Przejdź do strony głównej">
             <div class="seal seal-logo"><img src="{{ url_for('static', filename='usms-seal.png') }}" alt="U.S. Marshals Service"></div>
             <div>
                 <strong>UNITED STATES</strong>
                 <strong>MARSHALS SERVICE</strong>
                 <small>USMS PANEL</small>
             </div>
-        </div>
+        </a>
 
         <nav>
-            <span class="nav-label">MENU GŁÓWNE</span>
-            <a href="{{ url_for('dashboard') }}" class="{% if request.endpoint == 'dashboard' %}active{% endif %}">▣ Dashboard</a>
-            <a href="{{ url_for('officers') }}" class="{% if request.endpoint in ['officers','officer_detail'] %}active{% endif %}">♙ Funkcjonariusze</a>
-            <a href="{{ url_for('trainings') }}" class="{% if request.endpoint == 'trainings' %}active{% endif %}">✚ Szkolenia</a>
-            <a href="{{ url_for('akta') }}" class="{% if request.endpoint == 'akta' %}active{% endif %}">▤ Akta</a>
-            <a href="{{ url_for('kompendium') }}" class="{% if request.endpoint == 'kompendium' %}active{% endif %}">⌘ Kompendium</a>
-            <a href="{{ url_for('directives') }}" class="{% if request.endpoint == 'directives' %}active{% endif %}">▧ Dyrektywy</a>
-            <a href="{{ url_for('legal_acts') }}" class="{% if request.endpoint == 'legal_acts' %}active{% endif %}">§ Akty prawne</a>
-            <a href="{{ url_for('exam_home') }}" class="{% if request.endpoint and request.endpoint.startswith('exam_') and request.endpoint != 'exam_admin' and not request.endpoint.startswith('exam_admin_') %}active{% endif %}">✓ Egzamin</a>
-            {% if is_admin %}<a href="{{ url_for('exam_admin') }}" class="{% if request.endpoint and request.endpoint.startswith('exam_admin') %}active{% endif %}">⚙ Egzaminy — Admin</a>{% endif %}
-
             <span class="nav-label">SYSTEM</span>
             <a href="{{ url_for('duty_page') }}" class="{% if request.endpoint == 'duty_page' %}active{% endif %}"><span class="nav-ico">◷</span> Służba</a>
             {% if is_admin %}
             <a href="{{ url_for('payroll_page') }}" class="{% if request.endpoint == 'payroll_page' %}active{% endif %}"><span class="nav-ico">$</span> Wypłaty</a>
-            {% else %}
-            <a href="{{ url_for('my_payroll') }}" class="{% if request.endpoint == 'my_payroll' %}active{% endif %}"><span class="nav-ico">$</span> Moja wypłata</a>
             {% endif %}
             <a href="{{ url_for('absences_page') }}" class="{% if request.endpoint == 'absences_page' %}active{% endif %}"><span class="nav-ico">□</span> Urlopy i zawieszenia</a>
             <a href="{{ url_for('announcements_page') }}" class="{% if request.endpoint == 'announcements_page' %}active{% endif %}"><span class="nav-ico">◁</span> Ogłoszenia</a>
@@ -59,8 +46,26 @@
 
     <main class="main">
         <header class="topbar">
-            <div>
-                <strong>☰ &nbsp; USMS PANEL</strong>
+            <div class="topbar-nav">
+                <details class="top-menu" {% if request.endpoint in ['officers','officer_detail','trainings','akta'] %}data-active="true"{% endif %}>
+                    <summary>☰ &nbsp; USMS PANEL <span class="chevron">⌄</span></summary>
+                    <div class="top-menu-list">
+                        <a href="{{ url_for('officers') }}">♙ Funkcjonariusze</a>
+                        <a href="{{ url_for('akta') }}">▤ Akta</a>
+                        <a href="{{ url_for('trainings') }}">✚ Szkolenia</a>
+                    </div>
+                </details>
+
+                <details class="top-menu" {% if request.endpoint in ['kompendium','directives','legal_acts','exam_home','exam_take','exam_result','exam_admin','exam_admin_session','exam_admin_attempt'] %}data-active="true"{% endif %}>
+                    <summary>BAZA WIEDZY <span class="chevron">⌄</span></summary>
+                    <div class="top-menu-list">
+                        <a href="{{ url_for('kompendium') }}">⌘ Kompendium</a>
+                        <a href="{{ url_for('directives') }}">▧ Dyrektywy PIA</a>
+                        <a href="{{ url_for('legal_acts') }}">§ Akty prawne</a>
+                        <a href="{{ url_for('exam_home') }}">✓ Egzaminy</a>
+                        {% if is_admin %}<a href="{{ url_for('exam_admin') }}">⚙ Egzaminy — Admin</a>{% endif %}
+                    </div>
+                </details>
             </div>
             <div class="top-user">
                 <span class="status-dot"></span>

@@ -44,6 +44,24 @@
     </div>
 </div>
 
+{% if is_own_profile and payroll_summary %}
+<section class="panel full own-payroll-panel">
+    <div class="panel-title">
+        <div>
+            <span class="eyebrow">PRYWATNE</span>
+            <h2>Moja wypłata</h2>
+        </div>
+        <a class="small-button payroll-history-link" href="{{ url_for('my_payroll') }}">Historia wypłat →</a>
+    </div>
+    <div class="payroll-profile-grid">
+        <div><span>Czas w tym tygodniu</span><strong>{{ payroll_summary.weekly_time }}</strong></div>
+        <div><span>Stawka</span><strong>${{ '{:,.0f}'.format(payroll_summary.rate).replace(',', ' ') }} / h</strong></div>
+        <div><span>Mnożnik</span><strong>×{{ payroll_summary.multiplier_label }}</strong></div>
+        <div class="payroll-amount"><span>Aktualnie do wypłaty</span><strong>${{ '{:,.0f}'.format(payroll_summary.amount).replace(',', ' ') }}</strong></div>
+    </div>
+</section>
+{% endif %}
+
 {% if can_upload_own_profile %}
 <section class="panel full admin-profile-tools">
     <div class="panel-title">

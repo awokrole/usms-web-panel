@@ -6,7 +6,23 @@
         <h1>Dashboard</h1>
         <p>Witaj z powrotem, {{ current_user.username }}.</p>
     </div>
-    <div class="date-chip">Panel danych USMS</div>
+    {% if my_officer %}
+    <a class="dashboard-profile-chip" href="{{ url_for('my_profile') }}">
+        {% if my_profile_meta and my_profile_meta.has_photo %}
+            <img src="{{ url_for('officer_photo_media', badge=my_officer.badge) }}" alt="{{ my_officer.full_name }}">
+        {% else %}
+            <img src="{{ current_user.avatar_url }}" alt="{{ current_user.username }}">
+        {% endif %}
+        <span><small>MÓJ PROFIL</small><strong>{{ my_officer.full_name }}</strong></span>
+        <b>→</b>
+    </a>
+    {% else %}
+    <a class="dashboard-profile-chip" href="{{ url_for('my_profile') }}">
+        <img src="{{ current_user.avatar_url }}" alt="{{ current_user.username }}">
+        <span><small>MÓJ PROFIL</small><strong>{{ current_user.username }}</strong></span>
+        <b>→</b>
+    </a>
+    {% endif %}
 </div>
 
 {% if sheet_error %}
@@ -58,8 +74,6 @@
     <section class="panel">
         <div class="panel-title"><h2>Szybki podgląd</h2></div>
         <div class="quick-list">
-            {% if my_officer %}<a href="{{ url_for('my_profile') }}"><span>♙</span><div><strong>Mój profil</strong><small>Przejdź bezpośrednio do swojej karty funkcjonariusza</small></div><b>→</b></a>{% endif %}
-            <a href="{{ url_for('my_payroll') }}"><span>$</span><div><strong>Moja wypłata</strong><small>Aktualna wypłata i prywatna historia</small></div><b>→</b></a>
             <a href="{{ url_for('officers') }}"><span>♙</span><div><strong>Baza funkcjonariuszy</strong><small>Odznaki, stopnie i status</small></div><b>→</b></a>
             <a href="{{ url_for('trainings') }}"><span>✚</span><div><strong>Szkolenia</strong><small>FLETC, RO, KPP, NL i pozostałe</small></div><b>→</b></a>
             <a href="{{ url_for('akta') }}"><span>▤</span><div><strong>Akta</strong><small>Plusy, minusy, pochwały i nagany</small></div><b>→</b></a>
