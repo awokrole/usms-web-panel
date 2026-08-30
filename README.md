@@ -224,3 +224,12 @@ Zmienne `GOOGLE_TOKEN_JSON`, `SHEET_ID`, `ROSTER_SHEET_NAME`, `TRAINING_SHEET_NA
 - Na Dashboardzie po prawej stronie nagłówka znajduje się klikalny `Mój profil` ze zdjęciem funkcjonariusza lub avatarem Discord.
 - `Moja wypłata` została usunięta z Dashboardu i z menu zwykłego użytkownika; prywatny podgląd wypłaty znajduje się na własnej karcie funkcjonariusza.
 - Administrator nadal ma systemową zakładkę `Wypłaty`.
+
+
+## v37
+- Zmniejszone panele USMS PANEL i BAZA WIEDZY w sidebarze.
+- Usunięte znaki + z nagłówków paneli.
+- BAZA WIEDZY używa tej samej ikony trzech kresek co USMS PANEL.
+- PANEL ADMINA przeniesiony na dół, bezpośrednio nad profilem użytkownika.
+- Avatar i dane użytkownika w stopce są klikalne i prowadzą do Mojego profilu.
+- Ikona wylogowania ma dopasowany czerwony kolor.
