@@ -7,7 +7,7 @@
       <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
       <label>Nazwa<input name="title" value="Egzamin z Kompendium" required></label>
       <div class="rule-box"><strong>Stałe zasady</strong><span>20 pytań • 10 minut • próg 80%</span></div>
-      <button class="btn primary" name="mode" value="now">Otwórz teraz na 30 minut</button>
+      <button class="btn primary" name="mode" value="now">Otwórz teraz na 10 minut</button>
       <hr>
       <label>Otwarcie<input type="datetime-local" name="opens_at"></label>
       <label>Zamknięcie możliwości rozpoczęcia<input type="datetime-local" name="closes_at"></label>
@@ -16,7 +16,7 @@
   </section>
   <section class="panel">
     <h2>Sesje egzaminacyjne</h2>
-    <p class="muted exam-delete-hint">Zakończone sesje możesz trwale usunąć. Usunięcie sesji kasuje również jej wyniki, odpowiedzi i indywidualne terminy.</p>
+    <p class="muted exam-delete-hint">Każdą sesję możesz trwale usunąć — także aktywną lub będącą w trakcie pisania. Usunięcie sesji kasuje również jej wyniki, odpowiedzi i indywidualne terminy.</p>
     {% if sessions %}
       <div class="session-list">
         {% for s in sessions %}
@@ -25,12 +25,10 @@
               <div><strong>{{ s.title }}</strong><small>#{{ s.id }} • prób: {{ s.attempts }} • zaliczonych: {{ s.passed_count }}</small></div>
               <span>Otwórz →</span>
             </a>
-            {% if s.closes_at and s.closes_at <= now_local.astimezone(s.closes_at.tzinfo) %}
-              <form method="post" action="{{ url_for('exam_admin_delete', session_id=s.id) }}" class="session-delete-form">
-                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                <button class="btn danger smallbtn" type="submit" onclick="return confirm('Trwale usunąć sesję „{{ s.title|e }}”?\n\nUsunięte zostaną także wszystkie wyniki, odpowiedzi i indywidualne terminy tej sesji. Tej operacji nie można cofnąć.')">Usuń</button>
-              </form>
-            {% endif %}
+            <form method="post" action="{{ url_for('exam_admin_delete', session_id=s.id) }}" class="session-delete-form">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <button class="btn danger smallbtn" type="submit" onclick="return confirm('Trwale usunąć sesję „{{ s.title|e }}”?\n\nJeśli ktoś właśnie pisze ten egzamin, jego podejście również zostanie natychmiast usunięte. Usunięte zostaną także wszystkie wyniki, odpowiedzi i indywidualne terminy tej sesji. Tej operacji nie można cofnąć.')">Usuń</button>
+            </form>
           </div>
         {% endfor %}
       </div>
