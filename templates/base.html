@@ -31,7 +31,7 @@
             </details>
 
             <details class="side-panel" {% if request.endpoint in ['kompendium','directives','legal_acts','exam_home','exam_take','exam_result','exam_admin','exam_admin_session','exam_admin_attempt'] %}open{% endif %}>
-                <summary><span class="side-panel-icon">▤</span><strong>BAZA WIEDZY</strong><span class="chevron">⌄</span></summary>
+                <summary><span class="side-panel-icon">☰</span><strong>BAZA WIEDZY</strong><span class="chevron">⌄</span></summary>
                 <div class="side-panel-list">
                     <a href="{{ url_for('kompendium') }}" class="{% if request.endpoint == 'kompendium' %}active{% endif %}">⌘ Kompendium</a>
                     <a href="{{ url_for('directives') }}" class="{% if request.endpoint == 'directives' %}active{% endif %}">▧ Dyrektywy PIA</a>
@@ -41,20 +41,23 @@
                 </div>
             </details>
 
-            {% if is_admin %}
-            <a class="side-admin-panel {% if request.endpoint == 'admin_panel' %}active{% endif %}" href="{{ url_for('admin_panel') }}">
-                <span class="side-panel-icon">⚙</span><strong>PANEL ADMINA</strong><span>→</span>
-            </a>
-            {% endif %}
         </nav>
 
-        <div class="sidebar-user">
-            <img src="{{ current_user.avatar_url }}" alt="">
-            <div>
-                <strong>{{ current_user.username }}</strong>
-                <small>Discord ID: {{ current_user.id }}</small>
-            </div>
-            <a href="{{ url_for('logout') }}" title="Wyloguj">↪</a>
+        {% if is_admin %}
+        <a class="side-admin-panel side-admin-bottom {% if request.endpoint == 'admin_panel' %}active{% endif %}" href="{{ url_for('admin_panel') }}">
+            <span class="side-panel-icon">⚙</span><strong>PANEL ADMINA</strong><span>→</span>
+        </a>
+        {% endif %}
+
+        <div class="sidebar-user{% if is_admin %} has-admin{% endif %}">
+            <a class="sidebar-user-profile" href="{{ url_for('my_profile') }}" title="Przejdź do mojego profilu">
+                <img src="{{ current_user.avatar_url }}" alt="">
+                <div>
+                    <strong>{{ current_user.username }}</strong>
+                    <small>Discord ID: {{ current_user.id }}</small>
+                </div>
+            </a>
+            <a class="sidebar-logout" href="{{ url_for('logout') }}" title="Wyloguj">↪</a>
         </div>
     </aside>
 
