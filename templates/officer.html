@@ -98,7 +98,8 @@
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
             <strong>Dodaj dokument / screenshot</strong>
             <small>Możesz dodać dokument tylko do swojego profilu. Usunąć może tylko administrator.</small>
-            <small>PNG, JPG lub WEBP • maks. 10 MB</small>
+            <small>PNG, JPG lub WEBP • maks. 10 MB • maks. 6 dokumentów</small>
+            {% if documents|length < 6 %}
             <input type="text" name="title" maxlength="120" placeholder="Np. Legitymacja, raport, zaświadczenie" required>
 
             <label class="drop-zone" data-drop-zone>
@@ -109,7 +110,10 @@
                 <span class="drop-filename" data-drop-filename>Nie wybrano pliku</span>
             </label>
 
-            <button class="small-button" type="submit">Dodaj dokument</button>
+            <button class="small-button" type="submit">Dodaj dokument ({{ documents|length }}/6)</button>
+            {% else %}
+            <div class="empty">Osiągnięto limit 6 dokumentów. Administrator może usunąć dokument, aby zwolnić miejsce.</div>
+            {% endif %}
         </form>
     </div>
 </section>
@@ -141,7 +145,7 @@
 <section class="panel full">
     <div class="panel-title">
         <h2>Dokumenty</h2>
-        <span class="muted">{{ documents|length }} plików</span>
+        <span class="muted">{{ documents|length }}/6 plików</span>
     </div>
 
     {% if documents %}
