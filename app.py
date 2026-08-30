@@ -2434,7 +2434,7 @@ def exam_admin_create():
     title = (request.form.get("title") or "Egzamin z Kompendium").strip()[:120]
     mode = request.form.get("mode")
     if mode == "now":
-        opens = exam_now(); closes = opens + timedelta(minutes=int(request.form.get("window_minutes") or 30))
+        opens = exam_now(); closes = opens + timedelta(minutes=10)
     else:
         opens = parse_exam_local(request.form.get("opens_at")); closes = parse_exam_local(request.form.get("closes_at"))
         if not opens or not closes or closes <= opens:
@@ -2467,45 +2467,20 @@ def exam_admin_close(session_id):
 @app.route("/egzamin/admin/session/<int:session_id>/delete", methods=["POST"])
 @admin_required
 def exam_admin_delete(session_id):
-    """Trwale usuwa zakończoną sesję egzaminacyjną wraz z jej podejściami.
+    """Trwale usuwa dowolną sesję egzaminacyjną wraz z jej podejściami.
 
-    Dzięki kluczom obcym ON DELETE CASCADE PostgreSQL usuwa również
-    indywidualne terminy, podejścia i zapisane odpowiedzi. Bank pytań
-    pozostaje bez zmian. Aktywnej sesji ani sesji z podejściem w toku
-    nie można usunąć przypadkowo.
+    Administrator może usunąć także aktywną sesję oraz sesję, w której ktoś
+    aktualnie pisze egzamin. Dzięki kluczom obcym ON DELETE CASCADE usuwane są
+    również indywidualne terminy, podejścia i zapisane odpowiedzi. Bank pytań
+    pozostaje bez zmian.
     """
     validate_csrf()
     conn = pg_connect("usms-exam-delete")
     try:
-        with conn.cursor(cursor_factory=RealDictCursor) as cur:
-            cur.execute("""
-                SELECT s.id, s.title, s.opens_at, s.closes_at,
-                       EXISTS(
-                           SELECT 1 FROM exam_attempts a
-                           WHERE a.session_id=s.id AND a.status='in_progress'
-                       ) AS has_in_progress
-                FROM exam_sessions s
-                WHERE s.id=%s
-                FOR UPDATE
-            """, (session_id,))
-            exam_session = cur.fetchone()
-            if not exam_session:
+        with conn.cursor() as cur:
+            cur.execute("SELECT id FROM exam_sessions WHERE id=%s FOR UPDATE", (session_id,))
+            if not cur.fetchone():
                 abort(404)
-
-            now = exam_now()
-            if exam_session["has_in_progress"]:
-                return render_template(
-                    "error.html",
-                    title="Nie można usunąć egzaminu",
-                    message="W tej sesji ktoś nadal pisze egzamin. Poczekaj na zakończenie podejścia albo najpierw zamknij sesję."
-                ), 409
-            if not exam_session["closes_at"] or exam_session["closes_at"] > now:
-                return render_template(
-                    "error.html",
-                    title="Nie można usunąć aktywnej sesji",
-                    message="Najpierw zamknij sesję egzaminacyjną. Usuwanie jest dostępne dopiero po jej zakończeniu."
-                ), 409
-
             cur.execute("DELETE FROM exam_sessions WHERE id=%s", (session_id,))
         conn.commit()
     finally:
@@ -2526,11 +2501,7 @@ def exam_admin_session(session_id):
     finally: conn.close()
     officers = load_exam_officers()
     exam_session = dict(exam_session)
-    can_delete = bool(
-        exam_session.get("closes_at")
-        and exam_session["closes_at"] <= exam_now()
-        and not any(a.get("status") == "in_progress" for a in attempts)
-    )
+    can_delete = True
     return render_template("exam_admin_session.html", exam_session=exam_session, attempts=attempts, overrides=overrides, officers=officers, can_delete=can_delete)
 
 
