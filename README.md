@@ -216,3 +216,11 @@ Zmienne `GOOGLE_TOKEN_JSON`, `SHEET_ID`, `ROSTER_SHEET_NAME`, `TRAINING_SHEET_NA
 - Administrator ustawia ×1/×2 w SYSTEM → Wypłaty.
 - Ustawienie jest zapisywane w PostgreSQL w tabeli `payroll_settings` i jest wspólne dla całego panelu.
 - Przy ×1 baner na Dashboardzie jest ukryty.
+
+## v35 — reorganizacja nawigacji
+- Logo U.S. Marshals Service w lewym górnym rogu prowadzi do Dashboardu.
+- Górne menu `USMS PANEL` rozwija: Funkcjonariusze, Akta, Szkolenia.
+- Górne menu `BAZA WIEDZY` rozwija: Kompendium, Dyrektywy PIA, Akty prawne, Egzaminy.
+- Na Dashboardzie po prawej stronie nagłówka znajduje się klikalny `Mój profil` ze zdjęciem funkcjonariusza lub avatarem Discord.
+- `Moja wypłata` została usunięta z Dashboardu i z menu zwykłego użytkownika; prywatny podgląd wypłaty znajduje się na własnej karcie funkcjonariusza.
+- Administrator nadal ma systemową zakładkę `Wypłaty`.

@@ -962,6 +962,9 @@ def dashboard():
 
     active = sorted(active, key=lambda x: x["duty"].get("current_shift_seconds", 0), reverse=True)
 
+    my_officer = get_current_officer()
+    my_profile_meta = get_profile_meta(my_officer["badge"]) if my_officer else None
+
     return render_template(
         "dashboard.html",
         officers=officers,
@@ -972,7 +975,8 @@ def dashboard():
         lifetime_hours=round(lifetime_total_seconds / 3600, 1),
         sheet_error=sheet_error,
         payroll_multiplier=get_payroll_multiplier(),
-        my_officer=get_current_officer(),
+        my_officer=my_officer,
+        my_profile_meta=my_profile_meta,
     )
 
 
@@ -1019,13 +1023,30 @@ def officer_detail(badge):
 
     profile_meta = get_profile_meta(officer["badge"])
     documents = get_officer_documents(officer["badge"])
+    is_own_profile = current_user_owns_officer(officer)
+
+    payroll_summary = None
+    if is_own_profile:
+        weekly_seconds = int(state.get("weekly_seconds", 0) or 0)
+        payroll_multiplier = get_payroll_multiplier()
+        payroll_rate = 1500.0
+        payroll_summary = {
+            "weekly_seconds": weekly_seconds,
+            "weekly_time": format_seconds(weekly_seconds),
+            "rate": payroll_rate,
+            "multiplier": payroll_multiplier,
+            "multiplier_label": str(int(payroll_multiplier)) if float(payroll_multiplier).is_integer() else str(payroll_multiplier),
+            "amount": (weekly_seconds / 3600) * payroll_rate * payroll_multiplier,
+        }
 
     return render_template(
         "officer.html",
         officer=officer,
         profile_meta=profile_meta,
         documents=documents,
-        can_upload_own_profile=current_user_owns_officer(officer),
+        can_upload_own_profile=is_own_profile,
+        is_own_profile=is_own_profile,
+        payroll_summary=payroll_summary,
     )
 
 
