@@ -248,3 +248,10 @@ Zmienne `GOOGLE_TOKEN_JSON`, `SHEET_ID`, `ROSTER_SHEET_NAME`, `TRAINING_SHEET_NA
 ## v41
 - Panel Admina > Służba: alert dla aktywnej służby trwającej co najmniej 8 godzin.
 - Alert jest informacyjny i nie kończy służby automatycznie.
+
+## v42 — dostęp Inspekcji
+- Rola Discord `1511317008627667034` jest rozpoznawana jako Inspekcja.
+- Inspekcja otrzymuje dedykowany, tylko-do-odczytu widok `Kontrola dokumentów` z listą aktywnych funkcjonariuszy i liczbą dokumentów.
+- Kliknięcie funkcjonariusza otwiera jego kartę i dokumenty.
+- Rola Inspekcji NIE otrzymuje uprawnień administratora, usuwania dokumentów ani Panelu Admina.
+- Opcjonalnie ID można nadpisać zmienną `WEB_INSPECTION_ROLE_ID`; domyślnie działa podane ID bez dodawania zmiennej Railway.

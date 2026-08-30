@@ -57,6 +57,8 @@ def parse_role_ids(value: str):
 
 
 WEB_ADMIN_ROLE_IDS = parse_role_ids(os.environ.get("WEB_ADMIN_ROLE_IDS", ""))
+# Rola Discord inspekcji — dostęp tylko do kontroli dokumentów pracowników.
+INSPECTION_ROLE_ID = int(os.environ.get("WEB_INSPECTION_ROLE_ID", "1511317008627667034"))
 
 
 
@@ -458,6 +460,18 @@ def logged_in_required(view):
     return wrapped
 
 
+def inspection_required(view):
+    @wraps(view)
+    def wrapped(*args, **kwargs):
+        if "discord_user" not in session:
+            return redirect(url_for("login"))
+        if not (session.get("is_inspection", False) or session.get("is_admin", False)):
+            return render_template("error.html", title="Brak dostępu",
+                                   message="Ta sekcja jest dostępna dla Inspekcji i administracji."), 403
+        return view(*args, **kwargs)
+    return wrapped
+
+
 def admin_required(view):
     @wraps(view)
     def wrapped(*args, **kwargs):
@@ -759,6 +773,7 @@ def inject_globals():
     return {
         "current_user": session.get("discord_user"),
         "is_admin": session.get("is_admin", False),
+        "is_inspection": session.get("is_inspection", False),
         "csrf_token": csrf_token,
     }
 
@@ -859,6 +874,8 @@ def discord_callback():
         "avatar_url": avatar_url,
     }
     session["is_admin"] = is_member_admin(member)
+    member_roles = {int(x) for x in member.get("roles", []) if str(x).isdigit()}
+    session["is_inspection"] = INSPECTION_ROLE_ID in member_roles
 
     return redirect(url_for("dashboard"))
 
@@ -993,6 +1010,25 @@ def dashboard():
         my_officer=my_officer,
         my_profile_meta=my_profile_meta,
     )
+
+
+@app.route("/inspekcja/dokumenty")
+@inspection_required
+def inspection_documents():
+    officers_list = load_officers()
+    q = request.args.get("q", "").strip().casefold()
+    rows = []
+    for officer in officers_list:
+        docs = get_officer_documents(officer["badge"])
+        row = dict(officer)
+        row["document_count"] = len(docs)
+        rows.append(row)
+    if q:
+        rows = [r for r in rows if q in str(r.get("full_name", "")).casefold()
+                or q in str(r.get("badge", "")).casefold()
+                or q in str(r.get("rank", "")).casefold()]
+    rows.sort(key=lambda r: str(r.get("badge", "")))
+    return render_template("inspection_documents.html", officers=rows, q=request.args.get("q", ""))
 
 
 @app.route("/funkcjonariusze")
