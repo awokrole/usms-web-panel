@@ -13,6 +13,13 @@
 <div class="alert error">Nie udało się pobrać danych z PostgreSQL: {{ sheet_error }}</div>
 {% endif %}
 
+{% if payroll_multiplier > 1 %}
+<div class="payroll-bonus-banner">
+    <div class="payroll-bonus-icon">$</div>
+    <div><span>AKTYWNY BONUS WYPŁAT</span><strong>×{{ payroll_multiplier|int }}</strong><small>Aktualne wypłaty są naliczane z podwyższonym mnożnikiem.</small></div>
+</div>
+{% endif %}
+
 <div class="stats-grid">
     <div class="stat-card blue"><span>FUNKCJONARIUSZE</span><strong>{{ officers|length }}</strong><small>Łącznie w bazie</small></div>
     <div class="stat-card green"><span>NA SŁUŻBIE</span><strong>{{ active|length }}</strong><small>Aktualnie aktywni</small></div>
