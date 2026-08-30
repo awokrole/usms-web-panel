@@ -282,3 +282,23 @@ nav{display:flex;flex-direction:column;gap:5px;overflow:auto}.nav-label{font-siz
 /* v43 — Inspekcja: panel na dole; administrator ma kontrolę dokumentów w Panelu Admina */
 .side-inspection-bottom{margin-top:auto}
 .sidebar-user.has-inspection{margin-top:10px}
+
+/* v44 — Kontrola dokumentów: ten sam stonowany styl co Panel Admina */
+.side-inspection-panel.side-inspection-bottom{
+  display:grid;
+  grid-template-columns:18px 1fr auto;
+  align-items:center;
+  gap:10px;
+  margin:0 10px;
+  padding:10px 11px;
+  min-height:40px;
+  border:1px solid #25425d;
+  border-radius:9px;
+  background:#081725;
+  color:#dcecff;
+  text-decoration:none;
+}
+.side-inspection-panel.side-inspection-bottom strong{font-size:12px;line-height:1.15}
+.side-inspection-panel.side-inspection-bottom:hover,
+.side-inspection-panel.side-inspection-bottom.active{background:#0d2032;border-color:#315875}
+.side-inspection-panel.side-inspection-bottom .side-panel-icon{color:#67a9e8}
