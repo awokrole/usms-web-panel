@@ -1325,6 +1325,12 @@ def _system_officer_rows():
     return rows
 
 
+@app.route("/panel-admina")
+@admin_required
+def admin_panel():
+    return render_template("admin_panel.html")
+
+
 @app.route("/system/sluzba")
 @logged_in_required
 def duty_page():
