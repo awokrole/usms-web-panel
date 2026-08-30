@@ -34,7 +34,11 @@
 
             <span class="nav-label">SYSTEM</span>
             <a href="{{ url_for('duty_page') }}" class="{% if request.endpoint == 'duty_page' %}active{% endif %}"><span class="nav-ico">◷</span> Służba</a>
+            {% if is_admin %}
             <a href="{{ url_for('payroll_page') }}" class="{% if request.endpoint == 'payroll_page' %}active{% endif %}"><span class="nav-ico">$</span> Wypłaty</a>
+            {% else %}
+            <a href="{{ url_for('my_payroll') }}" class="{% if request.endpoint == 'my_payroll' %}active{% endif %}"><span class="nav-ico">$</span> Moja wypłata</a>
+            {% endif %}
             <a href="{{ url_for('absences_page') }}" class="{% if request.endpoint == 'absences_page' %}active{% endif %}"><span class="nav-ico">□</span> Urlopy i zawieszenia</a>
             <a href="{{ url_for('announcements_page') }}" class="{% if request.endpoint == 'announcements_page' %}active{% endif %}"><span class="nav-ico">◁</span> Ogłoszenia</a>
             {% if is_admin %}

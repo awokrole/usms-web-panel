@@ -16,7 +16,7 @@
 {% if payroll_multiplier > 1 %}
 <div class="payroll-bonus-banner">
     <div class="payroll-bonus-icon">$</div>
-    <div><span>AKTYWNY BONUS WYPŁAT</span><strong>×{{ payroll_multiplier|int }}</strong><small>Aktualne wypłaty są naliczane z podwyższonym mnożnikiem.</small></div>
+    <div><span>AKTYWNY BONUS ZAROBKÓW</span><small>Aktualne zarobki są naliczane z aktywnym bonusem.</small></div>
 </div>
 {% endif %}
 
@@ -58,6 +58,8 @@
     <section class="panel">
         <div class="panel-title"><h2>Szybki podgląd</h2></div>
         <div class="quick-list">
+            {% if my_officer %}<a href="{{ url_for('my_profile') }}"><span>♙</span><div><strong>Mój profil</strong><small>Przejdź bezpośrednio do swojej karty funkcjonariusza</small></div><b>→</b></a>{% endif %}
+            <a href="{{ url_for('my_payroll') }}"><span>$</span><div><strong>Moja wypłata</strong><small>Aktualna wypłata i prywatna historia</small></div><b>→</b></a>
             <a href="{{ url_for('officers') }}"><span>♙</span><div><strong>Baza funkcjonariuszy</strong><small>Odznaki, stopnie i status</small></div><b>→</b></a>
             <a href="{{ url_for('trainings') }}"><span>✚</span><div><strong>Szkolenia</strong><small>FLETC, RO, KPP, NL i pozostałe</small></div><b>→</b></a>
             <a href="{{ url_for('akta') }}"><span>▤</span><div><strong>Akta</strong><small>Plusy, minusy, pochwały i nagany</small></div><b>→</b></a>

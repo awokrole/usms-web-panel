@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block title %}Moja wypłata — USMS Panel{% endblock %}
+{% block content %}
+<div class="page-head">
+    <div><h1>Moja wypłata</h1><p>Prywatny podgląd wypłaty i historii dla {{ officer.full_name }}.</p></div>
+    <a class="btn-primary" href="{{ url_for('my_profile') }}">Mój profil →</a>
+</div>
+
+{% if payroll_multiplier > 1 %}
+<div class="payroll-bonus-banner">
+    <div class="payroll-bonus-icon">$</div>
+    <div><span>AKTYWNY BONUS ZAROBKÓW</span><small>Bonus został uwzględniony w aktualnym wyliczeniu.</small></div>
+</div>
+{% endif %}
+
+<div class="stats-grid system-stats">
+    <div class="stat-card blue"><span>OKRES</span><strong class="wallet-period">{{ period_label }}</strong><small>Bieżący tydzień</small></div>
+    <div class="stat-card cyan"><span>CZAS W TYGODNIU</span><strong>{{ weekly_time }}</strong><small>{{ "%.2f"|format(hours) }} h</small></div>
+    <div class="stat-card purple"><span>STAWKA</span><strong>${{ "{:,.0f}".format(rate) }}/h</strong><small>{% if payroll_multiplier > 1 %}Bonus aktywny{% else %}Standardowa stawka{% endif %}</small></div>
+    <div class="stat-card green"><span>DO WYPŁATY</span><strong>${{ "{:,.0f}".format(current_amount) }}</strong><small>Wyliczenie na żywo</small></div>
+</div>
+
+<section class="panel full wallet-current">
+    <div class="panel-title"><div><h2>Aktualna wypłata</h2><p>#{{ officer.badge }} · {{ officer.rank }}</p></div></div>
+    <div class="wallet-breakdown">
+        <div><span>Godziny</span><strong>{{ "%.2f"|format(hours) }} h</strong></div>
+        <div><span>Stawka podstawowa</span><strong>${{ "{:,.0f}".format(rate) }} / h</strong></div>
+        <div><span>Mnożnik</span><strong>×{{ payroll_multiplier|int }}</strong></div>
+        <div><span>Razem</span><strong>${{ "{:,.0f}".format(current_amount) }}</strong></div>
+        <div><span>Status</span><strong><span class="status-pill {% if current_entry and current_entry.received %}ok{% else %}warn{% endif %}">{% if current_entry and current_entry.received %}OTRZYMANA{% else %}DO OTRZYMANIA{% endif %}</span></strong></div>
+    </div>
+</section>
+
+<section class="panel full">
+    <div class="panel-title"><div><h2>Moja historia wypłat</h2><p>Widoczna wyłącznie dla zalogowanego funkcjonariusza oraz administracji systemu.</p></div></div>
+    <div class="table-wrap"><table>
+        <thead><tr><th>Okres</th><th>Godziny</th><th>Mnożnik</th><th>Kwota</th><th>Status</th></tr></thead>
+        <tbody>
+        {% for r in history %}
+        <tr><td>{{ r.period_label }}</td><td>{{ r.hours }}h</td><td>×{{ (r.multiplier or 1)|int }}</td><td>${{ "{:,.0f}".format(r.amount|float) }}</td><td><span class="status-pill {% if r.received %}ok{% else %}warn{% endif %}">{% if r.received %}OTRZYMANA{% else %}DO OTRZYMANIA{% endif %}</span></td></tr>
+        {% else %}<tr><td colspan="5" class="empty">Brak wcześniejszych wypłat w historii.</td></tr>{% endfor %}
+        </tbody>
+    </table></div>
+</section>
+{% endblock %}
