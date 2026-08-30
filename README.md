@@ -255,3 +255,10 @@ Zmienne `GOOGLE_TOKEN_JSON`, `SHEET_ID`, `ROSTER_SHEET_NAME`, `TRAINING_SHEET_NA
 - Kliknięcie funkcjonariusza otwiera jego kartę i dokumenty.
 - Rola Inspekcji NIE otrzymuje uprawnień administratora, usuwania dokumentów ani Panelu Admina.
 - Opcjonalnie ID można nadpisać zmienną `WEB_INSPECTION_ROLE_ID`; domyślnie działa podane ID bez dodawania zmiennej Railway.
+
+
+## v43 — Kontrola dokumentów / Inspekcja
+- Dostęp do kontroli dokumentów mają: rola Inspekcji `1511317008627667034` oraz administratorzy WEB.
+- Inspekcja bez uprawnień administratora widzi przycisk `KONTROLA DOKUMENTÓW` na dole sidebara, tuż nad profilem użytkownika.
+- Administrator nie ma osobnego przycisku kontroli dokumentów w głównym sidebarze; funkcja znajduje się jako kafelek w `PANEL ADMINA`.
+- Uprawnienia kontroli pozostają tylko do odczytu; sama rola Inspekcji nie otrzymuje uprawnień administratora.
