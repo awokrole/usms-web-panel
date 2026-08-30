@@ -273,3 +273,8 @@ nav{display:flex;flex-direction:column;gap:5px;overflow:auto}.nav-label{font-siz
 .log-field>div{color:#dce7f2;font-size:10px;line-height:1.55;white-space:pre-wrap;overflow-wrap:anywhere}
 .log-footer{margin-top:9px;color:#6e8398;font-size:8px}
 @media(max-width:700px){.log-field-grid{grid-template-columns:1fr}.log-field{grid-column:1/-1}.system-log-head{align-items:flex-start}.log-head-right{align-items:flex-end}}
+
+/* v42 — Inspekcja */
+.side-inspection-panel{display:flex;align-items:center;gap:10px;margin:10px 10px 0;padding:11px 12px;border:1px solid #25425d;border-radius:10px;color:#dcecff;text-decoration:none;background:#0b1b2a}
+.side-inspection-panel strong{flex:1;font-size:12px}.side-inspection-panel:hover,.side-inspection-panel.active{background:#102c46;border-color:#3979ad}
+.inspection-list{display:grid;gap:8px}.inspection-row{display:grid;grid-template-columns:1fr auto 22px;align-items:center;gap:16px;padding:12px 14px;border:1px solid #20384d;border-radius:10px;text-decoration:none;color:inherit;background:#0a1927}.inspection-row:hover{border-color:#3b78aa;background:#0e2234}.inspection-row div{display:flex;flex-direction:column;gap:3px}.inspection-row small{color:#82a6c3}.inspection-doc-count{text-align:right;min-width:76px}.inspection-doc-count strong{font-size:18px;color:#e7f3ff}
