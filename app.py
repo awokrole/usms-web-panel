@@ -946,19 +946,32 @@ def dashboard():
         if state.get("active"):
             active.append(officer)
 
-        for key, counter_name in (("suspension_until", "s"), ("vacation_end", "v")):
-            raw = state.get(key)
-            if not raw:
-                continue
+        # PostgreSQL zwraca vacation_end jako datetime.date, a suspension_until
+        # jako datetime/datetime-like. Starsza wersja dashboardu próbowała oba
+        # pola parsować wyłącznie przez datetime.fromisoformat(raw), przez co
+        # aktywny urlop typu DATE wpadał do except i nie był liczony.
+        raw_suspension = state.get("suspension_until")
+        if raw_suspension:
             try:
-                dt = datetime.fromisoformat(raw)
-                if dt.tzinfo is None:
-                    dt = dt.replace(tzinfo=timezone.utc)
-                if dt > now:
-                    if counter_name == "s":
-                        suspended_count += 1
-                    else:
-                        vacation_count += 1
+                dt = _as_utc_datetime(raw_suspension)
+                if dt and dt > now:
+                    suspended_count += 1
+            except Exception:
+                pass
+
+        raw_vacation = state.get("vacation_end")
+        if raw_vacation:
+            try:
+                if isinstance(raw_vacation, datetime):
+                    end_date = raw_vacation.date()
+                elif hasattr(raw_vacation, "year") and hasattr(raw_vacation, "month") and hasattr(raw_vacation, "day"):
+                    # datetime.date z PostgreSQL.
+                    end_date = raw_vacation
+                else:
+                    end_date = datetime.fromisoformat(str(raw_vacation)).date()
+                # Urlop jest aktywny także w dniu wskazanym jako vacation_end.
+                if end_date >= now.date():
+                    vacation_count += 1
             except Exception:
                 pass
 
@@ -1574,11 +1587,19 @@ def logs():
             else:
                 for msg in r.json():
                     author = msg.get("author") or {}
+                    message_id = str(msg.get("id") or "")
+                    message_url = (
+                        f"https://discord.com/channels/{DISCORD_GUILD_ID}/{log_channel_id}/{message_id}"
+                        if DISCORD_GUILD_ID and message_id else None
+                    )
                     rows.append({
                         "author": author.get("global_name") or author.get("username") or "Discord",
+                        "author_id": str(author.get("id") or ""),
                         "timestamp": (msg.get("timestamp") or "").replace("T", " ")[:19],
                         "content": msg.get("content") or "",
                         "embeds": msg.get("embeds") or [],
+                        "message_id": message_id,
+                        "message_url": message_url,
                     })
         except Exception as exc:
             error = f"Nie udało się pobrać logów Discord: {exc}"
