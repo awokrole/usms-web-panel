@@ -50,3 +50,10 @@ Zmiany:
 - Na stronie skróty wzmianek są renderowane czytelnie w stylu Discorda.
 - Adresy `http://` i `https://` są klikalnymi linkami w podglądzie, na Dashboardzie i w historii ogłoszeń.
 - Lista kanałów `#kanał` nie jest jeszcze dodana — będzie osobnym kolejnym etapem.
+
+
+## v52 — czytelne wzmianki na stronie
+- Wzmianki funkcjonariuszy wpisywane jako `@721` są na stronie renderowane jako `[721] Imię Nazwisko`.
+- Zmiana obejmuje podgląd edytora, Dashboard oraz historię ogłoszeń.
+- Na Discord nadal wysyłany jest prawdziwy ping użytkownika na podstawie Discord ID; mechanizm pingowania nie został zmieniony.
+- `@usms` nadal renderuje się jako `@USMS` i pinguje rolę USMS na Discordzie.

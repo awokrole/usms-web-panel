@@ -14,7 +14,7 @@ except ImportError:
 from functools import wraps
 
 import requests
-from flask import Flask, abort, redirect, render_template, request, send_file, session, url_for
+from flask import Flask, abort, redirect, render_template, request, send_file, session, url_for, g
 from markupsafe import Markup, escape
 
 
@@ -47,7 +47,28 @@ def discord_markdown(value):
         lambda m: f'<a class="discord-link" href="{m.group(1)}" target="_blank" rel="noopener noreferrer">{m.group(1)}</a>',
         safe,
     )
-    safe = re.sub(r"(?<![A-Za-z0-9_])@(\d{3})(?!\d)", r'<span class="discord-mention">@\1</span>', safe)
+    # Na stronie pokazuj wzmiankę funkcjonariusza czytelnie jako [ODZNAKA] Imię Nazwisko.
+    # Surowy zapis @721 pozostaje w bazie i dopiero przy wysyłce na Discord jest
+    # zamieniany na prawdziwe <@discord_id>, więc ping nadal działa.
+    try:
+        mention_labels = getattr(g, "_usms_mention_labels", None)
+        if mention_labels is None:
+            mention_labels = {
+                str(o.get("badge") or "").strip(): str(o.get("full_name") or "").strip()
+                for o in load_officers()
+                if str(o.get("badge") or "").strip()
+            }
+            g._usms_mention_labels = mention_labels
+    except Exception:
+        mention_labels = {}
+
+    def render_person_mention(match):
+        badge = match.group(1)
+        name = mention_labels.get(badge)
+        label = f"[{badge}] {name}" if name else f"[{badge}]"
+        return f'<span class="discord-mention">{label}</span>'
+
+    safe = re.sub(r"(?<![A-Za-z0-9_])@(\d{3})(?!\d)", render_person_mention, safe)
     safe = re.sub(r"(?i)(?<![A-Za-z0-9_])@usms\b", r'<span class="discord-mention discord-role-mention">@USMS</span>', safe)
 
     # Formatowanie inline zgodne z najczęściej używanym Discord Markdown.
