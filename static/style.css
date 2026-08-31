@@ -325,3 +325,11 @@ nav{display:flex;flex-direction:column;gap:5px;overflow:auto}.nav-label{font-siz
 .rating-breakdown{margin-top:8px;padding:8px 10px;border:1px solid rgba(255,255,255,.08);border-radius:9px;background:rgba(0,0,0,.16);display:grid;gap:4px;min-width:150px}
 .rating-breakdown span{display:flex;justify-content:space-between;gap:12px;font-size:11px;color:var(--muted,#9aa9bc)}
 .rating-breakdown b{color:var(--text,#eef4ff)}
+
+/* v55 — kompaktowa ocena w podsumowaniu tygodnia.
+   Zachowuje rozwijanie po kliknięciu, ale usuwa globalny znak +/− z <summary>. */
+.rating-details{margin:0;border:0;background:transparent;overflow:visible;border-radius:0}
+.rating-details summary{padding:0;min-width:0;width:max-content;max-width:115px;cursor:pointer}
+.rating-details summary:after{content:none!important;display:none!important}
+.rating-details[open] summary:after{content:none!important;display:none!important}
+.rating-details .rating-breakdown{width:max-content;min-width:150px}
