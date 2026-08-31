@@ -127,10 +127,15 @@
     if (!textarea || !preview) return;
 
     const esc = (v) => v.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
+    const mentionLabels = Object.fromEntries(mentionOfficers.map(o => [String(o.badge || ''), String(o.name || '')]));
     const inline = (v) => {
         let x = esc(v);
         x = x.replace(/\b(https?:\/\/[^\s<]+)/gi, '<a class="discord-link" href="$1" target="_blank" rel="noopener noreferrer">$1</a>')
-             .replace(/(^|[^A-Za-z0-9_])@(\d{3})(?!\d)/g, '$1<span class="discord-mention">@$2</span>')
+             .replace(/(^|[^A-Za-z0-9_])@(\d{3})(?!\d)/g, (m, prefix, badge) => {
+                 const name = mentionLabels[badge];
+                 const label = name ? `[${badge}] ${name}` : `[${badge}]`;
+                 return prefix + '<span class="discord-mention">' + esc(label) + '</span>';
+             })
              .replace(/(^|[^A-Za-z0-9_])@usms\b/gi, '$1<span class="discord-mention discord-role-mention">@USMS</span>')
              .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
              .replace(/__(.+?)__/g, '<u>$1</u>')
@@ -207,7 +212,7 @@
             btn.type = 'button';
             btn.className = 'mention-suggestion';
             const badge = document.createElement('strong');
-            badge.textContent = '@' + opt.badge;
+            badge.textContent = opt.role ? '@USMS' : '[' + opt.badge + ']';
             const name = document.createElement('span');
             name.textContent = opt.name;
             btn.append(badge, name);
