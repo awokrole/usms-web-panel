@@ -317,3 +317,11 @@ nav{display:flex;flex-direction:column;gap:5px;overflow:auto}.nav-label{font-siz
 
 /* v51 — wzmianki @odznaka/@usms i klikalne linki */
 .announcement-text-label{position:relative}.mention-suggestions{position:absolute;left:14px;right:14px;bottom:12px;z-index:20;max-height:230px;overflow:auto;padding:5px;border:1px solid #314b64;border-radius:8px;background:#0b1723;box-shadow:0 12px 30px rgba(0,0,0,.32)}.mention-suggestion{display:flex;width:100%;align-items:center;gap:10px;padding:9px 10px;border:0;border-radius:6px;background:transparent;color:#dbe7f2;text-align:left;cursor:pointer}.mention-suggestion:hover,.mention-suggestion:focus{background:#13283b;outline:none}.mention-suggestion strong{min-width:64px;color:#9ecbff}.mention-suggestion span{overflow:hidden;color:#aebdca;text-overflow:ellipsis;white-space:nowrap}.discord-mention{display:inline-block;padding:0 3px;border-radius:3px;background:rgba(88,101,242,.25);color:#c9cdfb;font-weight:600}.discord-role-mention{background:rgba(88,101,242,.3)}.discord-link{color:#00a8fc;text-decoration:none;overflow-wrap:anywhere}.discord-link:hover{text-decoration:underline}
+
+/* v54 — szczegóły punktowej oceny tygodniowej */
+.rating-details summary{cursor:pointer;list-style:none;display:flex;flex-direction:column;gap:3px;min-width:120px}
+.rating-details summary::-webkit-details-marker{display:none}
+.rating-details summary small{color:var(--muted,#8ea0b8);font-size:11px}
+.rating-breakdown{margin-top:8px;padding:8px 10px;border:1px solid rgba(255,255,255,.08);border-radius:9px;background:rgba(0,0,0,.16);display:grid;gap:4px;min-width:150px}
+.rating-breakdown span{display:flex;justify-content:space-between;gap:12px;font-size:11px;color:var(--muted,#9aa9bc)}
+.rating-breakdown b{color:var(--text,#eef4ff)}
