@@ -9,7 +9,18 @@
       <p>Biblioteka aktów prawnych odwzorowana z przekazanych materiałów Department of Justice.</p>
     </div>
     <div class="legal-search-wrap">
-      <input id="legalSearch" class="legal-search" type="search" placeholder="Szukaj we wszystkich aktach…" autocomplete="off">
+      <div class="legal-search-toolbar">
+        <input id="legalSearch" class="legal-search" type="search" placeholder="Szukaj we wszystkich aktach…" autocomplete="off">
+        <div class="legal-search-nav" aria-label="Nawigacja po wynikach wyszukiwania">
+          <span id="legalSearchPosition" class="legal-search-position" hidden>0 / 0</span>
+          <button id="legalPrevResult" type="button" class="legal-search-arrow" aria-label="Poprzedni wynik" title="Poprzedni wynik">
+            <span aria-hidden="true">&#8249;</span>
+          </button>
+          <button id="legalNextResult" type="button" class="legal-search-arrow" aria-label="Następny wynik" title="Następny wynik">
+            <span aria-hidden="true">&#8250;</span>
+          </button>
+        </div>
+      </div>
       <small id="legalCount">3 akty prawne</small>
     </div>
   </section>
@@ -1142,6 +1153,12 @@ const acts=[...document.querySelectorAll('.legal-act')];
 const search=document.getElementById('legalSearch');
 const count=document.getElementById('legalCount');
 const nores=document.getElementById('legalNoResults');
+const prevResultBtn=document.getElementById('legalPrevResult');
+const nextResultBtn=document.getElementById('legalNextResult');
+const searchPosition=document.getElementById('legalSearchPosition');
+
+let searchMatches=[];
+let currentMatchIndex=-1;
 
 function escapeHtml(v){return v.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]||c));}
 function escapeRegExp(v){return v.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');}
@@ -1186,12 +1203,18 @@ tabs.forEach(t=>t.addEventListener('click',()=>activate(t.dataset.act)));
 function getKeywords(){
   return [...new Set(search.value.trim().split(/\s+/).map(x=>x.trim()).filter(Boolean))];
 }
+function isSearching(){
+  return getKeywords().length>0;
+}
 function clearHighlights(root=document){
   root.querySelectorAll('mark.legal-search-hit').forEach(mark=>{
     const parent=mark.parentNode;
     parent.replaceChild(document.createTextNode(mark.textContent),mark);
     parent.normalize();
   });
+}
+function clearActiveMatch(){
+  document.querySelectorAll('mark.legal-search-hit-active').forEach(mark=>mark.classList.remove('legal-search-hit-active'));
 }
 function countHits(text,keywords){
   let total=0;
@@ -1208,6 +1231,7 @@ function highlightHits(root,keywords){
     if(!node.nodeValue.trim()) return NodeFilter.FILTER_REJECT;
     const p=node.parentElement;
     if(!p || p.closest('mark.legal-search-hit,script,style')) return NodeFilter.FILTER_REJECT;
+    pattern.lastIndex=0;
     return pattern.test(node.nodeValue) ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
   }});
   const nodes=[]; while(walker.nextNode()) nodes.push(walker.currentNode);
@@ -1230,14 +1254,75 @@ function setTabHit(tab,hits){
   badge.textContent=hits;
   badge.hidden=hits===0;
 }
+function updateSearchNavigation(){
+  const hasQuery=isSearching();
+  const hasMatches=searchMatches.length>0;
+  if(searchPosition){
+    searchPosition.hidden=!hasQuery;
+    searchPosition.textContent=hasMatches?`${currentMatchIndex+1} / ${searchMatches.length}`:'0 / 0';
+  }
+  if(prevResultBtn) prevResultBtn.disabled=!hasMatches;
+  if(nextResultBtn) nextResultBtn.disabled=!hasMatches;
+}
+function collectSearchMatches(){
+  searchMatches=[...document.querySelectorAll('mark.legal-search-hit')];
+}
+function revealMatchContext(mark){
+  const act=mark.closest('.legal-act');
+  if(act) activate(act.id.replace('act-',''));
+  const searchable=mark.closest('.searchable');
+  if(searchable) searchable.hidden=false;
+  const chapter=mark.closest('.criminal-chapter');
+  if(chapter){
+    chapter.hidden=false;
+    chapter.open=true;
+  }
+}
+function focusMatch(index,{scroll=true}={}){
+  if(!searchMatches.length){
+    currentMatchIndex=-1;
+    clearActiveMatch();
+    updateSearchNavigation();
+    return;
+  }
+  if(index<0) index=searchMatches.length-1;
+  if(index>=searchMatches.length) index=0;
+  clearActiveMatch();
+  const mark=searchMatches[index];
+  revealMatchContext(mark);
+  currentMatchIndex=index;
+  mark.classList.add('legal-search-hit-active');
+  updateSearchNavigation();
+  if(scroll){
+    requestAnimationFrame(()=>{
+      const top=mark.getBoundingClientRect().top + window.scrollY - 140;
+      window.scrollTo({top: Math.max(top,0), behavior:'smooth'});
+    });
+  }
+}
+function goToNextMatch(){
+  if(!searchMatches.length) return;
+  const target=currentMatchIndex<0?0:currentMatchIndex+1;
+  focusMatch(target);
+}
+function goToPrevMatch(){
+  if(!searchMatches.length) return;
+  const target=currentMatchIndex<0?searchMatches.length-1:currentMatchIndex-1;
+  focusMatch(target);
+}
 
 function filter(){
   clearHighlights();
+  clearActiveMatch();
+  searchMatches=[];
+  currentMatchIndex=-1;
+
   const keywords=getKeywords();
   const searching=keywords.length>0;
   let totalHits=0;
   let totalSections=0;
   const actHits={};
+  let actsWithHits=0;
 
   acts.forEach(act=>{
     let hitsForAct=0;
@@ -1268,24 +1353,39 @@ function filter(){
     actHits[act.id.replace('act-','')]=hitsForAct;
     totalHits+=hitsForAct;
     totalSections+=sectionsForAct;
+    if(hitsForAct>0) actsWithHits++;
   });
 
   tabs.forEach(tab=>setTabHit(tab,searching?(actHits[tab.dataset.act]||0):0));
+
   if(searching){
-    count.textContent=`${totalHits} trafień • ${totalSections} sekcji • 3 akty`;
+    count.textContent=`${totalHits} trafień • ${totalSections} sekcji • ${actsWithHits} akty`;
     nores.hidden=totalHits!==0;
     const activeId=document.querySelector('.legal-act.active')?.id.replace('act-','');
     if(totalHits>0 && (!activeId || !(actHits[activeId]>0))){
       const first=tabs.find(t=>(actHits[t.dataset.act]||0)>0);
       if(first) activate(first.dataset.act);
     }
+    collectSearchMatches();
+    if(searchMatches.length) focusMatch(0,{scroll:false});
+    else updateSearchNavigation();
   }else{
     count.textContent='3 akty prawne';
     nores.hidden=true;
     acts.forEach(act=>act.querySelectorAll('.searchable,.criminal-chapter').forEach(el=>el.hidden=false));
+    updateSearchNavigation();
   }
 }
 search.addEventListener('input',filter);
+search.addEventListener('keydown',(e)=>{
+  if(e.key==='Enter'){
+    e.preventDefault();
+    if(e.shiftKey) goToPrevMatch();
+    else goToNextMatch();
+  }
+});
+prevResultBtn?.addEventListener('click',goToPrevMatch);
+nextResultBtn?.addEventListener('click',goToNextMatch);
 
 document.getElementById('criminalExpandAll')?.addEventListener('click',()=>document.querySelectorAll('#act-criminal .criminal-chapter').forEach(x=>{if(!x.hidden)x.open=true;}));
 document.getElementById('criminalCollapseAll')?.addEventListener('click',()=>document.querySelectorAll('#act-criminal .criminal-chapter').forEach(x=>x.open=false));
