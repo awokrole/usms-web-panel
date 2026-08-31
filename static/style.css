@@ -360,3 +360,19 @@ nav{display:flex;flex-direction:column;gap:5px;overflow:auto}.nav-label{font-siz
 .legal-tab-hit[hidden]{display:none!important}
 
 .legal-search-hit.legal-search-hit-active{background:#ff9f43;color:#07111c;box-shadow:0 0 0 2px rgba(255,159,67,.42),0 0 18px rgba(255,159,67,.28)}
+
+
+/* Compact search-result navigator */
+.legal-search-toolbar{gap:8px}
+.legal-search-nav{gap:4px;padding:4px 5px;border-radius:8px;transition:box-shadow .16s ease,transform .16s ease,background .16s ease}
+.legal-search-position{min-width:42px;font-size:9px}
+.legal-search-arrow{width:27px;height:27px;border-radius:6px;font-size:16px}
+.legal-search-nav.is-floating{position:fixed;right:22px;bottom:22px;z-index:1200;background:#081725;border-color:#31587d;box-shadow:0 10px 32px rgba(0,0,0,.38),0 0 0 1px rgba(85,151,255,.08);transform:translateZ(0)}
+.legal-search-nav.is-floating .legal-search-position{font-size:10px;min-width:46px}
+.legal-search-nav.is-floating .legal-search-arrow{width:30px;height:30px}
+@media (max-width:720px){
+  .legal-search-toolbar{gap:6px}
+  .legal-search-position{min-width:38px;font-size:8px}
+  .legal-search-arrow{width:25px;height:25px;font-size:15px}
+  .legal-search-nav.is-floating{right:12px;bottom:12px}
+}
