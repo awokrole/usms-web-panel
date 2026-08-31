@@ -71,13 +71,22 @@
         {% endif %}
     </section>
 
-    <section class="panel">
-        <div class="panel-title"><h2>Szybki podgląd</h2></div>
-        <div class="quick-list">
-            <a href="{{ url_for('officers') }}"><span>♙</span><div><strong>Baza funkcjonariuszy</strong><small>Odznaki, stopnie i status</small></div><b>→</b></a>
-            <a href="{{ url_for('trainings') }}"><span>✚</span><div><strong>Szkolenia</strong><small>FLETC, RO, KPP, NL i pozostałe</small></div><b>→</b></a>
-            <a href="{{ url_for('akta') }}"><span>▤</span><div><strong>Akta</strong><small>Plusy, minusy, pochwały i nagany</small></div><b>→</b></a>
+    <section class="panel dashboard-status9-panel">
+        <div class="panel-title">
+            <h2>Status 9</h2>
+            {% if is_admin %}<a href="{{ url_for('announcements_page') }}">Edytuj →</a>{% endif %}
         </div>
+        {% if dashboard_status9 %}
+        <div class="dashboard-status9-scroll">
+            <div class="dashboard-status9-meta">
+                <span>STATUS 9</span>
+                <small>{{ dashboard_status9.created_at.strftime('%d.%m.%Y %H:%M') if dashboard_status9.created_at else '' }}</small>
+            </div>
+            <div class="dashboard-status9-content discord-rendered">{{ dashboard_status9.content|discord_markdown }}</div>
+        </div>
+        {% else %}
+        <div class="dashboard-status9-empty">Brak opublikowanego Statusu 9.</div>
+        {% endif %}
     </section>
 </div>
 
@@ -92,6 +101,26 @@
             <div class="avatar-fallback">{{ officer.full_name[:1] }}</div>
             <div><strong>{{ officer.full_name }}</strong><span>#{{ officer.badge }}</span><small>{{ officer.rank }}</small></div>
         </a>
+        {% endfor %}
+    </div>
+</section>
+
+<section class="panel full dashboard-announcements-panel">
+    <div class="panel-title">
+        <h2>Ogłoszenia</h2>
+        {% if is_admin %}<a href="{{ url_for('announcements_page') }}">Zarządzaj →</a>{% endif %}
+    </div>
+    <div class="dashboard-announcement-list">
+        {% for item in dashboard_announcements %}
+        <article class="dashboard-announcement-item">
+            <div class="dashboard-announcement-meta">
+                <strong>{{ item.author_name or 'Administracja USMS' }}</strong>
+                <time>{{ item.created_at.strftime('%d.%m.%Y %H:%M') if item.created_at else '' }}</time>
+            </div>
+            <div class="dashboard-announcement-content discord-rendered">{{ item.content|discord_markdown }}</div>
+        </article>
+        {% else %}
+        <div class="empty">Brak aktualnych ogłoszeń.</div>
         {% endfor %}
     </div>
 </section>
