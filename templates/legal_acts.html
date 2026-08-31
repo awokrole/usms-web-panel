@@ -9,7 +9,7 @@
       <p>Biblioteka aktów prawnych odwzorowana z przekazanych materiałów Department of Justice.</p>
     </div>
     <div class="legal-search-wrap">
-      <input id="legalSearch" class="legal-search" type="search" placeholder="Szukaj w treści aktu…" autocomplete="off">
+      <input id="legalSearch" class="legal-search" type="search" placeholder="Szukaj we wszystkich aktach…" autocomplete="off">
       <small id="legalCount">3 akty prawne</small>
     </div>
   </section>
@@ -1137,9 +1137,14 @@
   </div>
 </div>
 <script>
-const tabs=[...document.querySelectorAll('.legal-act-tab')], acts=[...document.querySelectorAll('.legal-act')], search=document.getElementById('legalSearch'), count=document.getElementById('legalCount'), nores=document.getElementById('legalNoResults');
+const tabs=[...document.querySelectorAll('.legal-act-tab')];
+const acts=[...document.querySelectorAll('.legal-act')];
+const search=document.getElementById('legalSearch');
+const count=document.getElementById('legalCount');
+const nores=document.getElementById('legalNoResults');
 
 function escapeHtml(v){return v.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]||c));}
+function escapeRegExp(v){return v.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');}
 function normalizeChapterTitle(line){return line.replace(/\s+/g,' ').trim();}
 function isChapterHeading(line){
   const t=normalizeChapterTitle(line);
@@ -1172,26 +1177,113 @@ function enhanceCriminalCode(){
   });
 }
 
-function activate(id){tabs.forEach(x=>x.classList.toggle('active',x.dataset.act===id));acts.forEach(x=>x.classList.toggle('active',x.id==='act-'+id));search.value='';filter();}
+function activate(id){
+  tabs.forEach(x=>x.classList.toggle('active',x.dataset.act===id));
+  acts.forEach(x=>x.classList.toggle('active',x.id==='act-'+id));
+}
 tabs.forEach(t=>t.addEventListener('click',()=>activate(t.dataset.act)));
 
-function filter(){
-  const q=search.value.trim().toLocaleLowerCase('pl');
-  const active=document.querySelector('.legal-act.active'); let shown=0;
-  active.querySelectorAll('.searchable').forEach(el=>{
-    if(el.classList.contains('criminal-source') && el.querySelector('.criminal-structured')){
-      let matches=0;
-      el.querySelectorAll('.criminal-chapter').forEach(ch=>{
-        const ok=!q||ch.innerText.toLocaleLowerCase('pl').includes(q);
-        ch.hidden=!ok; if(q&&ok) ch.open=true; if(ok) matches++;
-      });
-      el.hidden=matches===0; if(matches) shown+=matches;
-    }else{
-      const ok=!q||el.innerText.toLocaleLowerCase('pl').includes(q); el.hidden=!ok; if(ok) shown++;
-    }
+function getKeywords(){
+  return [...new Set(search.value.trim().split(/\s+/).map(x=>x.trim()).filter(Boolean))];
+}
+function clearHighlights(root=document){
+  root.querySelectorAll('mark.legal-search-hit').forEach(mark=>{
+    const parent=mark.parentNode;
+    parent.replaceChild(document.createTextNode(mark.textContent),mark);
+    parent.normalize();
   });
-  nores.hidden=shown!==0;
-  count.textContent=q?`${shown} pasujących sekcji`:'3 akty prawne';
+}
+function countHits(text,keywords){
+  let total=0;
+  keywords.forEach(k=>{
+    const m=text.match(new RegExp(escapeRegExp(k),'giu'));
+    if(m) total+=m.length;
+  });
+  return total;
+}
+function highlightHits(root,keywords){
+  if(!keywords.length) return;
+  const pattern=new RegExp('('+keywords.slice().sort((a,b)=>b.length-a.length).map(escapeRegExp).join('|')+')','giu');
+  const walker=document.createTreeWalker(root,NodeFilter.SHOW_TEXT,{acceptNode(node){
+    if(!node.nodeValue.trim()) return NodeFilter.FILTER_REJECT;
+    const p=node.parentElement;
+    if(!p || p.closest('mark.legal-search-hit,script,style')) return NodeFilter.FILTER_REJECT;
+    return pattern.test(node.nodeValue) ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
+  }});
+  const nodes=[]; while(walker.nextNode()) nodes.push(walker.currentNode);
+  nodes.forEach(node=>{
+    pattern.lastIndex=0;
+    const frag=document.createDocumentFragment();
+    let last=0;
+    node.nodeValue.replace(pattern,(match,_g,offset)=>{
+      if(offset>last) frag.append(document.createTextNode(node.nodeValue.slice(last,offset)));
+      const mark=document.createElement('mark'); mark.className='legal-search-hit'; mark.textContent=match; frag.append(mark);
+      last=offset+match.length; return match;
+    });
+    if(last<node.nodeValue.length) frag.append(document.createTextNode(node.nodeValue.slice(last)));
+    node.parentNode.replaceChild(frag,node);
+  });
+}
+function setTabHit(tab,hits){
+  let badge=tab.querySelector('.legal-tab-hit');
+  if(!badge){badge=document.createElement('em');badge.className='legal-tab-hit';tab.appendChild(badge);}
+  badge.textContent=hits;
+  badge.hidden=hits===0;
+}
+
+function filter(){
+  clearHighlights();
+  const keywords=getKeywords();
+  const searching=keywords.length>0;
+  let totalHits=0;
+  let totalSections=0;
+  const actHits={};
+
+  acts.forEach(act=>{
+    let hitsForAct=0;
+    let sectionsForAct=0;
+    act.querySelectorAll('.searchable').forEach(el=>{
+      if(el.classList.contains('criminal-source') && el.querySelector('.criminal-structured')){
+        let articleHits=0;
+        let visibleChapters=0;
+        el.querySelectorAll('.criminal-chapter').forEach(ch=>{
+          const text=ch.innerText || ch.textContent || '';
+          const hits=searching?countHits(text,keywords):0;
+          const ok=!searching||hits>0;
+          ch.hidden=!ok;
+          if(searching&&ok){ch.open=true;highlightHits(ch,keywords);}
+          if(ok) visibleChapters++;
+          articleHits+=hits;
+        });
+        el.hidden=searching&&visibleChapters===0;
+        if(searching&&articleHits>0){sectionsForAct+=visibleChapters;hitsForAct+=articleHits;}
+      }else{
+        const text=el.innerText || el.textContent || '';
+        const hits=searching?countHits(text,keywords):0;
+        const ok=!searching||hits>0;
+        el.hidden=!ok;
+        if(searching&&ok){highlightHits(el,keywords);sectionsForAct++;hitsForAct+=hits;}
+      }
+    });
+    actHits[act.id.replace('act-','')]=hitsForAct;
+    totalHits+=hitsForAct;
+    totalSections+=sectionsForAct;
+  });
+
+  tabs.forEach(tab=>setTabHit(tab,searching?(actHits[tab.dataset.act]||0):0));
+  if(searching){
+    count.textContent=`${totalHits} trafień • ${totalSections} sekcji • 3 akty`;
+    nores.hidden=totalHits!==0;
+    const activeId=document.querySelector('.legal-act.active')?.id.replace('act-','');
+    if(totalHits>0 && (!activeId || !(actHits[activeId]>0))){
+      const first=tabs.find(t=>(actHits[t.dataset.act]||0)>0);
+      if(first) activate(first.dataset.act);
+    }
+  }else{
+    count.textContent='3 akty prawne';
+    nores.hidden=true;
+    acts.forEach(act=>act.querySelectorAll('.searchable,.criminal-chapter').forEach(el=>el.hidden=false));
+  }
 }
 search.addEventListener('input',filter);
 
@@ -1199,5 +1291,6 @@ document.getElementById('criminalExpandAll')?.addEventListener('click',()=>docum
 document.getElementById('criminalCollapseAll')?.addEventListener('click',()=>document.querySelectorAll('#act-criminal .criminal-chapter').forEach(x=>x.open=false));
 
 enhanceCriminalCode();
+filter();
 </script>
 {% endblock %}
