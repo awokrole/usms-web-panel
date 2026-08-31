@@ -40,6 +40,16 @@ def discord_markdown(value):
     safe = re.sub(r"```(?:[A-Za-z0-9_+.-]+)?\n?(.*?)```", lambda m: protect_code(m, True), safe, flags=re.S)
     safe = re.sub(r"`([^`\n]+)`", lambda m: protect_code(m, False), safe)
 
+    # Klialne linki i czytelne skróty wzmianek na WWW. Discord dostaje surowy tekst
+    # i zamienia @odznaka/@usms na prawdziwe pingi dopiero podczas wysyłki.
+    safe = re.sub(
+        r"(?i)\b(https?://[^\s<]+)",
+        lambda m: f'<a class="discord-link" href="{m.group(1)}" target="_blank" rel="noopener noreferrer">{m.group(1)}</a>',
+        safe,
+    )
+    safe = re.sub(r"(?<![A-Za-z0-9_])@(\d{3})(?!\d)", r'<span class="discord-mention">@\1</span>', safe)
+    safe = re.sub(r"(?i)(?<![A-Za-z0-9_])@usms\b", r'<span class="discord-mention discord-role-mention">@USMS</span>', safe)
+
     # Formatowanie inline zgodne z najczęściej używanym Discord Markdown.
     safe = re.sub(r"\*\*(.+?)\*\*", r"<strong>\1</strong>", safe)
     safe = re.sub(r"__(.+?)__", r"<u>\1</u>", safe)
@@ -1796,6 +1806,47 @@ def absences_page():
     return render_template("system_absences.html", vacations=vacations, suspensions=suspensions)
 
 
+USMS_PING_ROLE_ID = "1511317008720068650"
+
+
+def resolve_web_announcement_mentions(content: str):
+    """Zamień skróty panelu na prawdziwe wzmianki Discorda.
+
+    @<odznaka> -> <@discord_id> dla aktywnego funkcjonariusza
+    @usms       -> <@&rola_usms>
+    Zwraca też whitelistę allowed_mentions, żeby Discord faktycznie wysłał ping.
+    """
+    import re
+    text = str(content or "")
+    officers = load_officers()
+    badge_map = {
+        str(o.get("badge") or "").strip(): str(o.get("discord_id") or "").strip()
+        for o in officers
+        if str(o.get("badge") or "").strip() and str(o.get("discord_id") or "").strip().isdigit()
+    }
+    mentioned_users = []
+
+    def badge_repl(match):
+        badge = match.group(1)
+        discord_id = badge_map.get(badge)
+        if not discord_id:
+            return match.group(0)
+        if discord_id not in mentioned_users:
+            mentioned_users.append(discord_id)
+        return f"<@{discord_id}>"
+
+    text = re.sub(r"(?<![A-Za-z0-9_])@(\d{3})(?!\d)", badge_repl, text)
+    role_ping = bool(re.search(r"(?<![A-Za-z0-9_])@usms\b", text, flags=re.I))
+    text = re.sub(r"(?<![A-Za-z0-9_])@usms\b", f"<@&{USMS_PING_ROLE_ID}>", text, flags=re.I)
+
+    allowed = {"parse": [], "replied_user": False}
+    if mentioned_users:
+        allowed["users"] = mentioned_users[:100]
+    if role_ping:
+        allowed["roles"] = [USMS_PING_ROLE_ID]
+    return text, allowed
+
+
 def send_web_announcement_to_discord(channel_id: str, content: str):
     """Wyślij wpis z panelu WEB na jeden z dozwolonych kanałów Discord.
 
@@ -1808,7 +1859,7 @@ def send_web_announcement_to_discord(channel_id: str, content: str):
     if not DISCORD_TOKEN:
         raise RuntimeError("Brak DISCORD_TOKEN w konfiguracji strony.")
 
-    text = str(content or "")
+    text, allowed_mentions = resolve_web_announcement_mentions(content)
     chunks = []
     while text:
         if len(text) <= 2000:
@@ -1831,7 +1882,7 @@ def send_web_announcement_to_discord(channel_id: str, content: str):
         response = requests.post(
             f"{DISCORD_API}/channels/{channel_id}/messages",
             headers=headers,
-            json={"content": chunk, "allowed_mentions": {"parse": []}},
+            json={"content": chunk, "allowed_mentions": allowed_mentions},
             timeout=12,
         )
         if response.status_code not in {200, 201}:
@@ -1924,6 +1975,11 @@ def announcements_page():
         discord_error=request.args.get("discord_error"),
         discord_channel=request.args.get("discord_channel"),
         announcement_channels=WEB_ANNOUNCEMENT_CHANNELS,
+        mention_officers=[{
+            "badge": str(o.get("badge") or ""),
+            "name": str(o.get("full_name") or ""),
+            "discord_id": str(o.get("discord_id") or ""),
+        } for o in load_officers()],
     )
 
 

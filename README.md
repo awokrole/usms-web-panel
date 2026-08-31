@@ -42,3 +42,11 @@ Zmiany:
 - Zachowywane są nagłówki Discord `#`, `##`, `###`, pogrubienie, kursywa, podkreślenie, przekreślenie, listy, cytaty, kod, puste linie i emoji.
 - Ogłoszenia oraz Status 9 na Dashboardzie renderują ten sam Markdown w stylu zbliżonym do Discorda.
 - Do Discorda nadal wysyłany jest surowy Markdown, więc Discord renderuje go natywnie.
+
+## v51 — wzmianki funkcjonariuszy, @USMS i linki
+- W edytorze ogłoszeń wpisanie `@` pokazuje podpowiedzi aktywnych funkcjonariuszy; można szukać po numerze odznaki lub imieniu/nazwisku.
+- Wybranie funkcjonariusza wstawia `@ODZNAKA`; podczas publikacji WEB zamienia ją na prawdziwe `<@DISCORD_ID>` i zezwala Discordowi na ping tej osoby.
+- `@usms` jest zamieniane na ping roli `1511317008720068650`.
+- Na stronie skróty wzmianek są renderowane czytelnie w stylu Discorda.
+- Adresy `http://` i `https://` są klikalnymi linkami w podglądzie, na Dashboardzie i w historii ogłoszeń.
+- Lista kanałów `#kanał` nie jest jeszcze dodana — będzie osobnym kolejnym etapem.
