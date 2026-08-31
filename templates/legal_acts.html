@@ -1156,6 +1156,8 @@ const nores=document.getElementById('legalNoResults');
 const prevResultBtn=document.getElementById('legalPrevResult');
 const nextResultBtn=document.getElementById('legalNextResult');
 const searchPosition=document.getElementById('legalSearchPosition');
+const searchNav=document.querySelector('.legal-search-nav');
+const searchToolbar=document.querySelector('.legal-search-toolbar');
 
 let searchMatches=[];
 let currentMatchIndex=-1;
@@ -1254,6 +1256,11 @@ function setTabHit(tab,hits){
   badge.textContent=hits;
   badge.hidden=hits===0;
 }
+function updateFloatingSearchNav(){
+  if(!searchNav || !searchToolbar) return;
+  const shouldFloat=isSearching() && searchMatches.length>0 && searchToolbar.getBoundingClientRect().bottom<12;
+  searchNav.classList.toggle('is-floating',shouldFloat);
+}
 function updateSearchNavigation(){
   const hasQuery=isSearching();
   const hasMatches=searchMatches.length>0;
@@ -1263,6 +1270,7 @@ function updateSearchNavigation(){
   }
   if(prevResultBtn) prevResultBtn.disabled=!hasMatches;
   if(nextResultBtn) nextResultBtn.disabled=!hasMatches;
+  updateFloatingSearchNav();
 }
 function collectSearchMatches(){
   searchMatches=[...document.querySelectorAll('mark.legal-search-hit')];
@@ -1386,6 +1394,8 @@ search.addEventListener('keydown',(e)=>{
 });
 prevResultBtn?.addEventListener('click',goToPrevMatch);
 nextResultBtn?.addEventListener('click',goToNextMatch);
+window.addEventListener('scroll',updateFloatingSearchNav,{passive:true});
+window.addEventListener('resize',updateFloatingSearchNav);
 
 document.getElementById('criminalExpandAll')?.addEventListener('click',()=>document.querySelectorAll('#act-criminal .criminal-chapter').forEach(x=>{if(!x.hidden)x.open=true;}));
 document.getElementById('criminalCollapseAll')?.addEventListener('click',()=>document.querySelectorAll('#act-criminal .criminal-chapter').forEach(x=>x.open=false));
