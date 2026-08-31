@@ -15,10 +15,80 @@ from functools import wraps
 
 import requests
 from flask import Flask, abort, redirect, render_template, request, send_file, session, url_for
+from markupsafe import Markup, escape
 
 
 app = Flask(__name__)
 app.secret_key = os.environ.get("WEB_SECRET_KEY") or secrets.token_hex(32)
+
+
+def discord_markdown(value):
+    """Bezpieczny renderer podstawowego Discord Markdown do podglądu na stronie."""
+    import re
+    text = str(value or "").replace("\r\n", "\n").replace("\r", "\n")
+    safe = str(escape(text))
+
+    # Chroń bloki i kod inline przed dalszym formatowaniem.
+    protected = []
+    def protect_code(match, block=False):
+        raw = match.group(1)
+        token = f"@@USMSCODE{len(protected)}@@"
+        cls = "discord-code-block" if block else "discord-inline-code"
+        protected.append(f'<code class="{cls}">{raw}</code>' if not block else f'<pre class="{cls}"><code>{raw}</code></pre>')
+        return token
+
+    safe = re.sub(r"```(?:[A-Za-z0-9_+.-]+)?\n?(.*?)```", lambda m: protect_code(m, True), safe, flags=re.S)
+    safe = re.sub(r"`([^`\n]+)`", lambda m: protect_code(m, False), safe)
+
+    # Formatowanie inline zgodne z najczęściej używanym Discord Markdown.
+    safe = re.sub(r"\*\*(.+?)\*\*", r"<strong>\1</strong>", safe)
+    safe = re.sub(r"__(.+?)__", r"<u>\1</u>", safe)
+    safe = re.sub(r"~~(.+?)~~", r"<s>\1</s>", safe)
+    safe = re.sub(r"(?<!\*)\*([^*\n]+?)\*(?!\*)", r"<em>\1</em>", safe)
+
+    out = []
+    in_ul = False
+    in_ol = False
+    for line in safe.split("\n"):
+        h = re.match(r"^(#{1,3})\s+(.+)$", line)
+        ul = re.match(r"^[-*]\s+(.+)$", line)
+        ol = re.match(r"^\d+[.)]\s+(.+)$", line)
+        quote = re.match(r"^&gt;\s?(.*)$", line)
+
+        if not ul and in_ul:
+            out.append("</ul>"); in_ul = False
+        if not ol and in_ol:
+            out.append("</ol>"); in_ol = False
+
+        if h:
+            level = len(h.group(1))
+            out.append(f'<h{level} class="discord-h{level}">{h.group(2)}</h{level}>')
+        elif ul:
+            if not in_ul:
+                out.append('<ul class="discord-list">'); in_ul = True
+            out.append(f"<li>{ul.group(1)}</li>")
+        elif ol:
+            if not in_ol:
+                out.append('<ol class="discord-list">'); in_ol = True
+            out.append(f"<li>{ol.group(1)}</li>")
+        elif quote:
+            out.append(f'<blockquote class="discord-quote">{quote.group(1) or "&nbsp;"}</blockquote>')
+        elif line.strip() == "":
+            out.append('<div class="discord-spacer"></div>')
+        elif line.startswith("@@USMSCODE") and line.endswith("@@"):
+            out.append(line)
+        else:
+            out.append(f'<div class="discord-line">{line}</div>')
+
+    if in_ul: out.append("</ul>")
+    if in_ol: out.append("</ol>")
+    html = "".join(out)
+    for idx, fragment in enumerate(protected):
+        html = html.replace(f"@@USMSCODE{idx}@@", fragment)
+    return Markup(html)
+
+
+app.jinja_env.filters["discord_markdown"] = discord_markdown
 
 DISCORD_CLIENT_ID = os.environ.get("DISCORD_CLIENT_ID", "").strip()
 DISCORD_CLIENT_SECRET = os.environ.get("DISCORD_CLIENT_SECRET", "").strip()
@@ -40,6 +110,14 @@ else:
 
 
 DISCORD_API = "https://discord.com/api/v10"
+
+# Kanały, na które administrator może publikować z panelu WEB.
+WEB_ANNOUNCEMENT_CHANNELS = {
+    "1511317009466396716": "Ogłoszenia ogólne",
+    "1524410439381811240": "Ogólne informacje",
+    "1541198053254627488": "Status 9",
+}
+
 
 PROFILE_PHOTO_MAX_BYTES = 5 * 1024 * 1024
 DOCUMENT_MAX_BYTES = 10 * 1024 * 1024
@@ -235,6 +313,19 @@ def ensure_roster_tables():
                 INSERT INTO payroll_settings (id, multiplier) VALUES (1, 1.00)
                 ON CONFLICT (id) DO NOTHING
             """)
+
+            # v48 — ręczne ogłoszenia oraz Status 9 publikowane z panelu WWW.
+            cur.execute("""
+                CREATE TABLE IF NOT EXISTS web_announcements (
+                    id BIGSERIAL PRIMARY KEY,
+                    kind TEXT NOT NULL CHECK (kind IN ('announcement', 'status9')),
+                    content TEXT NOT NULL,
+                    author_id BIGINT NULL,
+                    author_name TEXT NOT NULL DEFAULT '',
+                    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+                )
+            """)
+            cur.execute("CREATE INDEX IF NOT EXISTS idx_web_announcements_kind_created ON web_announcements(kind, created_at DESC)")
 
             cur.execute("""
                 CREATE TABLE IF NOT EXISTS web_migrations (
@@ -928,6 +1019,27 @@ def current_payroll_period():
     return start, end, f"{start.isoformat()}_{end.isoformat()}", f"{start.strftime('%d.%m.%Y')} – {end.strftime('%d.%m.%Y')}"
 
 
+def load_web_announcements(kind=None, limit=20):
+    if not DATABASE_URL:
+        return []
+    conn = pg_connect("usms-web-announcements-load")
+    try:
+        with conn.cursor(cursor_factory=RealDictCursor) as cur:
+            if kind in {"announcement", "status9"}:
+                cur.execute(
+                    "SELECT id, kind, content, author_id, author_name, created_at FROM web_announcements WHERE kind=%s ORDER BY created_at DESC LIMIT %s",
+                    (kind, int(limit)),
+                )
+            else:
+                cur.execute(
+                    "SELECT id, kind, content, author_id, author_name, created_at FROM web_announcements ORDER BY created_at DESC LIMIT %s",
+                    (int(limit),),
+                )
+            return [dict(r) for r in cur.fetchall()]
+    finally:
+        conn.close()
+
+
 @app.route("/dashboard")
 @logged_in_required
 def dashboard():
@@ -1002,6 +1114,14 @@ def dashboard():
     my_officer = get_current_officer()
     my_profile_meta = get_profile_meta(my_officer["badge"]) if my_officer else None
 
+    try:
+        dashboard_announcements = load_web_announcements("announcement", 6)
+        status9_rows = load_web_announcements("status9", 1)
+        dashboard_status9 = status9_rows[0] if status9_rows else None
+    except Exception:
+        dashboard_announcements = []
+        dashboard_status9 = None
+
     return render_template(
         "dashboard.html",
         officers=officers,
@@ -1014,6 +1134,8 @@ def dashboard():
         payroll_multiplier=get_payroll_multiplier(),
         my_officer=my_officer,
         my_profile_meta=my_profile_meta,
+        dashboard_announcements=dashboard_announcements,
+        dashboard_status9=dashboard_status9,
     )
 
 
@@ -1674,19 +1796,150 @@ def absences_page():
     return render_template("system_absences.html", vacations=vacations, suspensions=suspensions)
 
 
-@app.route("/system/ogloszenia")
-@logged_in_required
+def send_web_announcement_to_discord(channel_id: str, content: str):
+    """Wyślij wpis z panelu WEB na jeden z dozwolonych kanałów Discord.
+
+    Discord ogranicza pojedynczą wiadomość do 2000 znaków, dlatego dłuższe
+    wpisy są dzielone na kolejne wiadomości bez utraty treści.
+    """
+    channel_id = str(channel_id or "").strip()
+    if channel_id not in WEB_ANNOUNCEMENT_CHANNELS:
+        raise ValueError("Nieprawidłowy kanał Discord.")
+    if not DISCORD_TOKEN:
+        raise RuntimeError("Brak DISCORD_TOKEN w konfiguracji strony.")
+
+    text = str(content or "")
+    chunks = []
+    while text:
+        if len(text) <= 2000:
+            chunks.append(text)
+            break
+        cut = text.rfind("\n", 0, 2001)
+        if cut < 1000:
+            cut = text.rfind(" ", 0, 2001)
+        if cut < 1000:
+            cut = 2000
+        chunks.append(text[:cut].rstrip())
+        text = text[cut:].lstrip()
+
+    message_ids = []
+    headers = {
+        "Authorization": f"Bot {DISCORD_TOKEN}",
+        "Content-Type": "application/json",
+    }
+    for chunk in chunks or [""]:
+        response = requests.post(
+            f"{DISCORD_API}/channels/{channel_id}/messages",
+            headers=headers,
+            json={"content": chunk, "allowed_mentions": {"parse": []}},
+            timeout=12,
+        )
+        if response.status_code not in {200, 201}:
+            try:
+                details = response.json().get("message") or response.text
+            except Exception:
+                details = response.text
+            raise RuntimeError(f"Discord API {response.status_code}: {details[:300]}")
+        try:
+            message_ids.append(str(response.json().get("id") or ""))
+        except Exception:
+            message_ids.append("")
+    return message_ids
+
+
+@app.route("/system/ogloszenia", methods=["GET", "POST"])
+@admin_required
 def announcements_page():
+    error = None
+    if request.method == "POST":
+        validate_csrf()
+        kind = (request.form.get("kind") or "announcement").strip()
+        content = (request.form.get("content") or "").strip()
+        channel_id = (request.form.get("channel_id") or "").strip()
+        if kind not in {"announcement", "status9"}:
+            error = "Nieprawidłowy typ wpisu."
+        elif not content:
+            error = "Wpisz treść przed opublikowaniem."
+        elif channel_id not in WEB_ANNOUNCEMENT_CHANNELS:
+            error = "Wybierz prawidłowy kanał Discord."
+        elif len(content) > 12000:
+            error = "Treść jest za długa (maksymalnie 12 000 znaków)."
+        elif not DATABASE_URL:
+            error = "Brak połączenia z PostgreSQL."
+        else:
+            user = session.get("discord_user") or {}
+            try:
+                author_id = int(user.get("id")) if user.get("id") else None
+            except (TypeError, ValueError):
+                author_id = None
+            author_name = str(user.get("username") or "Administrator")[:120]
+            conn = pg_connect("usms-web-announcements-create")
+            try:
+                with conn.cursor() as cur:
+                    cur.execute(
+                        "INSERT INTO web_announcements (kind, content, author_id, author_name) VALUES (%s,%s,%s,%s)",
+                        (kind, content, author_id, author_name),
+                    )
+                conn.commit()
+            finally:
+                conn.close()
+
+            try:
+                send_web_announcement_to_discord(channel_id, content)
+            except Exception as exc:
+                # Wpis pozostaje na stronie; administrator dostaje jasny komunikat,
+                # że Discord nie przyjął wiadomości.
+                return redirect(url_for(
+                    "announcements_page", saved=1, discord_error=str(exc)[:500]
+                ))
+            return redirect(url_for(
+                "announcements_page", saved=1, discord_sent=1,
+                discord_channel=WEB_ANNOUNCEMENT_CHANNELS.get(channel_id, channel_id)
+            ))
+
     rows = []
+    bot_rows = []
+    try:
+        rows = load_web_announcements(None, 100)
+    except Exception as exc:
+        error = error or f"Nie udało się pobrać wpisów: {exc}"
+
+    # Zachowujemy starszą historię sesji bota jako materiał pomocniczy.
     if DATABASE_URL:
         conn = pg_connect("usms-announcements-page")
         try:
             with conn.cursor(cursor_factory=RealDictCursor) as cur:
-                cur.execute("SELECT author_id, channel_id, message_id, created_at FROM announcement_sessions ORDER BY created_at DESC LIMIT 100")
-                rows = [dict(r) for r in cur.fetchall()]
+                try:
+                    cur.execute("SELECT author_id, channel_id, message_id, created_at FROM announcement_sessions ORDER BY created_at DESC LIMIT 50")
+                    bot_rows = [dict(r) for r in cur.fetchall()]
+                except Exception:
+                    conn.rollback()
+                    bot_rows = []
         finally:
             conn.close()
-    return render_template("system_announcements.html", rows=rows, guild_id=DISCORD_GUILD_ID or "")
+    return render_template(
+        "system_announcements.html", rows=rows, bot_rows=bot_rows,
+        guild_id=DISCORD_GUILD_ID or "", error=error, saved=request.args.get("saved") == "1",
+        discord_sent=request.args.get("discord_sent") == "1",
+        discord_error=request.args.get("discord_error"),
+        discord_channel=request.args.get("discord_channel"),
+        announcement_channels=WEB_ANNOUNCEMENT_CHANNELS,
+    )
+
+
+@app.post("/system/ogloszenia/<int:item_id>/usun")
+@admin_required
+def delete_web_announcement(item_id):
+    validate_csrf()
+    if DATABASE_URL:
+        conn = pg_connect("usms-web-announcements-delete")
+        try:
+            with conn.cursor() as cur:
+                cur.execute("DELETE FROM web_announcements WHERE id=%s", (item_id,))
+            conn.commit()
+        finally:
+            conn.close()
+    return redirect(url_for("announcements_page"))
 
 
 @app.route("/logi")
