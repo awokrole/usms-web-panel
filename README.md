@@ -73,3 +73,8 @@ Zmiany:
 - komplet wymaganych szkoleń +10; FLETC nadal pomijane
 - wynik ograniczony do 0–100 i mapowany na 1–5 gwiazdek
 - kliknięcie oceny w Podsumowaniu tygodnia pokazuje rozbicie punktów
+
+## v55
+- Usunięto niebieski znak `+` / `−` przy ocenie w Podsumowaniu tygodnia.
+- Ocena w stanie zwiniętym jest bardziej kompaktowa.
+- Kliknięcie gwiazdek/wyniku nadal rozwija pełne rozbicie punktów.
