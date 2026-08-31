@@ -52,7 +52,8 @@
             <div class="announcement-editor-grid">
                 <label class="announcement-text-label">
                     <span>Treść</span>
-                    <textarea id="announcement-content" name="content" maxlength="12000" required placeholder="# OGŁOSZENIE&#10;&#10;**Treść:** wpisz komunikat...&#10;&#10;✅ Możesz używać emotikonów, odstępów i Discord Markdown."></textarea>
+                    <textarea id="announcement-content" name="content" maxlength="12000" required autocomplete="off" placeholder="# OGŁOSZENIE&#10;&#10;**Treść:** wpisz komunikat...&#10;&#10;Wpisz @787, aby oznaczyć funkcjonariusza, albo @usms, aby oznaczyć całą rolę USMS."></textarea>
+                    <div id="mention-suggestions" class="mention-suggestions" hidden></div>
                 </label>
                 <div class="announcement-preview-wrap">
                     <span>Podgląd w stylu Discord</span>
@@ -62,7 +63,7 @@
         </div>
 
         <div class="markdown-help">
-            <code>#</code> duży nagłówek · <code>##</code> średni · <code>###</code> mały · <code>**tekst**</code> pogrubienie · <code>*tekst*</code> kursywa · <code>__tekst__</code> podkreślenie · <code>~~tekst~~</code> przekreślenie · puste linie i emotikony są zachowywane.
+            <code>#</code> duży nagłówek · <code>##</code> średni · <code>###</code> mały · <code>**tekst**</code> pogrubienie · <code>@787</code> ping funkcjonariusza · <code>@usms</code> ping roli USMS · linki <code>https://...</code> są klikalne · puste linie i emotikony są zachowywane.
         </div>
         <div class="announcement-form-footer">
             <small>Strona zapisuje surowy Discord Markdown. Ten sam tekst jest wysyłany na Discord, a Dashboard renderuje jego nagłówki, grubość, odstępy, listy, cytaty i emotikony w zbliżonym stylu.</small>
@@ -113,6 +114,7 @@
 
 <script>
 (() => {
+    const mentionOfficers = {{ mention_officers|tojson }};
     const kind = document.getElementById('announcement-kind');
     const channel = document.getElementById('announcement-channel');
     const textarea = document.getElementById('announcement-content');
@@ -127,7 +129,10 @@
     const esc = (v) => v.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
     const inline = (v) => {
         let x = esc(v);
-        x = x.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+        x = x.replace(/\b(https?:\/\/[^\s<]+)/gi, '<a class="discord-link" href="$1" target="_blank" rel="noopener noreferrer">$1</a>')
+             .replace(/(^|[^A-Za-z0-9_])@(\d{3})(?!\d)/g, '$1<span class="discord-mention">@$2</span>')
+             .replace(/(^|[^A-Za-z0-9_])@usms\b/gi, '$1<span class="discord-mention discord-role-mention">@USMS</span>')
+             .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
              .replace(/__(.+?)__/g, '<u>$1</u>')
              .replace(/~~(.+?)~~/g, '<s>$1</s>')
              .replace(/(^|[^*])\*([^*\n]+?)\*(?!\*)/g, '$1<em>$2</em>')
@@ -160,7 +165,63 @@
         return html;
     }
     const refresh = () => { preview.innerHTML = renderDiscord(textarea.value); };
-    textarea.addEventListener('input', refresh);
+    const suggestions = document.getElementById('mention-suggestions');
+    let mentionStart = -1;
+
+    function hideSuggestions() {
+        if (!suggestions) return;
+        suggestions.hidden = true;
+        suggestions.innerHTML = '';
+        mentionStart = -1;
+    }
+    function chooseMention(value) {
+        if (mentionStart < 0) return;
+        const end = textarea.selectionStart;
+        textarea.setRangeText(value + ' ', mentionStart, end, 'end');
+        textarea.focus();
+        hideSuggestions();
+        refresh();
+    }
+    function updateMentionSuggestions() {
+        if (!suggestions) return;
+        const pos = textarea.selectionStart;
+        const before = textarea.value.slice(0, pos);
+        const match = before.match(/(?:^|\s)@([^\s@]*)$/);
+        if (!match) { hideSuggestions(); return; }
+        const query = (match[1] || '').toLowerCase();
+        mentionStart = pos - query.length - 1;
+        const options = [];
+        if ('usms'.startsWith(query)) options.push({value:'@usms', badge:'USMS', name:'Rola — ping wszystkich USMS', role:true});
+        mentionOfficers.forEach(o => {
+            const badge = String(o.badge || '');
+            const name = String(o.name || '');
+            if (!query || badge.toLowerCase().startsWith(query) || name.toLowerCase().includes(query)) {
+                options.push({value:'@' + badge, badge, name, role:false});
+            }
+        });
+        const shown = options.slice(0, 8);
+        if (!shown.length) { hideSuggestions(); return; }
+        suggestions.innerHTML = '';
+        shown.forEach(opt => {
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = 'mention-suggestion';
+            const badge = document.createElement('strong');
+            badge.textContent = '@' + opt.badge;
+            const name = document.createElement('span');
+            name.textContent = opt.name;
+            btn.append(badge, name);
+            btn.addEventListener('mousedown', e => e.preventDefault());
+            btn.addEventListener('click', () => chooseMention(opt.value));
+            suggestions.appendChild(btn);
+        });
+        suggestions.hidden = false;
+    }
+
+    textarea.addEventListener('input', () => { refresh(); updateMentionSuggestions(); });
+    textarea.addEventListener('click', updateMentionSuggestions);
+    textarea.addEventListener('keyup', e => { if (e.key === 'Escape') hideSuggestions(); });
+    textarea.addEventListener('blur', () => setTimeout(hideSuggestions, 120));
     refresh();
 
     document.querySelectorAll('.discord-toolbar button').forEach(btn => {
