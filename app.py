@@ -515,6 +515,8 @@ def load_officers():
                     o.full_name,
                     o.csn,
                     o.active,
+                    o.last_promotion,
+                    o.hired_at,
                     u.user_id AS bot_user_id,
                     CAST(u.badge_number AS TEXT) AS bot_badge
                 FROM officers o
@@ -551,6 +553,8 @@ def load_officers():
             "minus": int(rec.get("minus_count") or 0),
             "praise": int(rec.get("praise_count") or 0),
             "reprimand": int(rec.get("reprimand_count") or 0),
+            "last_promotion": row.get("last_promotion"),
+            "hired_at": row.get("hired_at"),
         })
 
     def key(item):
@@ -1052,7 +1056,13 @@ def officers():
             or q in r["rank"].casefold()
         ]
 
-    return render_template("officers.html", officers=records, q=request.args.get("q", ""))
+    rank_groups = []
+    for _start, _end, rank_name in RANK_RANGES:
+        members = [r for r in records if r.get("rank") == rank_name]
+        if members:
+            rank_groups.append({"rank": rank_name, "officers": members})
+
+    return render_template("officers.html", officers=records, rank_groups=rank_groups, q=request.args.get("q", ""))
 
 
 @app.route("/funkcjonariusze/<badge>")
@@ -1391,6 +1401,67 @@ def _system_officer_rows():
 @admin_required
 def admin_panel():
     return render_template("admin_panel.html")
+
+
+def _required_trainings_for_rank(rank):
+    # FLETC celowo nie jest uwzględniane w podsumowaniu tygodnia.
+    required = []
+    if rank == "Deputy U.S Marshal Trainee":
+        return ["KPP"]
+    rank_order = [r[2] for r in RANK_RANGES]
+    try:
+        idx = rank_order.index(rank)
+    except ValueError:
+        return required
+    deputy_idx = rank_order.index("Deputy U.S Marshal")
+    special_idx = rank_order.index("Special Deputy U.S Marshal")
+    # RANK_RANGES jest od najwyższego do najniższego stopnia.
+    if idx <= deputy_idx:
+        required.extend(["KPP", "RO", "NL I", "SV"])
+    if idx <= special_idx:
+        required.append("SZPIA")
+    return required
+
+
+def _weekly_rating(seconds):
+    # Czytelna, tygodniowa ocena aktywności 0–5 oparta wyłącznie na godzinach.
+    hours = max(0.0, float(seconds or 0) / 3600.0)
+    if hours >= 10: return 5
+    if hours >= 8: return 4
+    if hours >= 6: return 3
+    if hours >= 4: return 2
+    if hours > 0: return 1
+    return 0
+
+
+@app.route("/panel-admina/podsumowanie-tygodnia")
+@admin_required
+def weekly_summary():
+    records = load_officers()
+    duty = load_duty_state()
+    groups = []
+    for officer in records:
+        state = duty.get(officer["discord_id"], {})
+        seconds = int(state.get("weekly_seconds", 0) or 0)
+        officer["weekly_seconds"] = seconds
+        officer["weekly_text"] = format_seconds(seconds)
+        officer["norm_met"] = seconds >= 10 * 3600
+        officer["norm_missing_text"] = format_seconds(max(0, 10 * 3600 - seconds))
+        officer["rating"] = _weekly_rating(seconds)
+        officer["rating_filled"] = "★" * officer["rating"]
+        officer["rating_empty"] = "☆" * (5 - officer["rating"])
+        required = _required_trainings_for_rank(officer.get("rank"))
+        completed = set(officer.get("trainings") or [])
+        officer["required_trainings"] = required
+        officer["required_done"] = [x for x in required if x in completed]
+        officer["required_missing"] = [x for x in required if x not in completed]
+        officer["training_ok"] = not officer["required_missing"]
+        officer["is_trainee"] = officer.get("rank") == "Deputy U.S Marshal Trainee"
+    for _start, _end, rank_name in RANK_RANGES:
+        members = [r for r in records if r.get("rank") == rank_name]
+        if members:
+            groups.append({"rank": rank_name, "officers": members})
+    return render_template("weekly_summary.html", rank_groups=groups)
 
 
 @app.route("/system/sluzba")
