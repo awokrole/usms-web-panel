@@ -65,3 +65,11 @@ Zmiany:
 - jeśli długość wpisu po edycji wymaga innej liczby wiadomości Discord, panel tworzy brakujące lub usuwa nadmiarowe fragmenty,
 - **Usuń** usuwa wpis ze strony oraz powiązane wiadomości Discord (404 na Discordzie jest traktowane jako już usunięte),
 - jednorazowa migracja podpina ostatni historyczny Status 9 do kanału `1541198053254627488` i wiadomości `1543886109308755968`, `1543886110848196628`.
+
+## v54 — punktowa ocena funkcjonariusza
+- baza 50 pkt
+- godziny: <2h -25, <5h -15, <8h -10, <10h -5, 10–15h 0, 15–20h +5, 20–30h +10, 30–40h +15, 40–50h +20, 50h+ +25
+- plus +5 (max 3), minus -5 (max 3), pochwała +10 (max 2), nagana -10 (max 2)
+- komplet wymaganych szkoleń +10; FLETC nadal pomijane
+- wynik ograniczony do 0–100 i mapowany na 1–5 gwiazdek
+- kliknięcie oceny w Podsumowaniu tygodnia pokazuje rozbicie punktów

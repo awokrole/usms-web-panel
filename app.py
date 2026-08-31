@@ -1600,15 +1600,59 @@ def _required_trainings_for_rank(rank):
     return required
 
 
-def _weekly_rating(seconds):
-    # Czytelna, tygodniowa ocena aktywności 0–5 oparta wyłącznie na godzinach.
+def _weekly_hours_points(seconds):
+    """Punkty za aktywność tygodniową. Norma 10h; bonus kończy się na 50h+."""
     hours = max(0.0, float(seconds or 0) / 3600.0)
-    if hours >= 10: return 5
-    if hours >= 8: return 4
-    if hours >= 6: return 3
-    if hours >= 4: return 2
-    if hours > 0: return 1
-    return 0
+    if hours < 2:
+        return -25
+    if hours < 5:
+        return -15
+    if hours < 8:
+        return -10
+    if hours < 10:
+        return -5
+    if hours < 15:
+        return 0
+    if hours < 20:
+        return 5
+    if hours < 30:
+        return 10
+    if hours < 40:
+        return 15
+    if hours < 50:
+        return 20
+    return 25
+
+
+def _weekly_rating(seconds, plus_count=0, minus_count=0, praise_count=0, reprimand_count=0, training_ok=False):
+    """Zwraca punktację 0–100, 1–5 gwiazdek i rozbicie oceny tygodniowej."""
+    base = 50
+    hours_points = _weekly_hours_points(seconds)
+    plus_points = min(max(int(plus_count or 0), 0), 3) * 5
+    minus_points = -min(max(int(minus_count or 0), 0), 3) * 5
+    praise_points = min(max(int(praise_count or 0), 0), 2) * 10
+    reprimand_points = -min(max(int(reprimand_count or 0), 0), 2) * 10
+    training_points = 10 if training_ok else 0
+    raw = base + hours_points + plus_points + minus_points + praise_points + reprimand_points + training_points
+    score = max(0, min(100, raw))
+    if score >= 90:
+        stars, label = 5, "Wzorowy"
+    elif score >= 75:
+        stars, label = 4, "Bardzo dobry"
+    elif score >= 60:
+        stars, label = 3, "Dobry"
+    elif score >= 40:
+        stars, label = 2, "Wymaga poprawy"
+    else:
+        stars, label = 1, "Niezadowalający"
+    return {
+        "score": score, "stars": stars, "label": label,
+        "breakdown": [
+            ("Baza", base), ("Godziny", hours_points), ("Plusy", plus_points),
+            ("Minusy", minus_points), ("Pochwały", praise_points),
+            ("Nagany", reprimand_points), ("Szkolenia", training_points),
+        ],
+    }
 
 
 @app.route("/panel-admina/podsumowanie-tygodnia")
@@ -1624,15 +1668,22 @@ def weekly_summary():
         officer["weekly_text"] = format_seconds(seconds)
         officer["norm_met"] = seconds >= 10 * 3600
         officer["norm_missing_text"] = format_seconds(max(0, 10 * 3600 - seconds))
-        officer["rating"] = _weekly_rating(seconds)
-        officer["rating_filled"] = "★" * officer["rating"]
-        officer["rating_empty"] = "☆" * (5 - officer["rating"])
         required = _required_trainings_for_rank(officer.get("rank"))
         completed = set(officer.get("trainings") or [])
         officer["required_trainings"] = required
         officer["required_done"] = [x for x in required if x in completed]
         officer["required_missing"] = [x for x in required if x not in completed]
         officer["training_ok"] = not officer["required_missing"]
+        rating = _weekly_rating(
+            seconds, officer.get("plus", 0), officer.get("minus", 0),
+            officer.get("praise", 0), officer.get("reprimand", 0), officer["training_ok"]
+        )
+        officer["rating"] = rating["stars"]
+        officer["rating_score"] = rating["score"]
+        officer["rating_label"] = rating["label"]
+        officer["rating_breakdown"] = rating["breakdown"]
+        officer["rating_filled"] = "★" * officer["rating"]
+        officer["rating_empty"] = "☆" * (5 - officer["rating"])
         officer["is_trainee"] = officer.get("rank") == "Deputy U.S Marshal Trainee"
     for _start, _end, rank_name in RANK_RANGES:
         members = [r for r in records if r.get("rank") == rank_name]
