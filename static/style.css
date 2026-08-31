@@ -339,3 +339,16 @@ nav{display:flex;flex-direction:column;gap:5px;overflow:auto}.nav-label{font-siz
 /* Kodeks karny — uporządkowany widok bez ingerencji w treść źródłową */
 .criminal-toolbar{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:15px 17px}.criminal-toolbar>div:first-child{display:flex;flex-direction:column;gap:3px}.criminal-toolbar b{font-size:11px;color:#dbe9f8}.criminal-toolbar small{font-size:9px;color:#7790aa;line-height:1.5}.criminal-toolbar-actions{display:flex;gap:7px}.criminal-toolbar-actions button{border:1px solid #294b6e;background:#0a1928;color:#a9c7e8;border-radius:8px;padding:8px 10px;font:700 9px inherit;cursor:pointer}.criminal-toolbar-actions button:hover{background:#10243a;color:#fff}.criminal-source{padding:16px 18px}.criminal-source>h3{margin:0 0 10px;padding:0 2px}.criminal-source>h3 span{margin:0;color:#e4edf8}.criminal-source>h3 small{font-size:8px;color:#607d9a;font-weight:700;letter-spacing:.5px;text-transform:uppercase}.criminal-structured{display:flex;flex-direction:column;gap:7px}.criminal-chapter{border:1px solid #203b58;border-radius:9px;background:#07121e;overflow:hidden}.criminal-chapter[hidden]{display:none}.criminal-chapter summary{display:flex;align-items:center;justify-content:space-between;gap:14px;cursor:pointer;list-style:none;padding:11px 13px;background:#091726;color:#cfe2f6;font-size:10px;font-weight:800}.criminal-chapter summary::-webkit-details-marker{display:none}.criminal-chapter summary:before{content:'›';display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border:1px solid #294b6e;border-radius:5px;color:#72aaff;transition:transform .15s ease}.criminal-chapter[open] summary:before{transform:rotate(90deg)}.criminal-chapter summary span{flex:1}.criminal-chapter summary small{font-size:8px;color:#6784a2;font-weight:600}.criminal-chapter-text{border:0;border-top:1px solid #18334f;border-radius:0;max-height:50vh;background:#06101a;padding:13px 15px}.criminal-source>.criminal-code-text[hidden]{display:none}.criminal-warning{border-left:3px solid #4d8ed1;text-align:left;line-height:1.6}
 @media(max-width:650px){.criminal-toolbar{align-items:stretch;flex-direction:column}.criminal-toolbar-actions{width:100%}.criminal-toolbar-actions button{flex:1}.criminal-chapter summary{align-items:flex-start}.criminal-chapter summary small{white-space:nowrap}}
+
+
+.criminal-chapter-body{border-top:1px solid #18334f;background:#06101a;padding:16px 18px}
+.criminal-chapter-body h4{margin:0 0 8px;color:#e4edf8;font-size:13px}
+.criminal-chapter-body p,.criminal-chapter-body li{font-size:11px;line-height:1.75;color:#bdc9d6;margin:7px 0}
+.criminal-chapter-body p b,.criminal-chapter-body li b{color:#e0ebf8}
+.criminal-chapter-body ol,.criminal-chapter-body ul{margin:8px 0 10px 22px;color:#bdc9d6}
+.criminal-chapter-body li{margin:3px 0}
+.criminal-part-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin:0 0 10px;padding:0 2px}
+.criminal-part-head span{color:#e4edf8;font-weight:800;font-size:14px}
+.criminal-part-head small{display:block;color:#607d9a;font-weight:700;letter-spacing:.5px;text-transform:uppercase;font-size:8px}
+.criminal-title-card h3{margin-bottom:8px}
+.criminal-title-card p{margin:5px 0}
