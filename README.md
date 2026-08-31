@@ -57,3 +57,11 @@ Zmiany:
 - Zmiana obejmuje podgląd edytora, Dashboard oraz historię ogłoszeń.
 - Na Discord nadal wysyłany jest prawdziwy ping użytkownika na podstawie Discord ID; mechanizm pingowania nie został zmieniony.
 - `@usms` nadal renderuje się jako `@USMS` i pinguje rolę USMS na Discordzie.
+
+## v53 — edycja i usuwanie zsynchronizowane z Discordem
+- nowe ogłoszenia zapisują `discord_channel_id` oraz wszystkie `discord_message_ids`,
+- przycisk **Edytuj** aktualizuje wpis na stronie i tę samą wiadomość / wiadomości na Discordzie,
+- edycja ma wyłączone `allowed_mentions`, więc nie wysyła ponownego pingu,
+- jeśli długość wpisu po edycji wymaga innej liczby wiadomości Discord, panel tworzy brakujące lub usuwa nadmiarowe fragmenty,
+- **Usuń** usuwa wpis ze strony oraz powiązane wiadomości Discord (404 na Discordzie jest traktowane jako już usunięte),
+- jednorazowa migracja podpina ostatni historyczny Status 9 do kanału `1541198053254627488` i wiadomości `1543886109308755968`, `1543886110848196628`.

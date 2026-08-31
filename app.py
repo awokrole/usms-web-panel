@@ -357,7 +357,10 @@ def ensure_roster_tables():
                 )
             """)
             cur.execute("CREATE INDEX IF NOT EXISTS idx_web_announcements_kind_created ON web_announcements(kind, created_at DESC)")
-
+            # v53 — powiązanie wpisu WWW z wiadomościami Discorda, aby można było
+            # edytować i usuwać dokładnie te same wiadomości po publikacji.
+            cur.execute("ALTER TABLE web_announcements ADD COLUMN IF NOT EXISTS discord_channel_id TEXT NULL")
+            cur.execute("ALTER TABLE web_announcements ADD COLUMN IF NOT EXISTS discord_message_ids TEXT[] NOT NULL DEFAULT ARRAY[]::TEXT[]")
             cur.execute("""
                 CREATE TABLE IF NOT EXISTS web_migrations (
                     migration_key TEXT PRIMARY KEY,
@@ -365,6 +368,27 @@ def ensure_roster_tables():
                     details TEXT NULL
                 )
             """)
+            # Jednorazowe podpięcie ostatniego Statusu 9 opublikowanego przed v53.
+            # Podane przez administratora wiadomości są dwoma fragmentami jednego wpisu.
+            legacy_key = "v53-link-legacy-status9-1543886109308755968"
+            cur.execute("SELECT 1 FROM web_migrations WHERE migration_key=%s", (legacy_key,))
+            if cur.fetchone() is None:
+                cur.execute("""
+                    UPDATE web_announcements
+                    SET discord_channel_id = %s,
+                        discord_message_ids = ARRAY[%s,%s]::TEXT[]
+                    WHERE id = (
+                        SELECT id FROM web_announcements
+                        WHERE kind='status9'
+                          AND (discord_message_ids IS NULL OR cardinality(discord_message_ids)=0)
+                        ORDER BY created_at DESC
+                        LIMIT 1
+                    )
+                """, ("1541198053254627488", "1543886109308755968", "1543886110848196628"))
+                cur.execute(
+                    "INSERT INTO web_migrations (migration_key, details) VALUES (%s,%s) ON CONFLICT DO NOTHING",
+                    (legacy_key, "Podpięto ostatni Status 9 do dwóch wiadomości Discord na kanale Status 9."),
+                )
 
             cur.execute("SELECT 1 FROM web_migrations WHERE migration_key=%s", ("database-usms-xlsx-2026-08-29",))
             already = cur.fetchone() is not None
@@ -1058,12 +1082,12 @@ def load_web_announcements(kind=None, limit=20):
         with conn.cursor(cursor_factory=RealDictCursor) as cur:
             if kind in {"announcement", "status9"}:
                 cur.execute(
-                    "SELECT id, kind, content, author_id, author_name, created_at FROM web_announcements WHERE kind=%s ORDER BY created_at DESC LIMIT %s",
+                    "SELECT id, kind, content, author_id, author_name, created_at, discord_channel_id, discord_message_ids FROM web_announcements WHERE kind=%s ORDER BY created_at DESC LIMIT %s",
                     (kind, int(limit)),
                 )
             else:
                 cur.execute(
-                    "SELECT id, kind, content, author_id, author_name, created_at FROM web_announcements ORDER BY created_at DESC LIMIT %s",
+                    "SELECT id, kind, content, author_id, author_name, created_at, discord_channel_id, discord_message_ids FROM web_announcements ORDER BY created_at DESC LIMIT %s",
                     (int(limit),),
                 )
             return [dict(r) for r in cur.fetchall()]
@@ -1869,17 +1893,35 @@ def resolve_web_announcement_mentions(content: str):
 
 
 def send_web_announcement_to_discord(channel_id: str, content: str):
-    """Wyślij wpis z panelu WEB na jeden z dozwolonych kanałów Discord.
-
-    Discord ogranicza pojedynczą wiadomość do 2000 znaków, dlatego dłuższe
-    wpisy są dzielone na kolejne wiadomości bez utraty treści.
-    """
+    """Wyślij wpis z panelu WEB i zwróć ID wszystkich utworzonych wiadomości."""
     channel_id = str(channel_id or "").strip()
     if channel_id not in WEB_ANNOUNCEMENT_CHANNELS:
         raise ValueError("Nieprawidłowy kanał Discord.")
     if not DISCORD_TOKEN:
         raise RuntimeError("Brak DISCORD_TOKEN w konfiguracji strony.")
 
+    chunks, allowed_mentions = _split_discord_message(content)
+    message_ids = []
+    headers = {"Authorization": f"Bot {DISCORD_TOKEN}", "Content-Type": "application/json"}
+    for chunk in chunks:
+        response = requests.post(
+            f"{DISCORD_API}/channels/{channel_id}/messages",
+            headers=headers,
+            json={"content": chunk, "allowed_mentions": allowed_mentions},
+            timeout=12,
+        )
+        if response.status_code not in {200, 201}:
+            try:
+                details = response.json().get("message") or response.text
+            except Exception:
+                details = response.text
+            raise RuntimeError(f"Discord API {response.status_code}: {details[:300]}")
+        message_ids.append(str(response.json().get("id") or ""))
+    return [x for x in message_ids if x]
+
+
+def _split_discord_message(content: str):
+    """Zamień wzmianki i podziel treść zgodnie z limitem 2000 znaków Discorda."""
     text, allowed_mentions = resolve_web_announcement_mentions(content)
     chunks = []
     while text:
@@ -1893,30 +1935,76 @@ def send_web_announcement_to_discord(channel_id: str, content: str):
             cut = 2000
         chunks.append(text[:cut].rstrip())
         text = text[cut:].lstrip()
+    return (chunks or [""]), allowed_mentions
 
-    message_ids = []
-    headers = {
-        "Authorization": f"Bot {DISCORD_TOKEN}",
-        "Content-Type": "application/json",
-    }
-    for chunk in chunks or [""]:
-        response = requests.post(
-            f"{DISCORD_API}/channels/{channel_id}/messages",
-            headers=headers,
-            json={"content": chunk, "allowed_mentions": allowed_mentions},
-            timeout=12,
+
+def edit_web_announcement_on_discord(channel_id: str, message_ids, content: str):
+    """Edytuj istniejące wiadomości Discord bez ponownego wysyłania pingów.
+
+    Jeśli po edycji treść ma inną liczbę fragmentów, brakujące wiadomości są
+    tworzone, a nadmiarowe usuwane. Nowe fragmenty powstałe wyłącznie wskutek
+    wydłużenia edytowanego wpisu również mają wyłączone pingi.
+    """
+    channel_id = str(channel_id or "").strip()
+    if channel_id not in WEB_ANNOUNCEMENT_CHANNELS:
+        raise ValueError("Nieprawidłowy kanał Discord.")
+    if not DISCORD_TOKEN:
+        raise RuntimeError("Brak DISCORD_TOKEN w konfiguracji strony.")
+    chunks, _ = _split_discord_message(content)
+    existing = [str(x) for x in (message_ids or []) if str(x).strip()]
+    headers = {"Authorization": f"Bot {DISCORD_TOKEN}", "Content-Type": "application/json"}
+    no_ping = {"parse": [], "users": [], "roles": [], "replied_user": False}
+    result_ids = []
+    for idx, chunk in enumerate(chunks):
+        payload = {"content": chunk, "allowed_mentions": no_ping}
+        if idx < len(existing):
+            mid = existing[idx]
+            response = requests.patch(
+                f"{DISCORD_API}/channels/{channel_id}/messages/{mid}",
+                headers=headers, json=payload, timeout=12,
+            )
+            if response.status_code != 200:
+                try: details = response.json().get("message") or response.text
+                except Exception: details = response.text
+                raise RuntimeError(f"Discord API {response.status_code}: {details[:300]}")
+            result_ids.append(mid)
+        else:
+            response = requests.post(
+                f"{DISCORD_API}/channels/{channel_id}/messages",
+                headers=headers, json=payload, timeout=12,
+            )
+            if response.status_code not in {200, 201}:
+                try: details = response.json().get("message") or response.text
+                except Exception: details = response.text
+                raise RuntimeError(f"Discord API {response.status_code}: {details[:300]}")
+            result_ids.append(str(response.json().get("id") or ""))
+    for mid in existing[len(chunks):]:
+        response = requests.delete(
+            f"{DISCORD_API}/channels/{channel_id}/messages/{mid}",
+            headers={"Authorization": f"Bot {DISCORD_TOKEN}"}, timeout=12,
         )
-        if response.status_code not in {200, 201}:
-            try:
-                details = response.json().get("message") or response.text
-            except Exception:
-                details = response.text
+        if response.status_code not in {200, 204, 404}:
+            try: details = response.json().get("message") or response.text
+            except Exception: details = response.text
             raise RuntimeError(f"Discord API {response.status_code}: {details[:300]}")
-        try:
-            message_ids.append(str(response.json().get("id") or ""))
-        except Exception:
-            message_ids.append("")
-    return message_ids
+    return [x for x in result_ids if x]
+
+
+def delete_web_announcement_from_discord(channel_id: str, message_ids):
+    channel_id = str(channel_id or "").strip()
+    if not channel_id or not message_ids:
+        return
+    if not DISCORD_TOKEN:
+        raise RuntimeError("Brak DISCORD_TOKEN w konfiguracji strony.")
+    headers = {"Authorization": f"Bot {DISCORD_TOKEN}"}
+    for mid in [str(x) for x in message_ids if str(x).strip()]:
+        response = requests.delete(
+            f"{DISCORD_API}/channels/{channel_id}/messages/{mid}", headers=headers, timeout=12,
+        )
+        if response.status_code not in {200, 204, 404}:
+            try: details = response.json().get("message") or response.text
+            except Exception: details = response.text
+            raise RuntimeError(f"Discord API {response.status_code}: {details[:300]}")
 
 
 @app.route("/system/ogloszenia", methods=["GET", "POST"])
@@ -1949,15 +2037,26 @@ def announcements_page():
             try:
                 with conn.cursor() as cur:
                     cur.execute(
-                        "INSERT INTO web_announcements (kind, content, author_id, author_name) VALUES (%s,%s,%s,%s)",
-                        (kind, content, author_id, author_name),
+                        "INSERT INTO web_announcements (kind, content, author_id, author_name, discord_channel_id) VALUES (%s,%s,%s,%s,%s) RETURNING id",
+                        (kind, content, author_id, author_name, channel_id),
                     )
+                    item_id = cur.fetchone()[0]
                 conn.commit()
             finally:
                 conn.close()
 
             try:
-                send_web_announcement_to_discord(channel_id, content)
+                message_ids = send_web_announcement_to_discord(channel_id, content)
+                conn = pg_connect("usms-web-announcements-link-discord")
+                try:
+                    with conn.cursor() as cur:
+                        cur.execute(
+                            "UPDATE web_announcements SET discord_channel_id=%s, discord_message_ids=%s WHERE id=%s",
+                            (channel_id, message_ids, item_id),
+                        )
+                    conn.commit()
+                finally:
+                    conn.close()
             except Exception as exc:
                 # Wpis pozostaje na stronie; administrator dostaje jasny komunikat,
                 # że Discord nie przyjął wiadomości.
@@ -1995,6 +2094,9 @@ def announcements_page():
         discord_sent=request.args.get("discord_sent") == "1",
         discord_error=request.args.get("discord_error"),
         discord_channel=request.args.get("discord_channel"),
+        edited=request.args.get("edited") == "1",
+        deleted=request.args.get("deleted") == "1",
+        discord_updated=request.args.get("discord_updated") == "1",
         announcement_channels=WEB_ANNOUNCEMENT_CHANNELS,
         mention_officers=[{
             "badge": str(o.get("badge") or ""),
@@ -2008,15 +2110,86 @@ def announcements_page():
 @admin_required
 def delete_web_announcement(item_id):
     validate_csrf()
+    discord_error = None
     if DATABASE_URL:
         conn = pg_connect("usms-web-announcements-delete")
+        row = None
         try:
-            with conn.cursor() as cur:
+            with conn.cursor(cursor_factory=RealDictCursor) as cur:
+                cur.execute("SELECT discord_channel_id, discord_message_ids FROM web_announcements WHERE id=%s", (item_id,))
+                row = cur.fetchone()
                 cur.execute("DELETE FROM web_announcements WHERE id=%s", (item_id,))
             conn.commit()
         finally:
             conn.close()
-    return redirect(url_for("announcements_page"))
+        if row and row.get("discord_channel_id") and row.get("discord_message_ids"):
+            try:
+                delete_web_announcement_from_discord(row["discord_channel_id"], row["discord_message_ids"])
+            except Exception as exc:
+                discord_error = str(exc)[:500]
+    return redirect(url_for("announcements_page", deleted=1, discord_error=discord_error))
+
+
+@app.route("/system/ogloszenia/<int:item_id>/edytuj", methods=["GET", "POST"])
+@admin_required
+def edit_web_announcement(item_id):
+    if not DATABASE_URL:
+        return redirect(url_for("announcements_page", discord_error="Brak połączenia z PostgreSQL."))
+    conn = pg_connect("usms-web-announcements-edit-load")
+    try:
+        with conn.cursor(cursor_factory=RealDictCursor) as cur:
+            cur.execute("SELECT * FROM web_announcements WHERE id=%s", (item_id,))
+            row = cur.fetchone()
+    finally:
+        conn.close()
+    if not row:
+        abort(404)
+
+    error = None
+    if request.method == "POST":
+        validate_csrf()
+        content = (request.form.get("content") or "").strip()
+        kind = (request.form.get("kind") or row["kind"]).strip()
+        channel_id = str(row.get("discord_channel_id") or request.form.get("channel_id") or "").strip()
+        if kind not in {"announcement", "status9"}:
+            error = "Nieprawidłowy typ wpisu."
+        elif not content:
+            error = "Treść nie może być pusta."
+        elif len(content) > 12000:
+            error = "Treść jest za długa (maksymalnie 12 000 znaków)."
+        else:
+            discord_error = None
+            new_ids = list(row.get("discord_message_ids") or [])
+            if channel_id and new_ids:
+                try:
+                    new_ids = edit_web_announcement_on_discord(channel_id, new_ids, content)
+                except Exception as exc:
+                    discord_error = str(exc)[:500]
+            conn = pg_connect("usms-web-announcements-edit-save")
+            try:
+                with conn.cursor() as cur:
+                    cur.execute(
+                        "UPDATE web_announcements SET kind=%s, content=%s, discord_message_ids=%s WHERE id=%s",
+                        (kind, content, new_ids, item_id),
+                    )
+                conn.commit()
+            finally:
+                conn.close()
+            return redirect(url_for(
+                "announcements_page", edited=1,
+                discord_error=discord_error,
+                discord_updated=1 if channel_id and new_ids and not discord_error else None,
+            ))
+
+    return render_template(
+        "system_announcement_edit.html", row=dict(row), error=error,
+        announcement_channels=WEB_ANNOUNCEMENT_CHANNELS,
+        mention_officers=[{
+            "badge": str(o.get("badge") or ""),
+            "name": str(o.get("full_name") or ""),
+            "discord_id": str(o.get("discord_id") or ""),
+        } for o in load_officers()],
+    )
 
 
 @app.route("/logi")
