@@ -10,7 +10,7 @@
     </div>
     <div class="legal-search-wrap">
       <input id="legalSearch" class="legal-search" type="search" placeholder="Szukaj w treści aktu…" autocomplete="off">
-      <small id="legalCount">2 akty prawne</small>
+      <small id="legalCount">3 akty prawne</small>
     </div>
   </section>
 
@@ -19,6 +19,7 @@
       <strong>BIBLIOTEKA</strong>
       <button class="legal-act-tab active" data-act="constitution"><span>01</span><div>Konstytucja<small>8 artykułów</small></div></button>
       <button class="legal-act-tab" data-act="state"><span>02</span><div>Prawo Stanowe<small>14 rozdziałów</small></div></button>
+      <button class="legal-act-tab" data-act="criminal"><span>03</span><div>Kodeks Karny<small>pełny dokument PDF</small></div></button>
       <div class="legal-hierarchy">
         <small>HIERARCHIA PRAWA</small>
         <b>Konstytucja</b><i>↓</i><b>Prawo Federalne</b><i>↓</i><b>Prawo Stanowe</b>
@@ -190,6 +191,19 @@
 
         <div class="panel legal-source-note">Treść została wpisana na podstawie przesłanych screenów. Miejsca niewidoczne w źródle nie są uzupełniane z rzeczywistego prawa USA.</div>
       </section>
+      <section class="legal-act" id="act-criminal">
+        <div class="panel legal-act-head">
+          <div class="legal-doc-icon">KK</div>
+          <div><div class="eyebrow">AKT PRAWNY</div><h2>Kodeks Karny</h2><p>Dokument źródłowy przekazany do panelu USMS • 5 stron</p></div>
+        </div>
+        <article class="panel law-section legal-pdf-section searchable">
+          <div class="legal-pdf-toolbar">
+            <div><b>Kodeks Karny</b><small>Pełna treść dokumentu w oryginalnym układzie.</small></div>
+            <a class="btn secondary" href="{{ url_for('static', filename='kodeks-karny.pdf') }}" target="_blank" rel="noopener">Otwórz w nowej karcie ↗</a>
+          </div>
+          <iframe class="legal-pdf-frame" src="{{ url_for('static', filename='kodeks-karny.pdf') }}#view=FitH" title="Kodeks Karny"></iframe>
+        </article>
+      </section>
       <div id="legalNoResults" class="panel legal-no-results" hidden>Brak wyników dla podanej frazy.</div>
     </main>
   </div>
@@ -198,7 +212,7 @@
 const tabs=[...document.querySelectorAll('.legal-act-tab')], acts=[...document.querySelectorAll('.legal-act')], search=document.getElementById('legalSearch'), count=document.getElementById('legalCount'), nores=document.getElementById('legalNoResults');
 function activate(id){tabs.forEach(x=>x.classList.toggle('active',x.dataset.act===id));acts.forEach(x=>x.classList.toggle('active',x.id==='act-'+id));search.value='';filter();}
 tabs.forEach(t=>t.addEventListener('click',()=>activate(t.dataset.act)));
-function filter(){const q=search.value.trim().toLocaleLowerCase('pl');const active=document.querySelector('.legal-act.active');let shown=0;active.querySelectorAll('.searchable').forEach(el=>{const ok=!q||el.innerText.toLocaleLowerCase('pl').includes(q);el.hidden=!ok;if(ok)shown++;});nores.hidden=shown!==0;count.textContent=q?`${shown} wyników`:'2 akty prawne';}
+function filter(){const q=search.value.trim().toLocaleLowerCase('pl');const active=document.querySelector('.legal-act.active');let shown=0;active.querySelectorAll('.searchable').forEach(el=>{const ok=!q||el.innerText.toLocaleLowerCase('pl').includes(q);el.hidden=!ok;if(ok)shown++;});nores.hidden=shown!==0;count.textContent=q?`${shown} wyników`:'3 akty prawne';}
 search.addEventListener('input',filter);
 </script>
 {% endblock %}
