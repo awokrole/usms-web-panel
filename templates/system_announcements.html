@@ -10,6 +10,8 @@
 </div>
 
 {% if saved and discord_sent %}<div class="alert success">Wpis został opublikowany na stronie i wysłany na Discord — {{ discord_channel }}.</div>{% elif saved %}<div class="alert success">Wpis został opublikowany na stronie.</div>{% endif %}
+{% if edited %}<div class="alert success">Wpis został zaktualizowany{% if discord_updated %} również na Discordzie{% endif %}.</div>{% endif %}
+{% if deleted %}<div class="alert success">Wpis został usunięty{% if not discord_error %} również z Discorda, jeśli był z nim powiązany{% endif %}.</div>{% endif %}
 {% if discord_error %}<div class="alert error">Wpis zapisano na stronie, ale nie udało się wysłać go na Discord: {{ discord_error }}</div>{% endif %}
 {% if error %}<div class="alert error">{{ error }}</div>{% endif %}
 
@@ -84,7 +86,11 @@
                 </div>
                 <div class="web-announcement-actions">
                     <time>{{ r.created_at.strftime('%d.%m.%Y %H:%M') if r.created_at else '—' }}</time>
-                    <form method="post" action="{{ url_for('delete_web_announcement', item_id=r.id) }}" onsubmit="return confirm('Usunąć ten wpis ze strony?');">
+                    <a class="btn smallbtn" href="{{ url_for('edit_web_announcement', item_id=r.id) }}">Edytuj</a>
+                    {% if r.discord_channel_id and r.discord_message_ids %}
+                    <a class="btn smallbtn" target="_blank" rel="noopener" href="https://discord.com/channels/{{ guild_id }}/{{ r.discord_channel_id }}/{{ r.discord_message_ids[0] }}">Discord ↗</a>
+                    {% endif %}
+                    <form method="post" action="{{ url_for('delete_web_announcement', item_id=r.id) }}" onsubmit="return confirm('Usunąć ten wpis ze strony i — jeśli jest powiązany — również z Discorda?');">
                         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                         <button class="danger-btn smallbtn" type="submit">Usuń</button>
                     </form>
