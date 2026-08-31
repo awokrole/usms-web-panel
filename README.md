@@ -78,5 +78,3 @@ Zmiany:
 - Usunięto niebieski znak `+` / `−` przy ocenie w Podsumowaniu tygodnia.
 - Ocena w stanie zwiniętym jest bardziej kompaktowa.
 - Kliknięcie gwiazdek/wyniku nadal rozwija pełne rozbicie punktów.
-
-V56: dodano Kodeks Karny jako trzeci akt prawny. Oryginalny 5-stronicowy PDF jest osadzony w panelu i dostępny do otwarcia w nowej karcie.
