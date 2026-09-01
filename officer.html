@@ -1,0 +1,331 @@
+{% extends "base.html" %}
+{% block title %}{{ officer.full_name }} — USMS Panel{% endblock %}
+{% block content %}
+
+<div class="profile-head panel">
+    <div class="profile-photo-wrap">
+        {% if profile_meta.has_photo %}
+            <img class="profile-photo" src="{{ url_for('officer_photo_media', badge=officer.badge) }}" alt="Zdjęcie {{ officer.full_name }}">
+        {% else %}
+            <div class="profile-avatar">{{ officer.full_name[:1] }}</div>
+        {% endif %}
+    </div>
+
+    <div class="profile-main">
+        <span class="eyebrow">ODZNAKA #{{ officer.badge }}</span>
+        <h1>{{ officer.full_name }}</h1>
+        <p>{{ officer.rank }}</p>
+        <div class="profile-tags">
+            {% if officer.active %}
+                <span class="badge green-badge">{% if officer.on_pause %}Przerwa{% else %}Na służbie{% endif %}</span>
+            {% else %}
+                <span class="badge">Poza służbą</span>
+            {% endif %}
+            <span class="badge">CSN: {{ officer.csn or 'Brak' }}</span>
+            <span class="badge">Discord: {{ officer.discord_id }}</span>
+        </div>
+    </div>
+
+    <div class="profile-time-stack">
+        <div class="profile-time">
+            <small>Łączny czas służby</small>
+            <strong>{{ officer.lifetime_time_text }}</strong>
+        </div>
+        <div class="profile-time secondary-time">
+            <small>W tym tygodniu</small>
+            <strong>{{ officer.weekly_time_text }}</strong>
+        </div>
+        {% if officer.active %}
+        <div class="profile-time secondary-time">
+            <small>Aktualna służba</small>
+            <strong>{{ officer.current_shift_text }}</strong>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+{% if is_own_profile and payroll_summary %}
+<section class="panel full own-payroll-panel">
+    <div class="panel-title">
+        <div>
+            <span class="eyebrow">PRYWATNE</span>
+            <h2>Moja wypłata</h2>
+        </div>
+        <a class="small-button payroll-history-link" href="{{ url_for('my_payroll') }}">Historia wypłat →</a>
+    </div>
+    <div class="payroll-profile-grid">
+        <div><span>Czas w tym tygodniu</span><strong>{{ payroll_summary.weekly_time }}</strong></div>
+        <div><span>Stawka</span><strong>${{ '{:,.0f}'.format(payroll_summary.rate).replace(',', ' ') }} / h</strong></div>
+        <div><span>Mnożnik</span><strong>×{{ payroll_summary.multiplier_label }}</strong></div>
+        <div class="payroll-amount"><span>Aktualnie do wypłaty</span><strong>${{ '{:,.0f}'.format(payroll_summary.amount).replace(',', ' ') }}</strong></div>
+    </div>
+</section>
+{% endif %}
+
+{% if can_upload_own_profile %}
+<section class="panel full admin-profile-tools">
+    <div class="panel-title">
+        <h2>Dodaj materiały do swojego profilu</h2>
+        <span class="badge green-badge">Twój profil</span>
+    </div>
+
+    <div class="admin-tools-grid">
+        <form class="upload-box" method="post" enctype="multipart/form-data" action="{{ url_for('upload_officer_photo', badge=officer.badge) }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <strong>Zdjęcie funkcjonariusza</strong>
+            <small>Możesz dodać lub zmienić zdjęcie tylko na swoim profilu. Usunąć może tylko administrator.</small>
+            <small>PNG, JPG lub WEBP • maks. 5 MB</small>
+
+            <label class="drop-zone" data-drop-zone>
+                <input class="drop-input" type="file" name="photo" accept="image/png,image/jpeg,image/webp" required>
+                <span class="drop-icon">⬆</span>
+                <span class="drop-title">Przeciągnij zdjęcie tutaj</span>
+                <span class="drop-subtitle">kliknij, wybierz plik lub użyj Ctrl+V</span>
+                <span class="drop-filename" data-drop-filename>Nie wybrano pliku</span>
+            </label>
+
+            <button class="small-button" type="submit">{% if profile_meta.has_photo %}Zmień zdjęcie{% else %}Dodaj zdjęcie{% endif %}</button>
+        </form>
+
+        {% if profile_meta.has_photo and is_admin %}
+        <form method="post" action="{{ url_for('delete_officer_photo', badge=officer.badge) }}" class="delete-photo-form">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button class="danger-button" type="submit">Usuń zdjęcie</button>
+        </form>
+        {% endif %}
+
+        <form class="upload-box" method="post" enctype="multipart/form-data" action="{{ url_for('upload_officer_document', badge=officer.badge) }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <strong>Dodaj dokument / screenshot</strong>
+            <small>Możesz dodać dokument tylko do swojego profilu. Usunąć może tylko administrator.</small>
+            <small>PNG, JPG lub WEBP • maks. 10 MB • maks. 6 dokumentów</small>
+            {% if documents|length < 6 %}
+            <input type="text" name="title" maxlength="120" placeholder="Np. Legitymacja, raport, zaświadczenie" required>
+
+            <label class="drop-zone" data-drop-zone>
+                <input class="drop-input" type="file" name="document" accept="image/png,image/jpeg,image/webp" required>
+                <span class="drop-icon">⬆</span>
+                <span class="drop-title">Przeciągnij screenshot tutaj</span>
+                <span class="drop-subtitle">kliknij, wybierz plik lub użyj Ctrl+V</span>
+                <span class="drop-filename" data-drop-filename>Nie wybrano pliku</span>
+            </label>
+
+            <button class="small-button" type="submit">Dodaj dokument ({{ documents|length }}/6)</button>
+            {% else %}
+            <div class="empty">Osiągnięto limit 6 dokumentów. Administrator może usunąć dokument, aby zwolnić miejsce.</div>
+            {% endif %}
+        </form>
+    </div>
+</section>
+{% endif %}
+
+<div class="profile-grid">
+    <section class="panel">
+        <div class="panel-title"><h2>Szkolenia</h2></div>
+        <div class="chips">
+            {% for t in officer.trainings %}
+            <span class="training-chip">{{ t }}</span>
+            {% else %}
+            <span class="muted">Brak zapisanych szkoleń.</span>
+            {% endfor %}
+        </div>
+    </section>
+
+    <section class="panel">
+        <div class="panel-title"><h2>Akta</h2></div>
+        <div class="record-grid">
+            <div><span>Plusy</span><strong>{{ officer.plus }}/3</strong></div>
+            <div><span>Minusy</span><strong>{{ officer.minus }}/3</strong></div>
+            <div><span>Pochwały</span><strong>{{ officer.praise }}/2</strong></div>
+            <div><span>Nagany</span><strong>{{ officer.reprimand }}/2</strong></div>
+        </div>
+    </section>
+</div>
+
+<section class="panel full">
+    <div class="panel-title">
+        <h2>Dokumenty</h2>
+        <span class="muted">{{ documents|length }}/6 plików</span>
+    </div>
+
+    {% if documents %}
+    <div class="documents-grid">
+        {% for doc in documents %}
+        <article class="document-card">
+            <a class="document-preview" href="{{ url_for('officer_document_media', document_id=doc.id) }}" target="_blank">
+                <img src="{{ url_for('officer_document_media', document_id=doc.id) }}" alt="{{ doc.title }}">
+            </a>
+            <div class="document-info">
+                <strong>{{ doc.title }}</strong>
+                <small>Dodano: {{ doc.uploaded_at[:19].replace('T', ' ') if doc.uploaded_at else 'Brak daty' }}</small>
+            </div>
+            {% if is_admin %}
+            <form method="post" action="{{ url_for('delete_officer_document', document_id=doc.id) }}">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <input type="hidden" name="badge" value="{{ officer.badge }}">
+                <button class="danger-button compact" type="submit">Usuń</button>
+            </form>
+            {% endif %}
+        </article>
+        {% endfor %}
+    </div>
+    {% else %}
+        <div class="empty">Brak dokumentów przypisanych do tego funkcjonariusza.</div>
+    {% endif %}
+</section>
+
+<section class="panel full">
+    <div class="panel-title"><h2>Status administracyjny</h2></div>
+    <div class="detail-list">
+        <div><span>Zawieszenie do</span><strong>{{ officer.suspension_until or 'Brak' }}</strong></div>
+        <div><span>Urlop do</span><strong>{{ officer.vacation_end or 'Brak' }}</strong></div>
+    </div>
+</section>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    // Zablokuj domyślne otwieranie przeciągniętych plików przez przeglądarkę.
+    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach((eventName) => {
+        document.addEventListener(eventName, (event) => {
+            event.preventDefault();
+        }, false);
+    });
+
+    const allowedTypes = ['image/png', 'image/jpeg', 'image/webp'];
+
+    document.querySelectorAll('[data-drop-zone]').forEach((zone) => {
+        const input = zone.querySelector('.drop-input');
+        const filename = zone.querySelector('[data-drop-filename]');
+
+        const setFile = (file, source = 'plik') => {
+            if (!file) return false;
+
+            if (!allowedTypes.includes(file.type)) {
+                filename.textContent = 'Nieobsługiwany format pliku';
+                zone.classList.remove('has-file');
+                return false;
+            }
+
+            const transfer = new DataTransfer();
+
+            // Screenshot ze schowka często nie ma nazwy. Nadajemy czytelną nazwę.
+            let preparedFile = file;
+            if (!file.name || file.name === 'image.png') {
+                const ext = file.type === 'image/jpeg' ? 'jpg' : (file.type === 'image/webp' ? 'webp' : 'png');
+                const now = new Date();
+                const stamp = now.toISOString().replace(/[:.]/g, '-');
+                preparedFile = new File([file], `screenshot-${stamp}.${ext}`, { type: file.type });
+            }
+
+            transfer.items.add(preparedFile);
+            input.files = transfer.files;
+
+            filename.textContent = `${preparedFile.name} (${source})`;
+            zone.classList.add('has-file');
+            zone.focus();
+            return true;
+        };
+
+        const updateFromInput = () => {
+            if (input.files && input.files.length) {
+                setFile(input.files[0], 'wybrany plik');
+            } else {
+                filename.textContent = 'Nie wybrano pliku';
+                zone.classList.remove('has-file');
+            }
+        };
+
+        // Drag & drop
+        ['dragenter', 'dragover'].forEach((eventName) => {
+            zone.addEventListener(eventName, (event) => {
+                event.preventDefault();
+                event.stopPropagation();
+                if (event.dataTransfer) {
+                    event.dataTransfer.dropEffect = 'copy';
+                }
+                zone.classList.add('drag-over');
+            });
+        });
+
+        zone.addEventListener('dragleave', (event) => {
+            event.preventDefault();
+            event.stopPropagation();
+            if (!zone.contains(event.relatedTarget)) {
+                zone.classList.remove('drag-over');
+            }
+        });
+
+        zone.addEventListener('drop', (event) => {
+            event.preventDefault();
+            event.stopPropagation();
+            zone.classList.remove('drag-over');
+
+            const files = event.dataTransfer && event.dataTransfer.files;
+            if (!files || !files.length) return;
+            setFile(files[0], 'przeciągnięty');
+        });
+
+        input.addEventListener('change', updateFromInput);
+
+        // Ctrl+V działa, kiedy pole uploadu jest aktywne/kliknięte.
+        zone.setAttribute('tabindex', '0');
+
+        zone.addEventListener('paste', (event) => {
+            const items = event.clipboardData && event.clipboardData.items;
+            if (!items) return;
+
+            for (const item of items) {
+                if (item.kind === 'file' && item.type.startsWith('image/')) {
+                    const file = item.getAsFile();
+                    if (setFile(file, 'schowek Ctrl+V')) {
+                        event.preventDefault();
+                    }
+                    return;
+                }
+            }
+        });
+
+        zone.addEventListener('click', () => {
+            zone.focus();
+        });
+    });
+
+    // Dodatkowo: jeśli użytkownik nacisnął Ctrl+V będąc gdziekolwiek
+    // w formularzu uploadu, przypisz obraz do najbliższej strefy.
+    document.addEventListener('paste', (event) => {
+        if (!event.clipboardData) return;
+
+        const active = document.activeElement;
+        const form = active && active.closest ? active.closest('.upload-box') : null;
+        if (!form) return;
+
+        const zone = form.querySelector('[data-drop-zone]');
+        if (!zone) return;
+
+        const input = zone.querySelector('.drop-input');
+        const filename = zone.querySelector('[data-drop-filename]');
+
+        for (const item of event.clipboardData.items) {
+            if (item.kind !== 'file' || !item.type.startsWith('image/')) continue;
+
+            const file = item.getAsFile();
+            if (!file || !allowedTypes.includes(file.type)) return;
+
+            const ext = file.type === 'image/jpeg' ? 'jpg' : (file.type === 'image/webp' ? 'webp' : 'png');
+            const stamp = new Date().toISOString().replace(/[:.]/g, '-');
+            const preparedFile = new File([file], `screenshot-${stamp}.${ext}`, { type: file.type });
+
+            const transfer = new DataTransfer();
+            transfer.items.add(preparedFile);
+            input.files = transfer.files;
+
+            filename.textContent = `${preparedFile.name} (schowek Ctrl+V)`;
+            zone.classList.add('has-file');
+            event.preventDefault();
+            return;
+        }
+    });
+});
+</script>
+
+{% endblock %}

@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block title %}Wypłaty — USMS Panel{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1>Wypłaty</h1>
+    <p>Archiwum wypłat podzielone na tygodnie.</p>
+  </div>
+  <div class="date-chip">{{ periods|length }} tygodni</div>
+</div>
+
+{% if is_admin %}
+<section class="panel payroll-settings payroll-settings-compact">
+  <div class="panel-title">
+    <div>
+      <h2>Bonus zarobków</h2>
+      <p>Stan jest sterowany z Discorda komendami <strong>/bonus</strong> i <strong>/stopbonus</strong>.</p>
+    </div>
+    <div class="date-chip">{% if payroll_multiplier == 2 %}AKTYWNY · ×2{% else %}NIEAKTYWNY · ×1{% endif %}</div>
+  </div>
+</section>
+{% endif %}
+
+<section class="panel full">
+  <div class="panel-title">
+    <div>
+      <h2>Archiwum tygodni</h2>
+      <p>Kliknij wybrany tydzień, aby otworzyć listę wypłat funkcjonariuszy.</p>
+    </div>
+  </div>
+  <div class="payroll-period-list">
+    {% for p in periods %}
+      <a class="payroll-period-row" href="{{ url_for('payroll_period_detail', period_key=p.period_key) }}">
+        <div class="payroll-period-main">
+          <span class="payroll-period-icon">$</span>
+          <div>
+            <strong>Wypłaty ({{ p.period_label }})</strong>
+            <small>{{ p.entries_count }} pozycji · {{ p.received_count }} otrzymanych · {{ p.pending_count }} do otrzymania</small>
+          </div>
+        </div>
+        <div class="payroll-period-side">
+          <strong>${{ "{:,.0f}".format(p.total_amount|float) }}</strong>
+          <span>›</span>
+        </div>
+      </a>
+    {% else %}
+      <div class="empty payroll-empty">Brak zapisanych tygodni wypłat.</div>
+    {% endfor %}
+  </div>
+</section>
+{% endblock %}

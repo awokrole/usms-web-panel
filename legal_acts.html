@@ -1,0 +1,1401 @@
+{% extends "base.html" %}
+{% block title %}Akty prawne — USMS Panel{% endblock %}
+{% block content %}
+<div class="legal-page">
+  <section class="panel legal-hero">
+    <div>
+      <div class="eyebrow">BAZA PRAWNA • SAN ANDREAS</div>
+      <h1>Akty prawne</h1>
+      <p>Biblioteka aktów prawnych odwzorowana z przekazanych materiałów Department of Justice.</p>
+    </div>
+    <div class="legal-search-wrap">
+      <div class="legal-search-toolbar">
+        <input id="legalSearch" class="legal-search" type="search" placeholder="Szukaj we wszystkich aktach…" autocomplete="off">
+        <div class="legal-search-nav" aria-label="Nawigacja po wynikach wyszukiwania">
+          <span id="legalSearchPosition" class="legal-search-position" hidden>0 / 0</span>
+          <button id="legalPrevResult" type="button" class="legal-search-arrow" aria-label="Poprzedni wynik" title="Poprzedni wynik">
+            <span aria-hidden="true">&#8593;</span>
+          </button>
+          <button id="legalNextResult" type="button" class="legal-search-arrow" aria-label="Następny wynik" title="Następny wynik">
+            <span aria-hidden="true">&#8595;</span>
+          </button>
+        </div>
+      </div>
+      <small id="legalCount">3 akty prawne</small>
+    </div>
+  </section>
+
+  <div class="legal-layout">
+    <aside class="panel legal-library">
+      <strong>BIBLIOTEKA</strong>
+      <button class="legal-act-tab active" data-act="constitution"><span>01</span><div>Konstytucja<small>8 artykułów</small></div></button>
+      <button class="legal-act-tab" data-act="state"><span>02</span><div>Prawo Stanowe<small>14 rozdziałów</small></div></button>
+      <button class="legal-act-tab" data-act="criminal"><span>03</span><div>Kodeks karny<small>stanowy i federalny • ze screenów</small></div></button>
+      <div class="legal-hierarchy">
+        <small>HIERARCHIA PRAWA</small>
+        <b>Konstytucja</b><i>↓</i><b>Prawo Federalne</b><i>↓</i><b>Prawo Stanowe</b>
+      </div>
+    </aside>
+
+    <main class="legal-content">
+      <section class="legal-act active" id="act-constitution">
+        <div class="panel legal-act-head">
+          <div class="legal-doc-icon">§</div>
+          <div><div class="eyebrow">NAJWYŻSZY AKT PRAWNY</div><h2>Konstytucja Stanów Zjednoczonych Ameryki</h2><p>Opublikowane przez U.S Department of Justice</p></div>
+        </div>
+
+        <article class="panel law-section searchable"><h3>PREAMBUŁA</h3><p>My, Naród Stanów Zjednoczonych Ameryki, w celu ustanowienia sprawiedliwości, zapewnienia bezpieczeństwa publicznego, utrzymania porządku prawnego, ochrony wolności obywatelskich oraz zagwarantowania trwałości instytucji państwowych, ustanawiamy niniejszą Konstytucję jako najwyższe prawo obowiązujące na terytorium Stanów Zjednoczonych Ameryki.</p></article>
+        <article class="panel law-section searchable"><h3>ARTYKUŁ I <span>Władza Ustawodawcza</span></h3><p><b>Sekcja 1.</b> Władza ustawodawcza należy do organów uprawnionych do stanowienia prawa zgodnie z niniejszą Konstytucją.</p><p><b>Sekcja 2.</b> Prawo może być uchwalane, zmieniane lub uchylane wyłącznie w sposób przewidziany przez obowiązujące przepisy.</p><p><b>Sekcja 3.</b> Żaden akt prawny nie może pozostawać w sprzeczności z niniejszą Konstytucją.</p></article>
+        <article class="panel law-section searchable"><h3>ARTYKUŁ II <span>Władza Wykonawcza</span></h3><p><b>Sekcja 1.</b> Władza wykonawcza sprawowana jest przez organy federalne ustanowione zgodnie z prawem.</p><p><b>Sekcja 2.</b> Department of Justice jest najwyższym organem odpowiedzialnym za nadzór nad wymiarem sprawiedliwości, legalnością działań organów publicznych oraz wykonywaniem prawa federalnego.</p><p><b>Sekcja 3.</b> Organizację, kompetencje oraz zakres działania organów federalnych określa Prawo Federalne.</p></article>
+        <article class="panel law-section searchable"><h3>ARTYKUŁ III <span>Władza Sądownicza</span></h3><p><b>Sekcja 1.</b> Władza sądownicza sprawowana jest przez sądy ustanowione zgodnie z obowiązującym prawem.</p><p><b>Sekcja 2.</b> Sądy są niezależne w zakresie wydawanych orzeczeń.</p><p><b>Sekcja 3.</b> Każda osoba ma prawo do sprawiedliwego i bezstronnego procesu.</p></article>
+        <article class="panel law-section searchable"><h3>ARTYKUŁ IV <span>Obywatele i Państwo</span></h3><p><b>Sekcja 1.</b> Wszyscy obywatele są równi wobec prawa.</p><p><b>Sekcja 2.</b> Nikt nie może zostać pozbawiony życia, wolności lub majątku bez podstawy prawnej.</p><p><b>Sekcja 3.</b> Każdemu przysługuje prawo do obrony oraz korzystania z pomocy adwokata.</p><p><b>Sekcja 4.</b> Każdego uważa się za niewinnego do czasu prawomocnego stwierdzenia winy.</p></article>
+        <article class="panel law-section searchable"><h3>ARTYKUŁ V <span>Prawo Federalne i Stanowe</span></h3><p><b>Sekcja 1.</b> Konstytucja Stanów Zjednoczonych Ameryki jest najwyższym aktem prawnym.</p><p><b>Sekcja 2.</b> Prawo Federalne posiada pierwszeństwo przed Prawem Stanowym.</p><p><b>Sekcja 3.</b> Prawo Stanowe obowiązuje w zakresie nieuregulowanym przez Konstytucję oraz Prawo Federalne.</p></article>
+        <article class="panel law-section searchable"><h3>ARTYKUŁ VI <span>Stany Nadzwyczajne</span></h3><p><b>Sekcja 1.</b> W przypadku zagrożenia bezpieczeństwa państwa, porządku publicznego lub życia obywateli mogą zostać wprowadzone nadzwyczajne środki prawne przewidziane przez Prawo Federalne.</p></article>
+        <article class="panel law-section searchable"><h3>ARTYKUŁ VII <span>Zmiana Konstytucji</span></h3><p><b>Sekcja 1.</b> Zmiana Konstytucji może nastąpić wyłącznie w drodze poprawki konstytucyjnej.</p><p><b>Sekcja 2.</b> Żadna poprawka nie może naruszać podstawowych zasad państwa prawa oraz prawa do sprawiedliwego procesu.</p></article>
+        <article class="panel law-section searchable"><h3>ARTYKUŁ VIII <span>Postanowienia Końcowe</span></h3><p><b>Sekcja 1.</b> Wszystkie akty prawne obowiązujące na terytorium Stanów Zjednoczonych Ameryki podlegają dostosowaniu do postanowień niniejszej Konstytucji.</p></article>
+      </section>
+
+      <section class="legal-act" id="act-state">
+        <div class="panel legal-act-head"><div class="legal-doc-icon">SA</div><div><div class="eyebrow">PRAWO STANU SAN ANDREAS</div><h2>Prawo Stanowe</h2><p>Pełna treść z informacji widocznych na przekazanych screenach • 14 rozdziałów</p></div></div>
+
+        <article class="panel law-section searchable"><h3>PREAMBUŁA</h3><p>Naród Stanów Zjednoczonych, pragnąc udoskonalić Unię, ustanowić sprawiedliwość, zabezpieczyć spokój w kraju, zapewnić wspólną obronę, podnieść ogólny dobrobyt oraz utrzymać dla nas samych i naszego potomstwa dobrodziejstwa wolności, wprowadzamy i ustanawiamy dla Stanów Zjednoczonych Ameryki niniejszą konstytucję.</p></article>
+
+        <article class="panel law-section searchable"><h3>ROZDZIAŁ I <span>System Prawny</span></h3>
+          <h4>Art. 1</h4><p><b>§1.</b> System prawny opiera się na zasadach common law.</p>
+          <h4>Art. 2</h4><p><b>§1.</b> Konstytucja jest najwyższym aktem prawnym obowiązującym na terenie Stanu San Andreas.</p><p><b>§2.</b> Prawo Stanowe obowiązuje w zakresie nieuregulowanym przez Konstytucję.</p>
+          <h4>Art. 3</h4><p><b>§1.</b> Źródłami prawa są: Konstytucja, Prawo Stanowe oraz inne obowiązujące lokalnie akty prawne.</p>
+        </article>
+
+        <article class="panel law-section searchable"><h3>ROZDZIAŁ II <span>Władze i Sądownictwo</span></h3>
+          <h4>Art. 1 — Władza ustawodawcza</h4><p>Władzę ustawodawczą sprawuje Dyrektor Department of Justice, który posiada kompetencje do stanowienia prawa oraz sprawowania nadzoru w zakresie przewidzianym aktem.</p>
+          <h4>Art. 2 — Kompetencje Dyrektora DOJ</h4><p>Dyrektor DOJ posiada kompetencje do powoływania urzędników i sędziów, samodzielnie lub na podstawie rekomendacji, a także do ich odwoływania. Może wydawać rozporządzenia wykonawcze, które nie mogą pozostawać w sprzeczności z prawem. Dyrektor może zmienić, zawiesić lub uchylić przepisy Prawa Stanowego, jeżeli wymaga tego interes publiczny lub bezpieczeństwo.</p>
+          <h4>Art. 3 — Prawo łaski</h4><p>Dyrektor DOJ może zastosować prawo łaski, w tym darowanie, złagodzenie, zawieszenie lub skrócenie kary. Prawo łaski nie obejmuje zdrady ani korupcji, chyba że State Court postanowi inaczej.</p>
+          <h4>Art. 4 — Stan nadzwyczajny</h4><p>Dyrektor DOJ lub Zarząd DOJ może wprowadzić stan nadzwyczajny oraz nadzwyczajne środki bezpieczeństwa i organizacyjne. W czasie jego obowiązywania Dyrektor może zwiększyć uprawnienia służb.</p>
+          <h4>Art. 5 — Budżet</h4><p>Dyrektor przygotowuje i nadzoruje budżet, w tym projekt budżetu, kontrolę wydatków, wnioskowanie o zmiany oraz nadzór nad jego wykonaniem.</p>
+          <h4>Art. 6 — Reprezentacja Stanu</h4><p>Dyrektor reprezentuje Stan w relacjach z innymi stanami oraz prowadzi negocjacje i współpracę.</p>
+          <h4>Art. 7 — Nadzór nad służbami</h4><p>Department of Justice sprawuje nadzór nad LSPD, LSSD, BCSO, EMS oraz innymi podmiotami bezpieczeństwa publicznego, koordynuje działania kryzysowe i współpracę pomiędzy służbami.</p>
+          <h4>Art. 8 — Cayo Perico</h4><p>Cayo Perico znajduje się poza standardową jurysdykcją. Operacje, zatrzymania, przeszukania, działania obserwacyjne i taktyczne wymagają uprzedniej zgody Zarządu DOJ. Po uzyskaniu zgody działania mogą wykonywać m.in. SWAT/SERT, PIA, USMS oraz inne wskazane jednostki.</p><p>Wyjątek stanowi bezpośrednie zagrożenie życia, zdrowia lub bezpieczeństwa publicznego. W takim przypadku dowódca operacji ma obowiązek złożyć raport w terminie 48 godzin. DOJ może zgodę ograniczyć, uzależnić od warunków albo odmówić jej wydania.</p>
+          <h4>Art. 9 — Zastępstwo</h4><p>W przypadku nieobecności Dyrektora obowiązuje hierarchia zastępstwa, a osoba zastępująca wykonuje pełnię jego uprawnień w zakresie wskazanym przez przepisy.</p>
+          <h4>Art. 10 — Sądownictwo</h4><p>Wymiar sprawiedliwości sprawuje State Court Los Santos. Sąd rozpoznaje sprawy karne i cywilne, kontroluje legalność działań oraz wydaje orzeczenia.</p>
+          <h4>Art. 11 — Immunitet całkowity</h4><p>Immunitet całkowity przysługuje Dyrektorowi DOJ, Deputy Director DOJ oraz Mayorowi. Osoby te nie mogą zostać zatrzymane, aresztowane, przeszukane, ukarane grzywną ani pozbawione wolności bez uprzedniego uchylenia immunitetu.</p><p>Immunitet może uchylić wyłącznie Chief Judge na podstawie twardych dowodów. W czasie osadzenia lub zatrzymania nie przeprowadza się przeszukania osoby objętej immunitetem. Immunitet wygasa wraz z opuszczeniem stanowiska.</p>
+          <h4>Art. 12 — Immunitet formalny</h4><p>Immunitet formalny chroni podczas wykonywania funkcji publicznej. Zatrzymanie osoby objętej immunitetem wymaga zgody Dyrektora DOJ albo sądu.</p><p>Immunitet przysługuje członkom Zarządu DOJ, Chief Judge, Deputy Chief Judge, sędziom stanowym i federalnym, Attorney General i Deputy Attorney General, General Counsel i jego zastępcy, Inspector General i jego zastępcy oraz Commissioner PIA.</p><p>Immunitet nie obejmuje przestępstw popełnionych poza wykonywaniem funkcji i wygasa po odejściu ze stanowiska. <b>Numeracja źródłowa przechodzi z §4 do §6 — brak §5 na przekazanym screenie.</b></p>
+        </article>
+
+        <article class="panel law-section searchable"><h3>ROZDZIAŁ III <span>Relacje Międzystanowe</span></h3>
+          <h4>Art. 1</h4><p>Stany uznają akty, dokumenty oraz orzeczenia wydane przez inne stany.</p>
+          <h4>Art. 2</h4><p>Obywatele wszystkich stanów korzystają z równych przywilejów.</p>
+          <h4>Art. 3</h4><p>Stany Zjednoczone gwarantują każdemu stanowi republikańską formę rządów oraz ochronę przed zamieszkami.</p>
+        </article>
+
+        <article class="panel law-section searchable"><h3>ROZDZIAŁ IV <span>Definicja Obywatela</span></h3>
+          <h4>Art. 1 — Status obywatela</h4><p><b>§1.</b> Obywatelem jest osoba posiadająca obywatelstwo Stanów Zjednoczonych / San Andreas, urodzona w Stanach Zjednoczonych albo naturalizowana, podlegająca jurysdykcji federalnej i stanowej oraz ochronie prawnej i cywilnej.</p><p><b>§2.</b> Obywatel ma obowiązek przestrzegania prawa federalnego i stanowego.</p><p><b>§3.</b> „Obywatelowi przysługuje prawo do:” — dalsza część tego paragrafu nie była widoczna na przekazanych screenach, dlatego nie została uzupełniona z zewnętrznych źródeł.</p>
+        </article>
+
+        <article class="panel law-section searchable"><h3>ROZDZIAŁ V <span>Obowiązki Obywatela</span></h3>
+          <h4>Art. 1 — Przestrzeganie prawa</h4><p><b>§1.</b> Obywatel ma obowiązek przestrzegać wszystkich obowiązujących przepisów, w tym prawa federalnego, stanowego i lokalnego, deklaracji praw człowieka oraz regulaminów instytucji publicznych.</p>
+          <h4>Art. 2 — Obowiązek udzielenia pomocy</h4><p><b>§1.</b> Obywatel ma obowiązek udzielić pomocy osobie znajdującej się w stanie zagrożenia życia lub zdrowia, o ile nie naraża przez to własnego bezpieczeństwa.</p>
+          <h4>Art. 3 — Stawiennictwo na wezwanie</h4><p><b>§1.</b> Obywatel ma obowiązek stawić się na wezwanie organów państwowych, sądu lub innych uprawnionych instytucji publicznych.</p>
+          <h4>Art. 4 — Obowiązek wylegitymowania się</h4><p><b>§1.</b> Obywatel ma obowiązek wylegitymować się na żądanie funkcjonariusza publicznego po okazaniu przez niego legitymacji służbowej lub przedstawieniu się zgodnie z procedurą.</p>
+          <h4>Art. 5 — Dokument tożsamości</h4><p><b>§1.</b> Obywatel ma obowiązek posiadać przy sobie ważny dokument tożsamości.</p><p><b>§2.</b> §1 nie dotyczy funkcjonariuszy służb specjalnych prowadzących działania pod przykryciem.</p>
+          <h4>Art. 6 — Współpraca z władzami</h4><p><b>§1.</b> Obywatel ma obowiązek współpracować z władzami federalnymi i stanowymi w sprawach bezpieczeństwa publicznego oraz porządku prawnego.</p>
+          <h4>Art. 7 — Poszanowanie przestrzeni publicznej</h4><p><b>§1.</b> Obywatel ma obowiązek szanować przestrzeń publiczną oraz mienie.</p>
+          <h4>Art. 8 — Zakaz utrudniania działań służb</h4><p><b>§1.</b> Zabrania się utrudniania działań: 1) organów ścigania, 2) służb ratunkowych, 3) służb medycznych, 4) innych uprawnionych jednostek publicznych.</p>
+          <h4>Art. 9 — Poszanowanie funkcjonariuszy publicznych</h4><p><b>§1.</b> Obywatel ma obowiązek szanować funkcjonariuszy publicznych wykonujących obowiązki służbowe.</p>
+          <h4>Art. 10 — Obowiązek zgłaszania zagrożeń</h4><p><b>§1.</b> Obywatel ma obowiązek przekazywać organom państwowym informacje dotyczące zagrożeń dla bezpieczeństwa publicznego lub życia.</p>
+          <h4>Art. 11 — Zasady porządkowe</h4><p><b>§1.</b> Obywatel ma obowiązek przestrzegać zasad porządkowych obowiązujących w instytucjach publicznych.</p>
+          <h4>Art. 12 — Podporządkowanie się poleceniom służb</h4><p><b>§1.</b> Obywatel ma obowiązek podporządkować się legalnym poleceniom wydawanym podczas interwencji służbowej.</p>
+          <h4>Art. 13 — Obowiązek zgłaszania przestępstw</h4><p><b>§1.</b> Obywatel ma obowiązek zgłaszać organom ścigania informacje dotyczące działalności przestępczej oraz innych poważnych naruszeń prawa.</p>
+          <h4>Art. 14 — Zakaz fałszowania dokumentów</h4><p><b>§1.</b> Zabrania się fałszowania, przerabiania oraz świadomego posługiwania się sfałszowanymi dokumentami urzędowymi.</p>
+          <h4>Art. 15 — Zakaz znieważania służb publicznych</h4><p><b>§1.</b> Zabrania się znieważania funkcjonariuszy publicznych podczas wykonywania przez nich obowiązków.</p>
+          <h4>Art. 16 — Zakaz utrudniania interwencji medycznych</h4><p><b>§1.</b> Zabrania się utrudniania interwencji medycznych oraz ratunkowych.</p>
+          <h4>Art. 17 — Zakaz manipulowania nagraniami</h4><p><b>§1.</b> Zabrania się manipulowania, fałszowania lub celowego modyfikowania nagrań z interwencji publicznych w celu utrudnienia postępowania albo wprowadzenia organów państwowych w błąd.</p>
+        </article>
+
+        <article class="panel law-section searchable"><h3>ROZDZIAŁ VI <span>Prawa Obywatelskie</span></h3>
+          <h4>Art. 1 — Prawo do obrony</h4><p><b>§1.</b> Każdemu przysługuje prawo do adwokata w postępowaniu karnym, cywilnym i administracyjnym.</p><p><b>§2.</b> Jeżeli osoba nie posiada środków, może otrzymać obrońcę z urzędu zgodnie z prawem.</p>
+          <h4>Art. 2 — Prawo do sprawiedliwego procesu</h4><p><b>§1.</b> Każdemu przysługuje prawo do sprawiedliwego i bezstronnego procesu sądowego.</p>
+          <h4>Art. 3 — Prawo do odmowy składania zeznań</h4><p><b>§1.</b> Osoba może odmówić składania zeznań przeciwko sobie lub osobom najbliższym zgodnie z prawem.</p><p><b>§2.</b> Funkcjonariusz jednostki LEA jest zwolniony z Art. 3 §1.</p>
+          <h4>Art. 4 — Prawo do zgromadzeń i stowarzyszeń</h4><p><b>§1.</b> Obywatel ma prawo do pokojowych zgromadzeń i udziału w nich.</p><p><b>§2.</b> Obywatel może tworzyć i należeć do organizacji, stowarzyszeń oraz legalnych grup.</p>
+          <h4>Art. 5 — Prawo własności</h4><p><b>§1.</b> Obywatel ma prawo posiadać i chronić własność materialną i intelektualną.</p><p><b>§2.</b> Pozbawienie własności może nastąpić wyłącznie na podstawie prawa albo prawomocnego wyroku sądu.</p>
+          <h4>Art. 6 — Prawo do pracy i działalności gospodarczej</h4><p><b>§1.</b> Obywatel ma prawo do pracy i prowadzenia legalnej działalności gospodarczej.</p>
+          <h4>Art. 7 — Prawo do ochrony zdrowia</h4><p><b>§1.</b> Obywatel ma prawo do opieki zdrowotnej oraz ochrony warunków pracy zgodnie z prawem.</p>
+          <h4>Art. 8 — Prawo do posiadania broni</h4><p><b>§1.</b> Obywatel ma prawo do posiadania broni palnej klasy II po uzyskaniu odpowiedniego zezwolenia lub licencji.</p><p><b>§2.</b> Posiadanie broni odbywa się zgodnie z ustawą o broni i amunicji.</p>
+          <h4>Art. 9 — Prawo do godnego życia</h4><p><b>§1.</b> Każdy ma prawo do godności i podstawowych praw człowieka.</p>
+          <h4>Art. 10 — Prawo do ochrony instytucji publicznych</h4><p><b>§1.</b> Obywatel ma prawo do ochrony przez organy państwa w obrębie budynków administracji publicznej i innych instytucji państwowych.</p>
+          <h4>Art. 11 — Prawo do posiadania marihuany</h4><p><b>§1.</b> Obywatel może posiadać do 28 g marihuany na własny użytek, o ile przepisy szczególne nie stanowią inaczej.</p><p><b>§2.</b> Zabrania się: 1) sprzedaży bez wymaganych zezwoleń, 2) prowadzenia pojazdu pod wpływem środków odurzających, 3) posiadania ilości wskazującej na zamiar dystrybucji.</p>
+          <h4>Art. 12 — Prawo do posiadania indywidualnego numeru CSN</h4><p><b>§1.</b> Obywatel ma prawo do indywidualnego numeru CSN umieszczanego na dokumencie tożsamości.</p>
+        </article>
+
+        <article class="panel law-section searchable"><h3>ROZDZIAŁ VII <span>Granice Pełnoletności i Status Prawny</span></h3>
+          <h4>Art. 1 — Niepełna pełnoletność</h4><p><b>§1.</b> Niepełna pełnoletność obejmuje osoby w wieku 18–20 lat.</p><p><b>§2.</b> Osobie w wieku 18–20 lat przysługuje prawo do: 1) legalnej pracy, 2) zawierania umów cywilnych, 3) udziału w wyborach, 4) posiadania broni zgodnie z prawem, 5) ponoszenia odpowiedzialności karnej jak osoba dorosła.</p><p><b>§3.</b> Osoby w wieku 18–20 lat mają ograniczony dostęp do praw zastrzeżonych wyłącznie dla osób w pełni pełnoletnich, do ukończenia 21. roku życia.</p>
+          <h4>Art. 2 — Pełnoletność</h4><p><b>§1.</b> Pełną pełnoletność uzyskuje się po ukończeniu 21. roku życia.</p><p><b>§2.</b> Po ukończeniu 21 lat osoba posiada pełnię praw cywilnych stanowych i federalnych.</p><p><b>§3.</b> Po ukończeniu 21 lat przysługuje prawo do: 1) legalnego zakupu i spożywania alkoholu, 2) hazardu, 3) pełnienia funkcji publicznych, 4) pełnego dostępu do praw zastrzeżonych dla osób pełnoletnich.</p>
+          <h4>Art. 3 — Programy praktyk i staży</h4><p><b>§1.</b> Osoba, która ukończyła 18 lat, może uczestniczyć w praktykach i stażach wyłącznie w placówkach medycznych, za zgodą opiekuna lub odpowiedniego przełożonego instytucji.</p><p><b>§2.</b> Stażysta wykonuje obowiązki pod nadzorem wyznaczonego opiekuna.</p>
+          <h4>Art. 4 — Programy edukacyjne służb publicznych</h4><p><b>§1.</b> Programy edukacyjne mogą być organizowane przez: 1) Police, 2) Department of Justice.</p><p><b>§2.</b> Uczestnicy nie mogą mieć bezpośredniego kontaktu z osobami zatrzymanymi, osadzonymi lub objętymi postępowaniem karnym, chyba że przepisy szczególne stanowią inaczej.</p>
+        </article>
+
+        <article class="panel law-section searchable"><h3>ROZDZIAŁ VIII <span>Obowiązki Obywatela Niepełno/Pełnoletni (18–20 lat)</span></h3>
+          <h4>Art. 1 — Odpowiedzialność prawna</h4><p><b>§1.</b> Osoba w wieku 18–20 lat ponosi odpowiedzialność cywilną i karną na takich samych zasadach jak osoba w pełni pełnoletnia.</p>
+          <h4>Art. 2 — Obowiązek przestrzegania prawa</h4><p><b>§1.</b> Osoba ma obowiązek przestrzegać: 1) Konstytucji, 2) Prawa Federalnego, 3) Prawa Stanowego, 4) Kodeksu Karnego.</p>
+          <h4>Art. 3 — Obowiązek posiadania dokumentu tożsamości</h4><p><b>§1.</b> Osoba w wieku 18–20 lat ma obowiązek posiadać przy sobie ważny dokument tożsamości.</p><p><b>§2.</b> Dokument należy okazać na żądanie uprawnionych służb publicznych.</p>
+          <h4>Art. 4 — Poszanowanie służb publicznych</h4><p><b>§1.</b> Osoba „niepełnoletnio pełnoletnia” ma obowiązek szanować funkcjonariuszy publicznych oraz nie utrudniać działań służb porządkowych.</p>
+          <h4>Art. 5 — Prawo do pracy i rozwoju zawodowego</h4><p><b>§1.</b> Osoba w wieku 18–20 lat ma prawo do: 1) legalnej pracy zarobkowej, 2) praktyk i staży, 3) programów rozwoju organizowanych przez instytucje publiczne.</p>
+          <h4>Art. 6 — Staże i praktyki medyczne</h4><p><b>§1.</b> Osoba niepełnoletnio pełnoletnia może uczestniczyć w stażu lub praktyce w placówce medycznej, jeżeli: 1) posiada zgodę administracji, 2) posiada ważny dokument tożsamości, 3) przestrzega zasad medycznych, etycznych i proceduralnych, 4) wykonuje obowiązki pod nadzorem wykwalifikowanego personelu.</p><p><b>§2.</b> Zabrania się: 1) dostępu do materiałów niejawnych, 2) kontaktu z osobami zatrzymanymi, 3) wykonywania czynności wykraczających poza przyznane uprawnienia.</p>
+          <h4>Art. 7 — Programy edukacyjne służb publicznych</h4><p><b>§1.</b> Osoba może uczestniczyć w programach edukacyjnych i praktycznych organizowanych przez: 1) LSPD, 2) LSSD, 3) BCSO, 4) DOJ, 5) LSFD, 6) EMS.</p><p><b>§2.</b> Uczestnik: 1) nie może pełnić roli wymagającej pełnych uprawnień służbowych, 2) może występować wyłącznie jako obserwator, stażysta lub uczestnik, 3) musi mieć ukończone 18 lat, 4) nie może uczestniczyć w działaniach terenowych ani operacjach zbrojnych, 5) nie może mieć dostępu do danych niejawnych ani osób zatrzymanych, 6) pozostaje pod nadzorem uprawnionego funkcjonariusza.</p>
+          <h4>Art. 8 — Obowiązek uczestnictwa w szkoleniach</h4><p><b>§1.</b> Uczestnik ma obowiązek brać udział w szkoleniach wymaganych przez program praktyki, pracy lub stażu.</p>
+          <h4>Art. 9 — Ograniczenia prawne</h4><p><b>§1.</b> Osoba w wieku 18–20 lat nie ma prawa do: 1) legalnego zakupu i spożywania alkoholu, 2) hazardu w kasynie, 3) pełnienia funkcji pełnoprawnego funkcjonariusza: a) LSPD, b) LSSD, c) BCSO, d) LSFD, e) DOJ, f) EMS — bez dodatkowego upoważnienia przewidzianego przepisami szczególnymi.</p>
+          <h4>Art. 10 — Zakaz dostępu do danych i operacji specjalnych</h4><p><b>§1.</b> Osobie niepełnoletnio pełnoletniej nie można przyznać: 1) dostępu do dokumentów niejawnych, 2) dostępu do służbowych systemów operacyjnych, 3) bezpośredniego udziału w realizacjach operacyjnych.</p>
+          <h4>Art. 11 — Obecność w lokalach rozrywkowych</h4><p><b>§1.</b> Osoba w wieku 18–20 lat może przebywać w lokalu rozrywkowym, jeżeli: 1) lokal nie sprzedaje alkoholu osobom poniżej 21 lat, 2) obecność nie narusza regulaminu lokalu, 3) osoba nie uczestniczy w aktywnościach zakazanych przed ukończeniem 21 lat, 4) lokal nie jest przeznaczony wyłącznie dla osób w pełni pełnoletnich 21+.</p>
+          <h4>Art. 12 — Zakaz przebywania w określonych obiektach</h4><p><b>§1.</b> Zabrania się przebywania w: 1) klubach erotycznych, 2) kasynach prowadzących hazard pieniężny, 3) lokalach serwujących alkohol bez kontroli wieku, 4) strefach VIP i prywatnych częściach obiektu bez zgody administracji.</p>
+          <h4>Art. 13 — Konsekwencje naruszenia przepisów</h4><p><b>§1.</b> Naruszenie Art. 11 lub Art. 12 może skutkować: 1) usunięciem przez administrację lub służby porządkowe, 2) grzywną, 3) naganą administracyjną, 4) czasowym zakazem dostępu do obiektu lub programu publicznego.</p>
+        </article>
+
+        <article class="panel law-section searchable"><h3>ROZDZIAŁ IX <span>Stan cywilny</span></h3>
+          <h4>Art. 1 — Małżeństwo</h4><p><b>§1.</b> Małżeństwo jest prawnie uznanym związkiem cywilnym między kobietą a mężczyzną, którzy dobrowolnie wyrażają zgodę na jego zawarcie.</p><p><b>§2.</b> Skutki prawne powstają dopiero po zawarciu małżeństwa zgodnie z niniejszym rozdziałem albo jego rejestracji przez właściwy organ państwowy.</p><p><b>§3.</b> Sam związek osobisty lub faktyczny nie tworzy małżeństwa w rozumieniu prawa stanowego.</p>
+          <h4>Art. 2 — Warunki zawarcia małżeństwa</h4><p><b>§1.</b> Małżeństwo może zawrzeć osoba, która: 1) ukończyła 18 lat, 2) posiada zdolność do świadomego wyrażenia zgody, 3) nie pozostaje w innym ważnym małżeństwie, 4) nie została prawomocnie pozbawiona prawa do zawarcia małżeństwa.</p><p><b>§2.</b> Zgoda obu stron musi być dobrowolna i świadoma.</p><p><b>§3.</b> Zgoda uzyskana pod groźbą, przymusem, podstępem albo z wykorzystaniem niezdolności do świadomego podjęcia decyzji jest nieważna.</p>
+          <h4>Art. 3 — Zawarcie i rejestracja małżeństwa</h4><p><b>§1.</b> Małżeństwo zawiera się przed osobą uprawnioną do jego udzielenia lub zatwierdzenia.</p><p><b>§2.</b> Właściwy organ rejestruje małżeństwo w stanowym rejestrze stanu cywilnego.</p><p><b>§3.</b> Dokument rejestracyjny potwierdza zawarcie małżeństwa i pozostawanie stron w związku małżeńskim.</p>
+        </article>
+
+        <article class="panel law-section searchable"><h3>ROZDZIAŁ X <span>Prawa Obywatela w Zakresie Nieruchomości Prywatnej</span></h3>
+          <h4>Art. 1 — Prawo własności nieruchomości</h4><p><b>§1.</b> Obywatel ma prawo posiadać, użytkować i rozporządzać nieruchomością zgodnie z przepisami federalnymi, stanowymi i lokalnymi.</p><p><b>§2.</b> Prawo obejmuje również obszary o statusie szczególnym, w tym dzielnice objęte szczególnymi regulacjami administracyjnymi.</p>
+          <h4>Art. 2 — Prawo do prywatności</h4><p><b>§1.</b> Obywatel ma prawo do prywatności na terenie własnej nieruchomości.</p><p><b>§2.</b> Prawo obejmuje ochronę przed: 1) bezprawnym wtargnięciem, 2) obserwacją, 3) nagrywaniem, 4) inną formą monitorowania bez podstawy prawnej.</p><p><b>§3.</b> Służby publiczne mogą działać na terenie nieruchomości wyłącznie w przypadkach przewidzianych prawem.</p>
+          <h4>Art. 3 — Przeszukanie nieruchomości</h4><p><b>§1.</b> Przeszukanie nieruchomości może nastąpić wyłącznie: 1) na podstawie ważnego nakazu prokuratorskiego, 2) w przypadku bezpośredniego zagrożenia życia, zdrowia lub mienia, 3) podczas interwencji służb ratunkowych lub porządkowych, 4) za wyraźną zgodą właściciela lub osoby uprawnionej do dysponowania nieruchomością.</p>
+          <h4>Art. 4 — Organizacja imprez prywatnych</h4><p><b>§1.</b> Obywatel ma prawo organizować prywatne wydarzenia na własnej nieruchomości.</p><p><b>§2.</b> Jest to dozwolone, jeżeli: 1) nie dochodzi do naruszenia prawa lub porządku publicznego, 2) nie dochodzi do zakłócenia ciszy nocnej ani porządku publicznego, 3) nie jest prowadzona nielegalna działalność, 4) wydarzenie nie stanowi zagrożenia dla życia, zdrowia lub mienia osób trzecich.</p><p><b>§3.</b> Impreza masowa powyżej 10 uczestników wymaga: 1) zgody DOJ, 2) zabezpieczenia medycznego, 3) odpowiedniej ochrony, 4) powiadomienia właściwych organów ścigania, w tym LSPD/LSSD/BCSO.</p>
+          <h4>Art. 5 — Prawo do prywatności osobistej</h4><p><b>§1.</b> Obywatel ma prawo przebywać nago na własnej nieruchomości, jeżeli: 1) nie jest widoczny z przestrzeni publicznej, 2) nie dochodzi do naruszenia przepisów o nieprzyzwoitości, 3) nie stwarza zagrożenia dla osób trzecich, 4) nie stanowi to działalności komercyjnej bez wymaganych zezwoleń.</p>
+          <h4>Art. 6 — Posiadanie broni na terenie nieruchomości</h4><p><b>§1.</b> Obywatel może posiadać broń palną na własnej nieruchomości, jeżeli: 1) posiada ważną licencję, 2) broń jest zarejestrowana, 3) jest bezpiecznie przechowywana, 4) nie jest używana do grożenia, 5) osoby nieuprawnione nie mają do niej dostępu.</p>
+          <h4>Art. 7 — Prawo odmowy wejścia</h4><p><b>§1.</b> Właściciel może odmówić osobom trzecim wejścia na nieruchomość.</p><p><b>§2.</b> Nie dotyczy to: 1) wykonywania prawomocnego lub ważnego nakazu, 2) interwencji ratunkowej, 3) czynności służbowych wykonywanych zgodnie z prawem.</p>
+          <h4>Art. 8 — Ochrona nieruchomości przez państwo</h4><p><b>§1.</b> Służby publiczne i władze lokalne mają obowiązek respektować prawo obywatela do spokojnego i bezpiecznego korzystania z nieruchomości.</p>
+          <h4>Art. 9 — Zakaz wykorzystywania nieruchomości do działalności przestępczej</h4><p><b>§1.</b> Zabrania się wykorzystywania nieruchomości do: 1) działalności przestępczej, 2) ukrywania osób poszukiwanych, 3) przechowywania materiałów zabronionych, 4) działalności sprzecznej z prawem.</p><p><b>§2.</b> Przepis obowiązuje na całym terenie San Andreas, w tym w dzielnicach o statusie szczególnym.</p>
+        </article>
+
+        <article class="panel law-section searchable"><h3>ROZDZIAŁ XI <span>Imigranci</span></h3>
+          <h4>Art. 1 — Status imigranta</h4><p><b>§1. Legalni imigranci.</b> Za legalnych imigrantów uznaje się osoby pochodzące z następujących państw:</p><ol><li>Kanada</li><li>Wielka Brytania</li><li>Francja</li><li>Niemcy</li><li>Japonia</li><li>Korea Południowa</li><li>Chiny</li><li>Indie</li><li>Włochy</li><li>Brazylia</li><li>Australia</li><li>Szwecja</li><li>Norwegia</li><li>Hiszpania</li><li>Turcja</li></ol>
+          <p><b>§2. Nielegalni imigranci.</b> Za nielegalnych imigrantów uznaje się osoby pochodzące z następujących państw:</p><ol><li>Meksyk</li><li>Kuba</li><li>Wenezuela</li><li>Kolumbia</li><li>Salwador</li><li>Haiti</li><li>Nikaragua</li><li>Honduras</li><li>Dominikana</li><li>Maroko</li><li>Tunezja</li><li>Libia</li><li>Syria</li><li>Afganistan</li></ol>
+          <h4>Art. 2 — Uzyskanie obywatelstwa amerykańskiego</h4><p><b>§1.</b> Osoba posiadająca status legalnego imigranta może ubiegać się o obywatelstwo Stanów Zjednoczonych Ameryki.</p><p><b>§2.</b> W celu uzyskania obywatelstwa osoba zobowiązana jest: 1) złożyć wniosek do Department of Justice wraz z uzasadnieniem oraz wymaganymi dokumentami, 2) przedstawić zaświadczenie o niekaralności, 3) przedstawić zaświadczenie od pracodawcy potwierdzające legalne zatrudnienie, o ile pozostaje zatrudniona, 4) zdać egzamin obywatelski organizowany przez Department of Justice.</p><p><b>§3.</b> Po uzyskaniu pozytywnego wyniku egzaminu Department of Justice wydaje Akt Nadania Obywatelstwa w drodze postępowania administracyjnego.</p>
+          <h4>Art. 3 — Obywatelstwo poprzez zawarcie małżeństwa</h4><p><b>§1.</b> Osoba nieposiadająca obywatelstwa amerykańskiego może uzyskać obywatelstwo Stanów Zjednoczonych poprzez zawarcie legalnego związku małżeńskiego z obywatelem USA.</p><p><b>§2.</b> Nadanie obywatelstwa następuje po zarejestrowaniu aktu małżeństwa zgodnie z obowiązującym prawem.</p><p><b>§3.</b> Małżeństwo, rodzina, macierzyństwo oraz rodzicielstwo znajdują się pod ochroną oraz opieką Stanów Zjednoczonych Ameryki.</p>
+          <h4>Art. 4 — Podwójne obywatelstwo</h4><p><b>§1.</b> Podwójne obywatelstwo oznacza jednoczesne posiadanie obywatelstwa Stanów Zjednoczonych Ameryki oraz obywatelstwa innego państwa.</p><p><b>§2.</b> Prawo do posiadania podwójnego obywatelstwa przysługuje każdej osobie posiadającej pełną lub ograniczoną zdolność do czynności prawnych na terenie Stanu San Andreas.</p>
+          <h4>Art. 5 — Uzyskanie obywatelstwa przez imigranta</h4><p><b>§1.</b> Legalny imigrant, który uzyska obywatelstwo Stanów Zjednoczonych, nabywa pełną zdolność do czynności prawnych zgodnie z obowiązującym prawem.</p><p><b>§2.</b> Osoba, o której mowa w §1, uzyskuje prawo do: 1) pracy w służbach publicznych, 2) ubiegania się o dofinansowania państwowe lub miejskie, 3) uzyskania licencji na broń, 4) uzyskania licencji pilota, 5) prowadzenia działalności gospodarczej, 6) korzystania z praw obywatelskich przewidzianych prawem federalnym i stanowym.</p>
+          <h4>Art. 6 — Status osoby przebywającej nielegalnie</h4><p><b>§1.</b> Osoba przebywająca nielegalnie na terenie Stanu San Andreas nie posiada praw obywatelskich wynikających z obywatelstwa Stanów Zjednoczonych.</p><p><b>§2.</b> Osoba przebywająca nielegalnie nie może ubiegać się o obywatelstwo amerykańskie, chyba że przepisy szczególne stanowią inaczej.</p><p><b>§3.</b> Wyjątek od §2 stanowi zawarcie legalnego związku małżeńskiego z obywatelem Stanów Zjednoczonych.</p>
+          <h4>Art. 7 — Zezwolenie na pracę tymczasową</h4><p><b>§1.</b> Osoba przebywająca nielegalnie na terenie Stanu San Andreas może wystąpić do Department of Justice o wydanie zezwolenia na pracę tymczasową.</p><p><b>§2.</b> Zezwolenie na pracę tymczasową uprawnia wyłącznie do zatrudnienia w sektorze prywatnym.</p><p><b>§3.</b> Department of Justice ma prawo odmówić wydania zezwolenia bez obowiązku podania przyczyny.</p>
+          <h4>Art. 8 — Deportacja</h4><p><b>§1.</b> Deportacja osoby przebywającej nielegalnie może nastąpić po zatrzymaniu przez: 1) służby publiczne, 2) uprawnione organy państwowe.</p><p><b>§2.</b> Osoba posiadająca ważne zezwolenie na pracę tymczasową nie podlega deportacji, chyba że: 1) dopuściła się popełnienia przestępstwa, 2) naruszyła warunki wydanego zezwolenia, 3) stanowi zagrożenie dla bezpieczeństwa publicznego.</p><p><b>§3.</b> Jeżeli okoliczności sprawy wskazują na szczególnie rażące naruszenie prawa, wielokrotną karalność, uporczywe lekceważenie porządku publicznego lub agresywne zachowanie wobec funkcjonariuszy publicznych, organ ścigania może wystąpić o wezwanie właściwego sędziego. Po zapoznaniu się z materiałem dowodowym sędzia może nałożyć na osobę podlegającą deportacji administracyjną karę pieniężną w wysokości uznanej za adekwatną do stopnia naruszenia prawa.</p><p><b>§4.</b> Nałożenie administracyjnej kary pieniężnej nie wstrzymuje ani nie uchyla procedury deportacyjnej.</p>
+        </article>
+
+        <article class="panel law-section searchable"><h3>ROZDZIAŁ XII <span>Hazard i Gry Losowe</span></h3>
+          <h4>Art. 1 — Definicja hazardu</h4><p><b>§1.</b> Hazard obejmuje gry losowe, zakłady pieniężne, loterie, kasyna, automaty oraz inne formy ryzyka finansowego oparte na przypadku.</p>
+          <h4>Art. 2 — Uczestnictwo w hazardzie</h4><p><b>§1.</b> Prawo do uczestnictwa w hazardzie przysługuje obywatelowi po ukończeniu 21. roku życia.</p><p><b>§2.</b> Przepisy szczególne mogą dopuścić udział osób od 18. roku życia w wybranych formach hazardu, w szczególności loteriach lub zakładach sportowych.</p>
+          <h4>Art. 3 — Ograniczenia dla osób w wieku 18–20 lat</h4><p><b>§1.</b> Osoba w wieku od 18 do 20 roku życia nie może: 1) uczestniczyć w grach kasynowych, 2) obstawiać zakładów pieniężnych, 3) korzystać z automatów hazardowych, 4) przebywać w strefach hazardowych bez zgody administracji obiektu.</p>
+          <h4>Art. 4 — Obowiązki organizatora</h4><p><b>§1.</b> Organizator działalności hazardowej zobowiązany jest do: 1) weryfikacji wieku uczestników, 2) przestrzegania zasad uczciwości gry, 3) zgłoszenia działalności właściwym organom nadzoru.</p>
+          <h4>Art. 5 — Zakaz prowadzenia nielegalnego hazardu</h4><p><b>§1.</b> Zakazuje się prowadzenia hazardu: 1) na terenie instytucji publicznych, 2) w miejscach przeznaczonych dla osób poniżej 18. roku życia, 3) bez wymaganych zezwoleń i zgodności z przepisami prawa.</p>
+          <h4>Art. 6 — Ochrona przed uzależnieniem</h4><p><b>§1.</b> Każdy obywatel ma prawo do ochrony przed uzależnieniem hazardowym, w szczególności poprzez: 1) dostęp do programów terapeutycznych, 2) możliwość samowykluczenia z obiektów hazardowych, 3) dostęp do informacji ostrzegawczych dotyczących hazardu.</p>
+        </article>
+
+        <article class="panel law-section searchable"><h3>ROZDZIAŁ XIII <span>Legalność połowów, wydobycia oraz łowiectwa</span></h3>
+          <h4>Art. 1 — Legalność połowów</h4><p><b>§1.</b> Wędkowanie na terenie Stanu San Andreas dozwolone jest wyłącznie w wyznaczonych strefach połowu posiadających zgodę władz stanowych.</p><p><b>§2.</b> Pozostałe akweny wodne objęte są ochroną środowiskową, a prowadzenie połowów na ich terenie jest zabronione.</p><p><b>§3.</b> Osoba dokonująca połowu bez ważnej karty wędkarskiej lub poza wyznaczonym obszarem podlega: 1) konfiskacie sprzętu, 2) cofnięciu karty wędkarskiej, 3) karze grzywny lub innym sankcjom przewidzianym prawem.</p>
+          <h4>Art. 2 — Legalność wydobycia</h4><p><b>§1.</b> Wydobycie surowców naturalnych może odbywać się wyłącznie na terenach zatwierdzonych przez władze stanowe.</p><p><b>§2.</b> Zakazuje się prowadzenia wydobycia na terenach prywatnych, chronionych lub nieobjętych zezwoleniem stanowym.</p><p><b>§3.</b> Osoby prowadzące nielegalne wydobycie podlegają: 1) odpowiedzialności karnej, 2) konfiskacie sprzętu, 3) zatrzymaniu lub innym sankcjom administracyjnym.</p>
+          <h4>Art. 3 — Zasady polowań</h4><p><b>§1.</b> Prowadzenie polowań na terenie Stanu San Andreas wymaga posiadania ważnych uprawnień myśliwskich.</p><p><b>§2.</b> Polowania mogą odbywać się wyłącznie na terenach wyznaczonych do działalności myśliwskiej oraz zgodnie z obowiązującymi przepisami dotyczącymi siedlisk zwierząt oraz terenów objętych ochroną.</p><p><b>§3.</b> Zakazuje się: 1) prowadzenia polowań bez wymaganych uprawnień, 2) prowadzenia polowań poza wyznaczonymi terenami łowieckimi.</p>
+          <h4>Art. 4 — Nielegalne przedmioty pochodzenia zwierzęcego</h4><p><b>§1.</b> Zakazuje się posiadania, przewożenia, sprzedaży lub handlu przedmiotami pochodzenia zwierzęcego pozyskanymi nielegalnie.</p><p><b>§2.</b> Za przedmioty nielegalnego pochodzenia uznaje się w szczególności: 1) ostry kieł, 2) kieł lwa, 3) esencję skunksa, 4) pióro sępa, 5) pazur lamparta.</p><p><b>§3.</b> Przedmioty wymienione w §2 podlegają natychmiastowej konfiskacie przez jednostkę W.E.U Wildlife Unit.</p><p><b>§4.</b> Funkcjonariusze jednostki W.E.U. (Wildlife Enforcement Unit) mają prawo do przeprowadzenia kontroli oraz przeszukania pojazdu osoby przebywającej na terenach zielonych, leśnych lub objętych ochroną środowiskową, w przypadku uzasadnionego podejrzenia naruszenia przepisów dotyczących łowiectwa, ochrony zwierząt lub posiadania nielegalnych przedmiotów pochodzenia zwierzęcego.</p><p><b>§5.</b> Osoby naruszające przepisy niniejszego rozdziału podlegają: 1) karze grzywny, 2) konfiskacie sprzętu, 3) odpowiedzialności karnej zgodnie z obowiązującym prawem.</p>
+        </article>
+
+        <article class="panel law-section searchable"><h3>ROZDZIAŁ XIV <span>Postanowienia Końcowe</span></h3>
+          <h4>Art. 1</h4><p><b>§1.</b> Prawo Federalne Stanu San Andreas jest najwyższym dokumentem w Stanie.</p>
+          <h4>Art. 2</h4><p><b>§1.</b> Zgodnie z zasadą „ignorantia iuris nocet” — nieznajomość prawa nie zwalnia z jego przestrzegania.</p>
+        </article>
+
+        <div class="panel legal-source-note">Treść została wpisana na podstawie przesłanych screenów. Miejsca niewidoczne w źródle nie są uzupełniane z rzeczywistego prawa USA.</div>
+      </section>
+
+
+      <section class="legal-act" id="act-criminal">
+        <div class="panel legal-act-head">
+          <div class="legal-doc-icon">KK</div>
+          <div>
+            <div class="eyebrow">DEPARTMENT OF JUSTICE • STAN PRAWNY: LIPIEC 2026</div>
+            <h2>Kodeks karny stanu San Andreas</h2>
+            <p>Treść odczytana z przekazanych screenów • obejmuje część stanową, federalną, kolejne rozdziały federalne oraz rejestr wyroków. Pokazane są wyłącznie widoczne fragmenty bez dopisywania braków z zewnętrznych źródeł.</p>
+          </div>
+        </div>
+
+        <div class="panel criminal-toolbar">
+          <div>
+            <b>Widok Kodeksu karnego</b>
+            <small>Rozdziały są zorganizowane według dostarczonych screenów i podzielone na część stanową, federalną oraz rejestr wyroków. Wyszukiwarka działa wewnątrz aktualnie otwartego aktu i automatycznie pokazuje pasujące rozdziały.</small>
+          </div>
+          <div class="criminal-toolbar-actions">
+            <button type="button" id="criminalExpandAll">Rozwiń wszystko</button>
+            <button type="button" id="criminalCollapseAll">Zwiń wszystko</button>
+          </div>
+        </div>
+
+        <article class="panel law-section searchable criminal-title-card">
+          <h3>KODEKS KARNY STANU SAN ANDREAS</h3>
+          <p><b>Department Sprawiedliwości Miasta Los Santos</b></p>
+          <p>Stan prawny: lipiec 2026</p>
+          <p>z dnia 21.07.2026 r.</p>
+          <p>Tekst jednolity z dnia 21.07.2026 r.</p>
+        </article>
+
+        <article class="panel law-section searchable criminal-source" data-source="Część stanowa — ogólna">
+          <h3 class="criminal-part-head"><span>Część stanowa — część ogólna</span><small>odczytane ze screenów</small></h3>
+          <div class="criminal-structured">
+            <details class="criminal-chapter" open>
+              <summary><span>Rozdział I. Zasady odpowiedzialności karnej</span><small>3 artykuły</small></summary>
+              <div class="criminal-chapter-body">
+                <h4>Art. 1. [Warunki odpowiedzialności]</h4>
+                <p><b>§ 1.</b> Odpowiedzialności karnej podlega ten tylko, kto popełnia czyn zabroniony pod groźbą kary przez ustawę obowiązującą w czasie jego popełnienia.</p>
+                <p><b>§ 2.</b> Nie popełnia przestępstwa sprawca czynu zabronionego, jeżeli nie można mu przypisać winy w czasie czynu.</p>
+                <p><b>§ 3.</b> Wyjątek od §2 stanowi ponoszenie odpowiedzialności karnej z racji kierowania pojazdem poszukiwanym. Zarzuty za wszelkie przestępstwa przypisane poszukiwanemu pojazdowi zostaną przedstawione osobie kierującej tym pojazdem. Dotyczy to tylko pojazdów niezarejestrowanych.</p>
+                <h4>Art. 2. [Umyślność i nieumyślność]</h4>
+                <p><b>§ 1.</b> Czyn zabroniony popełniony jest umyślnie, jeżeli sprawca ma zamiar jego popełnienia, to jest, chce go popełnić albo przewidując możliwość jego popełnienia, się na to godzi.</p>
+                <p><b>§ 2.</b> Czyn zabroniony popełniony jest nieumyślnie, jeżeli sprawca nie mając zamiaru jego popełnienia, popełnia go jednak na skutek niezachowania ostrożności wymaganej w danych okolicznościach, mimo że możliwość popełnienia tego czynu przewidywał albo mógł przewidzieć.</p>
+                <h4>Art. 3. [Nieuzasadnione lub złośliwe ściganie]</h4>
+                <p><b>§ 1.</b> Funkcjonariusz publiczny lub inna osoba wykonująca czynności procesowe, która świadomie wszczyna lub prowadzi postępowanie przeciwko osobie niewinnej, pomimo braku podstaw faktycznych lub prawnych, podlega karze grzywny w wysokości 100 000$ oraz obowiązkowi naprawienia wyrządzonej szkody poprzez wypłatę stosownego odszkodowania na rzecz pokrzywdzonego.</p>
+              </div>
+            </details>
+
+            <details class="criminal-chapter">
+              <summary><span>Rozdział II. Formy popełniania przestępstw</span><small>5 artykułów</small></summary>
+              <div class="criminal-chapter-body">
+                <h4>Art. 1. [Sprawstwo]</h4>
+                <p><b>§ 1.</b> Odpowiada za sprawstwo nie tylko ten, kto wykonuje czyn zabroniony sam albo wspólnie i w porozumieniu z inną osobą, ale także ten, kto kieruje wykonaniem czynu zabronionego przez inną osobę lub wykorzystując uzależnienie innej osoby od siebie, poleca jej wykonanie takiego czynu.</p>
+                <h4>Art. 2. [Pomocnictwo]</h4>
+                <p><b>§ 1.</b> Odpowiada za pomocnictwo, kto w zamiarze, aby inna osoba dokonała czynu zabronionego, swoim zachowaniem ułatwia jego popełnienie.</p>
+                <h4>Art. 3. [Usiłowanie]</h4>
+                <p><b>§ 1.</b> Odpowiada za usiłowanie, kto w zamiarze popełnienia czynu zabronionego swoim zachowaniem bezpośrednio zmierza do jego dokonania, które jednak nie następuje.</p>
+                <p><b>§ 2.</b> Usiłowanie zachodzi także wtedy, gdy sprawca nie uświadamia sobie, że dokonanie jest niemożliwe względu na brak przedmiotu nadającego się do popełnienia na nim czynu zabronionego lub ze względu na użycie środka nienadającego się do popełnienia czynu zabronionego.</p>
+                <h4>Art. 4. [Podżeganie]</h4>
+                <p><b>§ 1.</b> Odpowiada za podżeganie, kto nakłania inną osobę do popełnienia czynu zabronionego.</p>
+                <p><b>§ 2.</b> Podżegacz podlega odpowiedzialności przewidzianej za dany czyn.</p>
+                <h4>Art. 5. [Spiskowanie]</h4>
+                <p><b>§ 1.</b> Spiskowaniem jest porozumienie co najmniej dwóch osób mające na celu przygotowanie lub popełnienie przestępstwa.</p>
+                <p><b>§ 2.</b> Odpowiedzialności podlega osoba, która świadomie przystępuje do takiego porozumienia.</p>
+              </div>
+            </details>
+
+            <details class="criminal-chapter">
+              <summary><span>Rozdział III. Wyłączenie odpowiedzialności karnej</span><small>widoczne art. 1, 2, 4, 5, 6</small></summary>
+              <div class="criminal-chapter-body">
+                <h4>Art. 1. [Obrona konieczna]</h4>
+                <p><b>§ 1.</b> Nie popełnia przestępstwa, kto w obronie koniecznej odpiera bezpośredni, bezprawny zamach na jakiekolwiek dobro chronione prawem.</p>
+                <p><b>§ 2.</b> Obrona konieczna musi pozostawać współmierna do stopnia zagrożenia.</p>
+                <p><b>§ 3.</b> Nie stanowi obrony koniecznej działanie podjęte po ustaniu bezpośredniego zagrożenia.</p>
+                <h4>Art. 2. [Niepoczytalność i poczytalność ograniczona]</h4>
+                <p><b>§ 1.</b> W przypadku powołania się przez zatrzymanego na niepoczytalność lub przedstawienia dokumentacji potwierdzającej zaburzenia psychiczne, sprawa podlega obligatoryjnemu rozpoznaniu przez sąd.</p>
+                <p><b>§ 2.</b> Sąd lub właściwy prokurator może wydać nakaz przeprowadzenia badania przez biegłego sądowego celem ustalenia stanu poczytalności sprawcy w chwili popełnienia czynu.</p>
+                <p><b>§ 3.</b> Jeżeli biegły sądowy stwierdzi ograniczoną poczytalność sprawcy, sąd może zastosować nadzwyczajne złagodzenie kary, środki zabezpieczające lub skierować sprawcę na obowiązkowe leczenie.</p>
+                <p><b>§ 4.</b> Sam fakt posiadania dokumentacji medycznej lub wcześniejszego rozpoznania zaburzeń psychicznych nie stanowi podstawy do automatycznego uznania sprawcy za niepoczytalnego.</p>
+                <p><b>Art. 3.</b> Brak na przekazanych screenach.</p>
+                <h4>Art. 4. [Przedawnienie]</h4>
+                <p><b>§ 1.</b> Karalność przestępstwa oraz nakaz poszukiwania ustają, jeżeli od czasu popełnienia czynu upłynęło 30 dni.</p>
+                <p><b>§ 2.</b> Przedawnieniu nie podlegają:</p>
+                <ol>
+                  <li>zabójstwo,</li>
+                  <li>zabójstwo funkcjonariusza publicznego,</li>
+                  <li>terroryzm,</li>
+                  <li>zdrada stanu.</li>
+                </ol>
+                <h4>Art. 5. [Resocjalizacja]</h4>
+                <p><b>§ 1.</b> Pełna resocjalizacja następuje poprzez podjęcie zatrudnienia po zakończeniu postępowań sądowych, zapłaceniu zasądzonych kar oraz skierowaniu wniosku o resocjalizację do Sądu. Opłata za resocjalizację jest zależna od ilości wyroków i jest zgodna z cennikiem umieszczonym na stronie internetowej DOJ.</p>
+                <h4>Art. 6. [Dowód pozyskany nielegalnie]</h4>
+                <p><b>§ 1.</b> Każdy dowód pozyskany w sposób niezgodny z prawem, w szczególności z naruszeniem przepisów Konstytucji, ustaw lub podstawowych praw i wolności człowieka, nie może zostać wykorzystany w postępowaniu ani stanowić podstawy wydania orzeczenia. Dowód taki podlega wyłączeniu z materiału dowodowego niezależnie od rodzaju naruszenia oraz podmiotu, który dopuścił się jego uzyskania.</p>
+              </div>
+            </details>
+
+            <details class="criminal-chapter">
+              <summary><span>Rozdział IV. Kary oraz kaucje</span><small>3 artykuły</small></summary>
+              <div class="criminal-chapter-body">
+                <h4>Art. 1. [Kary]</h4>
+                <p><b>§ 1.</b> Karami są:</p>
+                <ol>
+                  <li>grzywna,</li>
+                  <li>ograniczenie wolności,</li>
+                  <li>pozbawienie wolności,</li>
+                  <li>dożywotnie pozbawienie wolności,</li>
+                  <li>kara śmierci może zostać orzeczona wyłącznie w przypadkach przewidzianych ustawą oraz na podstawie prawomocnego wyroku sądu.</li>
+                </ol>
+                <h4>Art. 2 [Recydywa]</h4>
+                <p><b>§ 1.</b> Każda osoba, która po uprzednim skazaniu prawomocnym wyrokiem ponownie popełnia przestępstwo, dopuszcza się recydywy.</p>
+                <p><b>§ 2.</b> Recydywa pierwszego stopnia zachodzi w przypadku od 3 do 9 prawomocnych wyroków znajdujących się w kartotece sprawcy.</p>
+                <p><b>§ 3.</b> Recydywa drugiego stopnia zachodzi w przypadku 10 lub więcej prawomocnych wyroków znajdujących się w kartotece sprawcy.</p>
+                <p><b>§ 4.</b> Zarzut recydywy podlega karze grzywny i pozbawienia wolności ustaloną przez Prokuratora.</p>
+                <h4>Art. 3 [Kaucja]</h4>
+                <p><b>§ 1.</b> Kaucja obliczana jest na podstawie przelicznika - 1 msc to 1000$.</p>
+                <p><b>§ 2.</b> Kaucja przysługuje zatrzymanym z zarzutami lekkimi.</p>
+              </div>
+            </details>
+          </div>
+        </article>
+
+        <article class="panel law-section searchable criminal-source" data-source="Część stanowa — szczególna">
+          <h3 class="criminal-part-head"><span>Część stanowa — część szczególna</span><small>wykroczenia i przestępstwa widoczne na screenach</small></h3>
+          <div class="criminal-structured">
+            <details class="criminal-chapter">
+              <summary><span>Rozdział I. Wykroczenia drogowe</span><small>18 artykułów</small></summary>
+              <div class="criminal-chapter-body">
+                <h4>Art. 1. [Wyprzedzanie w miejscu niedozwolonym]</h4>
+                <p><b>§ 1.</b> Kto w miejscu niedozwolonym bądź nieprzeznaczonym do tego wykonuje manewr wyprzedzania, podlega karze grzywny do 400$.</p>
+                <h4>Art. 2. [Przejście w miejscu niedozwolonym]</h4>
+                <p><b>§ 1.</b> Kto w miejscu niedozwolonym przechodzi przez jezdnię, podlega karze grzywny do 300$.</p>
+                <h4>Art. 3. [Nieprawidłowe zawracanie]</h4>
+                <p><b>§ 1.</b> Kto w miejscu niedozwolonym bądź nieprzeznaczonym do tego wykonuje manewr zawracania, podlega karze grzywny do 300$.</p>
+                <h4>Art. 4. [Postój lub parkowanie w miejscu niedozwolonym]</h4>
+                <p><b>§ 1.</b> Kto w miejscu niedozwolonym bądź nieprzeznaczonym do tego zatrzymuje/parkuje swój pojazd, podlega karze grzywny do 400$.</p>
+                <h4>Art. 5. [Niezastosowanie się do znaków drogowych]</h4>
+                <p><b>§ 1.</b> Kto nie stosuje się do znaków drogowych, podlega karze grzywny do 350$.</p>
+                <h4>Art. 6. [Utrudnianie ruchu drogowego]</h4>
+                <p><b>§ 1.</b> Kto powoduje utrudnienia w ruchu drogowym, podlega karze grzywny do 500$.</p>
+                <h4>Art. 7. [Niezastosowanie się do ruchu prawostronnego]</h4>
+                <p><b>§ 1.</b> Kto nie stosuje się do ruchu prawostronnego, podlega karze grzywny do 500$.</p>
+                <h4>Art. 8. [Nieostrożne/niebezpieczne prowadzenie pojazdów]</h4>
+                <p><b>§ 1.</b> Kto sprawia zagrożenie w ruchu lądowym, podlega karze grzywny do 1200$.</p>
+                <h4>Art. 9. [Niezastosowanie się do sygnalizacji świetlnej]</h4>
+                <p><b>§ 1.</b> Kto nie stosuje się do sygnalizacji świetlnej, podlega karze grzywny do 500$.</p>
+                <h4>Art. 10. [Przekroczenie dozwolonej prędkości]</h4>
+                <p><b>§ 1.</b> Kto przekracza dozwoloną prędkość:</p>
+                <ul>
+                  <li>o nie więcej niż 10 km/h, podlega karze grzywny do 400$,</li>
+                  <li>od 10 km/h do 25 km/h, podlega karze grzywny do 500$,</li>
+                  <li>od 26 km/h do 40 km/h, podlega karze grzywny do 600$,</li>
+                  <li>od 41 km/h do 50 km/h, podlega karze grzywny do 700$,</li>
+                  <li>od 51 km/h do 100 km/h, podlega karze grzywny do 900$,</li>
+                  <li>powyżej 100 km/h, podlega karze grzywny do 1100$.</li>
+                </ul>
+                <h4>Art. 11. [Jazda niesprawnym pojazdem]</h4>
+                <p><b>§ 1.</b> Kto porusza się pojazdem w stanie technicznym nie pozwalającym na dalsze użytkowanie go, podlega karze grzywny do 2000$ oraz zostaje zobowiązany do opłacenia odholowania pojazdu.</p>
+                <p><b>§ 2.</b> Kto porusza się pojazdem z uszkodzeniami wizualnymi lub nie wpływającymi na bezpieczeństwo prowadzenia pojazdu, jest zobowiązany do naprawy pojazdu oraz może zostać ukarany grzywną do 300$.</p>
+                <h4>Art. 12. [Przyciemnione szyby]</h4>
+                <p><b>§ 1.</b> Kto posiada w pojeździe szyby o poziomie przyciemnienia powyżej 80% podlega karze grzywny do 1500$ oraz zostaje zobowiązany do opłacenia odholowania pojazdu.</p>
+                <h4>Art. 13. [Kolizja]</h4>
+                <p><b>§ 1.</b> Kto jest sprawcą kolizji w ruchu lądowym, podlega karze grzywny do 1500$.</p>
+                <h4>Art. 14. [Wypadek]</h4>
+                <p><b>§ 1.</b> Kto jest sprawcą wypadku w ruchu lądowym, podlega karze grzywny do 2000$.</p>
+                <h4>Art. 15. [Prowadzenie pojazdu bez uprawnień]</h4>
+                <p><b>§ 1.</b> Kto na drodze publicznej, w strefie zamieszkania lub strefie ruchu prowadzi pojazd mechaniczny, nie mając do tego uprawnień, posiadając niewystarczające lub nie odpowiednie uprawnienia, podlega karze grzywny w wysokości do 750$.</p>
+                <h4>Art. 16. [Prowadzenie pojazdu niezarejestrowanego]</h4>
+                <p><b>§ 1.</b> Kto na drodze publicznej, w strefie zamieszkania lub strefie ruchu prowadzi pojazd mechaniczny niezarejestrowany, podlega karze grzywny w wysokości do 2400$.</p>
+                <h4>Art. 17. [Jazda pod wpływem środków odurzających/alkoholu]</h4>
+                <p><b>§ 1.</b> Kto prowadzi pojazd będąc pod wpływem środków odurzających bądź alkoholu, podlega karze grzywny do 1500$ oraz pozbawienia wolności do 7 miesięcy.</p>
+                <h4>Art. 18. [Używanie telefonu podczas jazdy]</h4>
+                <p><b>§ 1.</b> Kto na drodze publicznej, w strefie zamieszkania lub strefie ruchu używa telefonu podczas prowadzenia pojazdu, podlega karze grzywny w wysokości do 1000$.</p>
+              </div>
+            </details>
+
+            <details class="criminal-chapter">
+              <summary><span>Rozdział II. Wykroczenia ogólne</span><small>13 artykułów widocznych na screenach</small></summary>
+              <div class="criminal-chapter-body">
+                <h4>Art. 1. [Znieważenie]</h4>
+                <p><b>§ 1.</b> Kto znieważa drugą osobę publicznie, podlega karze grzywny do 500$.</p>
+                <p><b>§ 2.</b> Kto znieważa funkcjonariusza służby porządkowej, podlega karze grzywny do 1000$.</p>
+                <p>Każde kolejne tego typu wykroczenie jest karane grzywną w wysokości 500$ dopisane do wyroku.</p>
+                <h4>Art. 2. [Niszczenie mienia]</h4>
+                <p><b>§ 1.</b> Kto dokonuje niszczenia mienia, zarówno publicznego jak i prywatnego, podlega karze grzywny do 2300$ oraz zobowiązany jest do pokrycia wszystkich kosztów naprawy.</p>
+                <p><b>§ 2.</b> W przypadku mienia należącego do organów publicznych, służb porządkowych lub ratunkowych, kara może zostać zwiększona o 50%.</p>
+                <h4>Art. 3. [Niewykonywanie poleceń funkcjonariusza]</h4>
+                <p><b>§ 1.</b> Kto nie wykonuje poleceń funkcjonariusza na służbie, podlega karze grzywny 1100$ oraz karze pozbawienia wolności do 5 miesięcy.</p>
+                <p><b>§ 2.</b> W przypadku uporczywego niewykonywania poleceń funkcjonariusza lub utrudniania prowadzonych czynności, sprawca może podlegać surowszej odpowiedzialności karnej.</p>
+                <h4>Art. 4. [Odmowa wylegitymowania]</h4>
+                <p><b>§ 1.</b> Kto odmówił wylegitymowania się funkcjonariuszowi pełniącemu czynności, podlega karze grzywny do 1000$ oraz doprowadzenia na areszt w celu ustalenia tożsamości.</p>
+                <h4>Art. 5. [Porządek publiczny]</h4>
+                <p><b>§ 1.</b> Kto krzykiem, alarmem, hałasem lub innym wybrykiem zakłóca spokój, porządek publiczny albo wywołuje zgorszenie w miejscu publicznym podlega karze grzywny do 1000$.</p>
+                <h4>Art. 6 [Włamanie do pojazdu]</h4>
+                <p><b>§ 1.</b> Kto dokonuje włamania do pojazdu, podlega karze grzywny do 800$.</p>
+                <h4>Art. 7. [Jazda kradzionym pojazdem]</h4>
+                <p><b>§ 1.</b> Kto porusza się kradzionym pojazdem, podlega karze grzywny do 1500$ oraz karze pozbawienia wolności do 5 miesięcy.</p>
+                <h4>Art. 8. [Pilotowanie statków powietrznych bez uprawnień]</h4>
+                <p><b>§ 1.</b> Kto wykonuje lot statkiem powietrznym, nie mając do tego uprawnień, posiadając niewystarczające lub nie odpowiednie uprawnienia, podlega karze grzywny w wysokości do 2500$.</p>
+                <p><b>§ 2.</b> Jeżeli czyn stwarza zagrożenie dla życia, zdrowia lub bezpieczeństwa ruchu lotniczego, sprawca podlega karze pozbawienia wolności do 20 miesięcy.</p>
+                <h4>Art. 9. [Utrudnianie pracy]</h4>
+                <p><b>§ 1.</b> Kto swoim zachowaniem utrudnia wykonywanie czynności zawodowych funkcjonariuszom służb publicznych, podlega karze pozbawienia wolności do 5 miesięcy oraz karze grzywny do 1500$.</p>
+                <h4>Art. 10. [Bezpodstawne użycie numeru alarmowego]</h4>
+                <p><b>§ 1.</b> Kto bez uzasadnionych podstaw wzywa służby porządkowe poprzez wykonanie połączenia na numer alarmowy danej instytucji, podlega karze grzywny do 4000$.</p>
+                <h4>Art. 11. [Niewłaściwy transport broni]</h4>
+                <p><b>§ 1.</b> Kto transportuje broń w sposób niezgodny z Ustawą o broni i amunicji, podlega karze grzywny 50000$ oraz utracie zezwolenia na broń.</p>
+                <p><b>§ 2.</b> Umundurowani funkcjonariusze służb publicznych na służbie mogą nosić broń na widoku w celach służbowych.</p>
+                <h4>Art. 12. [Złośliwe przeszkadzanie w wykonywaniu aktów religijnych]</h4>
+                <p><b>§ 1.</b> Kto złośliwie przeszkadza publicznemu wykonywaniu aktu religijnego kościoła lub innego związku wyznaniowego o uregulowanej sytuacji prawnej, podlega grzywnie do 1000$, karze ograniczenia wolności albo pozbawienia wolności do 20 miesięcy.</p>
+                <p><b>§ 2.</b> Tej samej karze podlega, kto złośliwie przeszkadza pogrzebowi, uroczystościom lub obrzędom żałobnym.</p>
+                <h4>Art. 13. [Publiczne prezentowanie treści pornograficznych]</h4>
+                <p><b>§ 1.</b> Kto publicznie prezentuje treści pornograficzne w taki sposób, że może to naruszyć ich odbiór osobie, która tego sobie nie życzy, podlega karze grzywny do 1000$.</p>
+              </div>
+            </details>
+
+            <details class="criminal-chapter">
+              <summary><span>Rozdział III. Wykroczenia przeciwko przyrodzie</span><small>3 artykuły</small></summary>
+              <div class="criminal-chapter-body">
+                <h4>Art. 1. [Brak aktualnej licencji]</h4>
+                <p><b>§ 1.</b> Kto dokonuje polowań bez ważnych zezwoleń lub licencji podlega karze grzywny w wysokości 1000$.</p>
+                <p><b>§ 2.</b> Kto dokonuje połowów bez ważnych zezwoleń lub licencji podlega karze grzywny w wysokości 1000$.</p>
+                <p><b>§ 3.</b> Kto dokonuje wydobywania surowców mineralnych bez ważnych zezwoleń lub licencji podlega karze grzywny w wysokości 1000$.</p>
+                <h4>Art. 2. [Kłusownictwo]</h4>
+                <p><b>§ 1.</b> Kto dokonuje połowów lub polowań, sprzętem lub bronią niedostosowaną lub nieodpowiednią do takich czynów, powodując zwierzętom nadmierny ból lub stres podlega karze grzywny w wysokości 2500$.</p>
+                <h4>Art. 3. [Ochrona terenów przyrody]</h4>
+                <p><b>§ 1.</b> Kto porusza się pojazdem niedostosowanym po terenach łowieckich podlega karze grzywny w wysokości 1000$.</p>
+                <p><b>§ 2.</b> Kto dokonuje połowów, polowań lub wydobyć na terenach do tego nieprzeznaczonych podlega karze grzywny w wysokości 4500$.</p>
+                <p><b>§ 3.</b> Kto jest w posiadaniu nielegalnie pozyskanych zasobów naturalnych podlega karze grzywny w wysokości 2500$.</p>
+              </div>
+            </details>
+
+            <details class="criminal-chapter">
+              <summary><span>Rozdział IV. Przestępstwa ogólne</span><small>widoczne art. 1–30 • numeracja zgodna ze screenami</small></summary>
+              <div class="criminal-chapter-body">
+                <h4>Art. 1. [Ucieczka przed policją]</h4>
+                <p><b>§ 1.</b> Kto pomimo wydania przez funkcjonariusza polecenia zatrzymania się podejmuje próbę ucieczki, podlega karze grzywny do 4000$ oraz karze pozbawienia wolności do 15 miesięcy.</p>
+                <p><b>§ 2.</b> Jeżeli sprawca podczas ucieczki stwarza zagrożenie dla życia lub zdrowia innych osób, sąd może orzec surowszą karę.</p>
+                <p><b>§ 3.</b> Kto utrudnia lub udaremnia zatrzymanie innej osoby przez funkcjonariuszy publicznych, podlega karze grzywny do 2000$ oraz karze pozbawienia wolności do 10 miesięcy.</p>
+                <h4>Art. 2. [Naruszenie miru domowego]</h4>
+                <p><b>§ 1.</b> Kto dokonuje wtargnięcia do cudzego domu, mieszkania, lokalu, pomieszczenia albo ogrodzonego terenu albo wbrew żądaniu osoby uprawnionej miejsca takiego nie opuszcza, podlega karze grzywny do 800$.</p>
+                <p><b>§ 2.</b> Włamanie - Kto przełamując zabezpieczenia dokonuje wtargnięcia do cudzego domu, mieszkania, lokalu lub innego zamkniętego obiektu, podlega karze grzywny do 5000$ oraz karze pozbawienia wolności do 15 miesięcy.</p>
+                <p><b>§ 3.</b> Kradzież z włamaniem - Jeżeli sprawca działa w celu dokonania kradzieży lub osiągnięcia korzyści majątkowej, podlega karze grzywny do 10000$ oraz karze pozbawienia wolności do 20 miesięcy.</p>
+                <h4>Art. 3. [Kradzież pojazdu]</h4>
+                <p><b>§ 1.</b> Kto dokonuje kradzieży pojazdu, podlega karze pozbawienia wolności do 10 miesięcy oraz karze grzywny do 2500$.</p>
+                <p><b>§ 2.</b> Jeżeli pojazd wyposażony jest w urządzenie lokalizacyjne, system zabezpieczeń lub należy do przedsiębiorstwa, kara wynosi do 20 miesięcy pozbawienia wolności oraz grzywnę do 5000$.</p>
+                <h4>Art. 4. [Kradzież pojazdów uprzywilejowanych]</h4>
+                <p><b>§ 1.</b> Kto dokonuje kradzieży pojazdu należącego do służb porządkowych, podlega karze grzywny do 5000$ oraz karze pozbawienia wolności do 25 miesięcy.</p>
+                <p><b>§ 2.</b> Jeżeli sprawca wykorzystuje skradziony pojazd uprzywilejowany do popełnienia innego przestępstwa, sąd może zwiększyć wymiar kary.</p>
+                <h4>Art. 5. [Podszywanie się pod inną osobę]</h4>
+                <p><b>§ 1.</b> Kto podszywa się pod inną osobę, wykorzystuje jej wizerunek, dane osobowe lub inne dane, za pomocą których jest ona publicznie identyfikowana, przez co wyrządza jej szkodę majątkową lub osobistą podlega karze grzywny do 2000$ oraz karze pozbawienia wolności do 16 miesięcy.</p>
+                <p><b>§ 2.</b> Ściganie przestępstwa określonego w § 1 następuje na wniosek poszkodowanego.</p>
+                <h4>Art. 6. [Podszywanie się pod funkcjonariusza]</h4>
+                <p><b>§ 1.</b> Kto podszywa się pod funkcjonariuszy publicznych, podlega karze grzywny do 3500$ oraz karze pozbawienia wolności do 24 miesięcy.</p>
+                <h4>Art. 7. [Posiadanie sprzętu policyjnego]</h4>
+                <p><b>§ 1.</b> Kto posiada sprzęt policyjny bez odpowiednich uprawnień, podlega karze grzywny do 4000$ oraz karze pozbawienia wolności do 15 miesięcy.</p>
+                <p><b>§ 2.</b> Przez sprzęt policyjny rozumie się w szczególności oznaczone pojazdy służbowe, wyposażenie służbowe, identyfikatory, odznaki, umundurowanie oraz sprzęt przeznaczony wyłącznie do użytku służb publicznych.</p>
+                <h4>Art. 8. [Nielegalne wyścigi]</h4>
+                <p><b>§ 1.</b> Kto bierze czynny udział w wyścigach, na które nie zostało wydane zezwolenie, podlega karze pozbawienia wolności do 15 miesięcy oraz karze grzywny do 5000$.</p>
+                <p><b>§ 2.</b> Kto organizuje wyścigi, na które nie zostało wydane zezwolenie, podlega karze grzywny do 10000$ oraz karze pozbawienia wolności do 20 miesięcy.</p>
+                <h4>Art. 9. [Karalne niezawiadomienie o przestępstwie]</h4>
+                <p><b>§ 1.</b> Kto, mając wiarygodną wiadomość o karalnym przygotowaniu albo usiłowaniu lub dokonaniu czynu zabronionego nie zawiadamia niezwłocznie organu powołanego do ścigania przestępstw, podlega karze grzywny do 5000$ oraz karze pozbawienia wolność do 20 miesięcy.</p>
+                <p><b>§ 2.</b> Kto, mając wiarygodną wiadomość o karalnym przygotowaniu albo usiłowaniu lub dokonaniu morderstwa, nie zawiadamia niezwłocznie organu powołanego do ścigania przestępstw, podlega karze grzywny do 10000$ oraz karze pozbawienia wolność do 50 miesięcy.</p>
+                <h4>Art. 10. [Tworzenie fałszywych dokumentów]</h4>
+                <p><b>§ 1.</b> Kto, poprzez tworzenie fałszywych dokumentów lub inne podstępne zabiegi, podrabia dokument w celu użycia go jako autentycznego, podlega karze grzywny do 8500$ oraz karze pozbawienia wolności do 45 miesięcy.</p>
+                <h4>§ 2.</h4>
+                <p>Kto używa fałszywych dokumentów jako autentycznych, podlega karze grzywny do 4000$ oraz karze pozbawienia wolności do 20 miesięcy.</p>
+                <h4>Art. 11. [Fałszowanie dowodów]</h4>
+                <p><b>§ 1.</b> Kto tworzy, podrabia lub przedstawia fałszywe dowody w celu skierowania odpowiedzialności karnej na inną osobę, podlega karze grzywny do 8500$ oraz karze pozbawienia wolności do 45 miesięcy.</p>
+                <p><b>§ 2.</b> Kto tworzy, podrabia, ukrywa lub niszczy dowody w celu utrudnienia postępowania prowadzonego przez organy ścigania lub wymiar sprawiedliwości, podlega karze grzywny do 6500$ oraz karze pozbawienia wolności do 35 miesięcy.</p>
+                <h4>Art. 12. [Groźby karalne]</h4>
+                <p><b>§ 1.</b> Kto grozi innej osobie popełnieniem przestępstwa na jej szkodę lub na szkodę osoby jej najbliższej, jeżeli groźba wzbudza uzasadnioną obawę jej spełnienia, podlega karze grzywny do 1200$ oraz karze pozbawienia wolności do 10 miesięcy.</p>
+                <h4>Art. 13. [Kradzież]</h4>
+                <p><b>§ 1.</b> Kto zabiera w celu przywłaszczenia cudzą rzecz ruchomą, podlega karze grzywny do 5000$ oraz do 20 miesięcy pozbawienia wolności.</p>
+                <p><b>§ 2.</b> W wypadku mniejszej wagi (do wartości 2000$), sprawca czynu określonego w § 1, podlega grzywnie do 2000$, karze ograniczenia wolności lub pozbawienia wolności do 10 miesięcy.</p>
+                <p><b>§ 3.</b> Kto dopuszcza się kradzieży szczególnie zuchwałej, podlega karze grzywny do 7000$ oraz 30 miesięcy pozbawienia wolności.</p>
+                <p><b>§ 4.</b> Jeżeli kradzież popełniono na szkodę osoby najbliższej, ściganie następuje na wniosek pokrzywdzonego.</p>
+                <h4>Art. 14. [Nękanie]</h4>
+                <p><b>§ 1.</b> Kto przez uporczywe nękanie innej osoby lub osoby dla niej najbliższej wzbudza u niej uzasadnione okolicznościami poczucie zagrożenia, poniżenia lub udręczenia lub istotnie narusza jej prywatność podlega karze grzywny do 2000$ oraz karze pozbawienia wolności do 20 miesięcy.</p>
+                <p><b>§ 2.</b> Ściganie przestępstwa określonego w § 1 następuje na wniosek poszkodowanego.</p>
+                <h4>Art. 15. [Szantaż]</h4>
+                <p><b>§ 1.</b> Szantaż - kto stosując groźbę bezprawną zmusza inną osobę do określonego działania, zaniechania lub znoszenia, podlega karze grzywny do 10000$ oraz karze pozbawienia wolności do 40 miesięcy.</p>
+                <p><b>§ 2.</b> Wymuszenie - kto działa w celu osiągnięcia korzyści majątkowej lub osobistej, podlega karze grzywny do 15000$ oraz karze pozbawienia wolności do 50 miesięcy.</p>
+                <h4>Art. 16. [Gwałt]</h4>
+                <p><b>§ 1.</b> Kto doprowadza inną osobę do czynności seksualnej bez jej zgody, podlega karze grzywny do 15000$ oraz karze pozbawienia wolności do 60 miesięcy.</p>
+                <p><b>§ 2.</b> Jeżeli sprawca działa wspólnie z innymi osobami, używa przemocy lub broni, sąd może orzec surowszą karę.</p>
+                <h4>Art. 16. [Zbezczeszczenie zwłok]</h4>
+                <p><b>§ 1.</b> Kto znieważa zwłoki, prochy ludzkie lub miejsce spoczynku zmarłego, podlega grzywnie do 2000$ oraz pozbawienia wolności do 7 miesięcy.</p>
+                <p><b>§ 2.</b> Kto ograbia zwłoki, grób lub inne miejsce spoczynku zmarłego, podlega podlega grzywnie do 3500$ oraz pozbawienia wolności do 15 miesięcy.</p>
+                <h4>Art. 17. [Znieważenie zwłok poprzez czynność o charakterze seksualnym]</h4>
+                <p><b>§ 1.</b> Kto dopuszcza się czynności o charakterze seksualnym wobec zwłok, podlega karze grzywny 25 000 $ oraz pozbawienia wolności do 50 miesięcy.</p>
+                <h4>Art. 18. [Znęcanie się nad zwierzętami]</h4>
+                <p><b>§ 1.</b> Kto zadaje zwierzęciu ból, cierpienie lub świadomie dopuszcza do jego krzywdzenia, podlega karze grzywny do 6000$ oraz karze pozbawienia wolności do 50 miesięcy. Sąd może dodatkowo orzec zakaz posiadania zwierząt na okres przez siebie wskazany.</p>
+                <h4>Art. 19. [Składanie fałszywych zeznań]</h4>
+                <p><b>§ 1.</b> Kto składając zeznania mające służyć za dowód w postępowaniu sądowym lub innym postępowaniu prowadzonym przez właściwy organ, zeznaje nieprawdę lub zataja prawdę, podlega karze grzywny do 7500$ oraz karze pozbawienia wolności do 20 miesięcy.</p>
+                <h4>Art. 20 [Paserstwo]</h4>
+                <p><b>§ 1.</b> Kto nabywa, przechowuje, przewozi lub pomaga ukryć mienie pochodzące z czynu zabronionego, podlega karze grzywny do 5000$ oraz karze pozbawienia wolności do 15 miesięcy.</p>
+                <h4>Art. 21 [Rozbój]</h4>
+                <p><b>§ 1.</b> Kto przy użyciu przemocy, groźby jej użycia lub doprowadzając inną osobę do stanu bezbronności dokonuje zaboru mienia, podlega karze grzywny do 15000$ oraz karze pozbawienia wolności do 50 miesięcy.</p>
+                <h4>Art. 22 [Cyberstalking]</h4>
+                <p><b>§ 1.</b> Kto za pośrednictwem środków komunikacji elektronicznej uporczywie nęka inną osobę, wysyła niechciane wiadomości lub materiały, śledzi jej aktywność, bezprawnie utrwala lub rozpowszechnia jej wizerunek albo w inny sposób narusza jej prywatność, wzbudzając u pokrzywdzonego poczucie zagrożenia, poniżenia lub istotnie naruszając jego prywatność, podlega karze grzywny do 20000$ oraz karze pozbawienia wolności 40 miesięcy.</p>
+                <h4>Art. 23 [Uporczywe nękanie (stalking)]</h4>
+                <p><b>§ 1.</b> Kto przez uporczywe nękanie, śledzenie, nachodzenie lub za pośrednictwem środków komunikacji elektronicznej kontaktuje się z inna osoba wbrew jej woli, rozpowszechnia jej wizerunek, narusza jej prywatność albo wzbudza u niej uzasadnione poczucie zagrożenia lub istotnie narusza jej prywatność, podlega karze grzywny do 30000$ oraz pozbawienia wolności do 60 miesięcy.</p>
+                <h4>Art. 24. [Prowokacja policyjna]</h4>
+                <p><b>§ 1.</b> Policyjna prowokacja to niejawne działanie operacyjne, w którym funkcjonariusze pod przykryciem stwarzają kontrolowane warunki i okazję do popełnienia przestępstwa, aby zatrzymać sprawcę na gorącym uczynku.</p>
+                <p><b>§ 2.</b> Kto, będąc funkcjonariuszem publicznym, stosuje policyjną prowokację podlega karze grzywny w wysokości 50 000$ oraz obowiązkowi naprawienia wyrządzonej szkody poprzez wypłatę stosownego odszkodowania na rzecz pokrzywdzonego.</p>
+                <h4>Art. 25. [Naruszenie praw obywatelskich]</h4>
+                <p><b>§ 1.</b> Kto bez podstawy prawnej ogranicza lub narusza konstytucyjne prawa i wolności obywatela, podlega karze grzywny do 30 000 $ oraz karze pozbawienia wolności do 50 miesięcy.</p>
+                <h4>Art. 26. [Prostytucja]</h4>
+                <p><b>§ 1.</b> Kto świadczy lub korzysta z usług seksualnych za wynagrodzeniem w miejscu publicznym albo w sposób naruszający porządek publiczny, podlega karze grzywny do 35 000 $ oraz karze pozbawienia wolności do 60 miesięcy.</p>
+                <h4>Art. 27. [Nagabywanie]</h4>
+                <p><b>§ 1.</b> Kto świadome nakłania, żąda, zachęca lub opłaca inną osobę w celu nakłonienia jej do popełnienia przestępstwa. Jest to tak zwane przestępstwo formalne (inchoate offense), co oznacza, że sprawca podlega odpowiedzialności już za sam fakt namawiania nawet jeśli wskazany czyn nie został ostatecznie dokonany przez drugą stronę podlega karze grzywny do 15 000 $ oraz karze pozbawienia wolności do 50 miesięcy.</p>
+                <h4>Art. 28. [Molestowanie]</h4>
+                <p><b>§ 1.</b> Kto dopuszcza się wobec innej osoby zachowań o charakterze seksualnym bez jej zgody, naruszających jej godność lub poczucie bezpieczeństwa, podlega karze grzywny do 50 000$ oraz karze pozbawienia wolności do 100 miesięcy.</p>
+                <p><b>§ 2.</b> Za molestowanie uważa się w szczególności:</p>
+                <p><b>1) Werbalne:</b></p>
+                <ul>
+                  <li>sprośne żarty i aluzje,</li>
+                  <li>wulgarne komentarze dotyczące ciała lub wyglądu,</li>
+                  <li>opowiadanie historii o charakterze erotycznym,</li>
+                  <li>składanie niechcianych propozycji seksualnych.</li>
+                </ul>
+                <p><b>2) Niewerbalne:</b></p>
+                <ul>
+                  <li>sugestywne lub uporczywe wpatrywanie się,</li>
+                  <li>prezentowanie materiałów o charakterze erotycznym bez zgody odbiorcy.</li>
+                </ul>
+                <p><b>3) Fizyczne:</b></p>
+                <ul>
+                  <li>niechciane dotykanie,</li>
+                  <li>głaskanie,</li>
+                  <li>poklepywanie,</li>
+                  <li>obmacywanie,</li>
+                  <li>naruszenie przestrzeni osobistej,</li>
+                  <li>próby wymuszenia kontaktu fizycznego.</li>
+                </ul>
+                <h4>Art. 29. [Szantaż seksualny]</h4>
+                <p><b>§ 1.</b> Kto, wykorzystując zależność służbową, zawodową, finansową lub inną formę przewagi, uzależnia uzyskanie korzyści, uniknięcie szkody albo podjęcie określonej decyzji od spełnienia żądań o charakterze seksualnym, podlega karze grzywny do 20 000$ oraz karze pozbawienia wolności do 60 miesięcy.</p>
+                <h4>Art. 30 [Próba przekupstwa funkcjonariusza publicznego]</h4>
+                <p><b>§ 1.</b> Kto oferuje, obiecuje lub próbuje przekazać funkcjonariuszowi publicznemu korzyść majątkową lub osobistą w zamian za podjęcie, zaniechanie lub zmianę czynności służbowej, podlega karze grzywny do 15 000$ oraz karze pozbawienia wolności do 25 miesięcy.</p>
+              </div>
+            <details class="criminal-chapter">
+              <summary><span>Rozdział V. Przestępstwa poważne</span><small>widoczne art. 1–5, 8, 10, 11</small></summary>
+              <div class="criminal-chapter-body">
+                <h4>Art. 1. [Próba odbicia osoby zatrzymanej]</h4>
+                <p><b>§ 1.</b> Kto wspólnie bądź w porozumieniu usiłuje dokonać uwolnienia osoby zatrzymanej, podlega karze grzywny do 8000$ oraz karze pozbawienia wolności do 35 miesięcy.</p>
+                <h4>Art. 2. [Ucieczka z konwoju]</h4>
+                <p><b>§ 1.</b> Kto ucieka z konwoju lub pomaga osobie zatrzymanej w ucieczce z konwoju, podlega karze grzywny do 3200$ oraz karze pozbawienia wolności do 30 miesięcy.</p>
+                <h4>Art. 3. [Bezprawne uwolnienie]</h4>
+                <p><b>§ 1.</b> Kto uwalnia się sam, będąc pozbawionym wolności na podstawie orzeczenia sądu lub prawnego nakazu wydanego przez inny organ państwowy, podlega grzywnie do 10000$ oraz karze pozbawienia wolności do 30 miesięcy.</p>
+                <p><b>§ 2.</b> Jeżeli sprawca czynu określonego w § 1 działa w porozumieniu z innymi osobami, używa przemocy lub grozi jej użyciem albo uszkadza miejsce zamknięcia, podlega karze pozbawienia wolności do 40 miesięcy.</p>
+                <p><b>§ 3.</b> Kto uwalnia osobę pozbawioną wolności na podstawie orzeczenia sądu lub prawnego nakazu wydanego przez inny organ państwowy, podlega grzywnie do 10000$ oraz karze pozbawienia wolności do 40 miesięcy.</p>
+                <p><b>§ 4.</b> Tej samej karze podlega osoba, która świadomie udziela schronienia zbiegowi lub pomaga mu uniknąć zatrzymania.</p>
+                <h4>Art. 4. [Złamanie zasad Dozoru Elektronicznego]</h4>
+                <p><b>§ 1.</b> Kto uszkadza, usuwa, dezaktywuje lub podejmuje próbę usunięcia urządzenia dozoru elektronicznego, podlega karze grzywny do 10000$ oraz karze pozbawienia wolności do czasu rozprawy przed Sądem.</p>
+                <p><b>§ 2.</b> Kto pomaga osobie objętej dozorem elektronicznym w usunięciu, uszkodzeniu lub obejściu urządzenia dozoru, podlega karze grzywny do 4000$ oraz karze pozbawienia wolności do 25 miesięcy.</p>
+                <p><b>§ 3.</b> Kto narusza warunki dozoru elektronicznego określone przez sąd lub właściwy organ, podlega karze grzywny do 4000$ oraz karze pozbawienia wolności do czasu rozprawy przed Sądem.</p>
+                <h4>Art. 5. [Strzelanina]</h4>
+                <p><b>§ 1.</b> Kto bierze udział w wymianie ognia w miejscu publicznym lub w sposób zagrażający życiu albo zdrowiu innych osób, podlega karze grzywny do 5000$ oraz karze pozbawienia wolności do 20 miesięcy.</p>
+                <p><b>§ 2.</b> Jeżeli w wyniku czynu doszło do obrażeń ciała lub śmierci człowieka, stosuje się przepisy dotyczące odpowiedniego skutku czynu.</p>
+                <h4>Art. 8. [Wtargnięcie na teren o ograniczonym dostępie]</h4>
+                <p><b>§ 1.</b> Kto dokonuje wtargnięcia na teren o ograniczonym dostępie, w tym tereny wojskowe, rządowe podlega karze pozbawienia wolności do 35 miesięcy oraz karze grzywny do 15000$.</p>
+                <h4>Art. 10. [Spowodowanie niebezpieczeństwa w ruchu powietrznym]</h4>
+                <p><b>§ 1.</b> Kto sprowadza bezpośrednie niebezpieczeństwo katastrofy w ruchu powietrznym podlega karze grzywny do 6000$ oraz karze pozbawienia wolności do 30 miesięcy.</p>
+                <h4>Art. 11 [Ucieczka z więzienia]</h4>
+                <p><b>§ 1.</b> Kto, będąc pozbawionym wolności, dokonuje ucieczki z więzienia, podlega ponownemu wymierzeniu pierwotnie orzeczonej kary pozbawienia wolności, zwiększonej o 50%, tj. do 150% pierwotnie orzeczonego wymiaru kary.</p>
+              </div>
+            </details>
+
+            <details class="criminal-chapter">
+              <summary><span>Rozdział VI. Napady</span><small>widoczny art. 1</small></summary>
+              <div class="criminal-chapter-body">
+                <h4>Art. 1. [Napady]</h4>
+                <p><b>§ 1.</b> Kto dokonuje napadu na:</p>
+                <ol>
+                  <li>Stacja Paliw - podlega karze grzywny do 2000$ oraz karze pozbawienia wolności do 15 miesięcy.</li>
+                  <li>dom - podlega karze grzywny do 2000$ oraz karze pozbawienia wolności do 15 miesięcy.</li>
+                  <li>sklep - podlega karze grzywny do 2300$ oraz karze pozbawienia wolności do 15 miesięcy.</li>
+                  <li>bankomat - podlega karze grzywny do 4000$ oraz karze pozbawienia wolności do 20 miesięcy.</li>
+                  <li>ammunation - podlega karze grzywny do 10 000$ oraz karze pozbawienia wolności do 20 miesięcy.</li>
+                  <li>aptekę - podlega karze grzywny do 8 000$ oraz karze pozbawienia wolności do 20 miesięcy.</li>
+                  <li>pralnie - podlega karze grzywny do 8 000$ oraz karze pozbawienia wolności do 20 miesięcy.</li>
+                  <li>pociąg - podlega karze grzywny do 6000$ oraz karze pozbawienia wolności do 20 miesięcy.</li>
+                  <li>ville - podlega karze grzywny do 7000$ oraz karze pozbawienia wolności do 20 miesięcy.</li>
+                  <li>transport wojskowy - podlega karze grzywny do 10 000$ oraz karze pozbawienia wolności do 20 miesięcy.</li>
+                  <li>furgonetkę Gruppe6 - podlega karze grzywny do 6 000$ oraz karze pozbawienia wolności do 20 miesięcy.</li>
+                  <li>jacht - podlega karze grzywny do 6000$ oraz karze pozbawienia wolności do 25 miesięcy.</li>
+                  <li>Oilrig - podlega karze grzywny do 6000$ oraz karze pozbawienia wolności do 25 miesięcy.</li>
+                  <li>barkę - podlega karze grzywny do 7500$ oraz karze pozbawienia wolności do 30 miesięcy.</li>
+                  <li>Digital Den - podlega karze grzywny do 10 000$ oraz karze pozbawienia wolności do 30 miesięcy.</li>
+                  <li>La Fuenta Blanca - podlega karze grzywny do 20000$ oraz karze pozbawienia wolności do 35 miesięcy.</li>
+                  <li>Vangelico - podlega karze grzywny do 20 000$ oraz karze pozbawienia wolności do 35 miesięcy.</li>
+                  <li>bank Pine - podlega karze grzywny do 50 000$ oraz karze pozbawienia wolności do 55 miesięcy.</li>
+                  <li>bank Fleeca - podlega karze grzywny do 200000$ oraz karze pozbawienia wolności do 35 miesięcy.</li>
+                  <li>bank Route 68 - podlega karze grzywny do 40000$ oraz karze pozbawienia wolności do 40 miesięcy.</li>
+                  <li>Maze Bank - podlega karze grzywny do 50 000$ oraz karze pozbawienia wolności do 75 miesięcy.</li>
+                  <li>Skarbiec Pine - podlega karze grzywny do 9000$ oraz karze pozbawienia wolności do 55 miesięcy.</li>
+                  <li>Riot Swat - podlega karze grzywny do 8000$ oraz karze pozbawienia wolności do 45 miesięcy.</li>
+                  <li>Humane Labs - podlega karze grzywny do 50000$ oraz karze pozbawienia wolności do 75 miesięcy.</li>
+                  <li>Kasyno - podlega karze grzywny do 75 000$ oraz karze pozbawienia wolności do 90 miesięcy.</li>
+                </ol>
+              </div>
+            </details>
+
+            <details class="criminal-chapter">
+              <summary><span>Rozdział VII. Przestępstwa przeciwko zdrowiu</span><small>widoczne art. 1–8, 10–11, 13–17</small></summary>
+              <div class="criminal-chapter-body">
+                <h4>Art. 1. [Spowodowanie uszczerbku na zdrowiu]</h4>
+                <p><b>§ 1.</b> Kto umyślnie powoduje naruszenie czynności narządu ciała lub rozstrój zdrowia, podlega karze grzywny do 2400$ oraz karze pozbawienia wolności do 15 miesięcy.</p>
+                <p><b>§ 2.</b> Kto nieumyślnie powoduje naruszenie czynności narządu ciała lub rozstrój zdrowia, podlega karze grzywny do 800$ oraz karze pozbawienia wolności do 10 miesięcy.</p>
+                <h4>Art. 2. [Udaremniona próba porwania]</h4>
+                <p><b>§ 1.</b> Kto usiłuje dokonać porwania osoby, podlega karze grzywny do 7000$ oraz karze pozbawienia wolności do 20 miesięcy.</p>
+                <h4>Art. 3. [Udaremniona próba porwania funkcjonariusza służb publicznych]</h4>
+                <p><b>§ 1.</b> Kto usiłuje dokonać porwania funkcjonariusza służb publicznych funkcjonariusza publicznego podczas wykonywania obowiązków służbowych, podlega karze grzywny do 14000$ oraz karze pozbawienia wolności do 40 miesięcy.</p>
+                <h4>Art. 4. [Porwanie]</h4>
+                <p><b>§ 1.</b> Kto dokonuje porwania osoby, podlega karze grzywny do 15000$ oraz karze pozbawienia wolności do 30 miesięcy.</p>
+                <p><b>§ 2.</b> Kto dokonuje porwania i przetrzymuje osobę wbrew jej woli, podlega karze grzywny do 30000$ oraz karze pozbawienia wolności do 40 miesięcy.</p>
+                <p><b>§ 3.</b> Kto dokonuje porwania i przetrzymuje osobę wbrew jej woli dłużej niż 24 godziny, podlega karze grzywny do 50000$ oraz karze pozbawienia wolności do 60 miesięcy.</p>
+                <h4>Art. 5. [Porwanie funkcjonariusza publicznego]</h4>
+                <p><b>§ 1.</b> Kto dokonuje porwania funkcjonariusza służb publicznych funkcjonariusza publicznego podczas wykonywania obowiązków służbowych, podlega karze grzywny do 15000$ oraz karze pozbawienia wolności do 50 miesięcy.</p>
+                <h4>Art. 6. [Usiłowanie zabójstwa]</h4>
+                <p><b>§ 1.</b> Kto usiłuje zabić człowieka, podlega karze grzywny 12000$ oraz karze pozbawienia wolności do 30 miesięcy.</p>
+                <h4>Art. 7. [Usiłowanie zabójstwa funkcjonariusza publicznego]</h4>
+                <p><b>§ 1.</b> Kto usiłuje zabić funkcjonariusza służb publicznych, podlega karze grzywny 12000$ oraz karze pozbawienia wolności do 40 miesięcy.</p>
+                <h4>Art. 8. [Zabójstwo]</h4>
+                <p><b>§ 1.</b> Kto zabija człowieka podlega karze grzywny do 50000$ oraz karze pozbawienia wolności do 160 miesięcy, karze dożywotniego pozbawienia wolności lub karze śmierci w zależności od wyroku sądu.</p>
+                <p><b>§ 2.</b> Kto zabija człowieka ze szczególnym okrucieństwem, podlega karze grzywny do 100000$ oraz karze pozbawienia wolności do 210 miesięcy, karze dożywotniego pozbawienia wolności lub karze śmierci w zależności od wyroku sądu.</p>
+                <h4>Art. 10. [Nieudzielenie pomocy]</h4>
+                <p><b>§ 1.</b> Kto człowiekowi znajdującemu się w położeniu grożącym bezpośrednim niebezpieczeństwem utraty życia albo ciężkiego uszczerbku na zdrowiu nie udziela pomocy, mogąc jej udzielić bez narażenia siebie lub innej osoby na niebezpieczeństwo utraty życia albo ciężkiego uszczerbku na zdrowiu, podlega karze pozbawienia wolności do 15 miesięcy oraz karze grzywny do 1500$.</p>
+                <h4>Art. 11. [Bójka lub pobicie]</h4>
+                <p><b>§ 1.</b> Kto bierze udział w bójce lub pobiciu, w którym naraża się człowieka na bezpośrednie niebezpieczeństwo utraty życia albo nastąpienie skutku określonego podlega karze pozbawienia wolności 15 miesięcy oraz karze grzywny 2400$.</p>
+                <h4>Art. 13. [Naruszenie nietykalności cielesnej funkcjonariusza publicznego]</h4>
+                <p><b>§ 1.</b> Kto narusza nietykalność cielesną funkcjonariusza publicznego poprzez jakikolwiek niechciany kontakt fizyczny, bezpośredni lub z pomocą przedmiotu lub substancji, podlega karze pozbawienia wolności do 20 miesięcy i karze grzywny w wysokości do 5000$.</p>
+                <h4>Art. 14. [Naruszenie nietykalności cielesnej]</h4>
+                <p><b>§ 1.</b> Kto narusza nietykalność cielesną innej osoby poprzez jakikolwiek niechciany kontakt fizyczny, bezpośredni lub z pomocą przedmiotu lub substancji, podlega karze pozbawienia wolności do 10 miesięcy i karze grzywny w wysokości do 1500$.</p>
+                <p><b>§ 2.</b> Ściganie przestępstwa określonego w § 1 następuje na wniosek poszkodowanego.</p>
+                <h4>Art. 15. [Doprowadzenie do samobójstwa]</h4>
+                <p><b>§ 1.</b> Kto namową lub przez udzielenie pomocy doprowadza człowieka do targnięcia się na własne życie, podlega karze grzywny 15000$ oraz pozbawienia wolności do 40 miesięcy.</p>
+                <h4>Art. 16. [Groźby wobec funkcjonariusza publicznego]</h4>
+                <p><b>§ 1.</b> Kto kieruje wobec funkcjonariusza publicznego groźbę bezprawną w związku z wykonywaniem przez niego obowiązków służbowych, podlega karze grzywny do 5000$ oraz karze pozbawienia wolności do 20 miesięcy.</p>
+                <h4>Art. 17. [Tortury]</h4>
+                <p><b>§ 1.</b> Kto swoim działaniem umyślnie zadaje jakiejkolwiek osobie ostry ból lub cierpienie, fizyczne bądź psychiczne, podlega karze pozbawienia wolności do 300 miesięcy oraz karze grzywny do 60000$.</p>
+              </div>
+            </details>
+
+            <details class="criminal-chapter">
+              <summary><span>Rozdział VIII. Narkotyki</span><small>widoczne art. 1–3</small></summary>
+              <div class="criminal-chapter-body">
+                <h4>Art. 1. [Posiadanie narkotyków]</h4>
+                <p><b>§ 1.</b> Kto jest w posiadaniu znacznej ilości środków odurzających:</p>
+                <p><b>1) miękkich:</b></p>
+                <ul>
+                  <li>a) powyżej 85 sztuk liści marihuany - pozbawienia wolności do 12 miesięcy oraz karze grzywny do 600$,</li>
+                  <li>b) powyżej 28 gram marihuany - pozbawienia wolności do 12 miesięcy oraz karze grzywny do 600$.</li>
+                </ul>
+                <p><b>2) twardych:</b></p>
+                <ul>
+                  <li>a) metaamfetaminy - pozbawienia wolności do 20 miesięcy oraz karze grzywny do 20 000$,</li>
+                  <li>b) kokainy lub liści kokainy - pozbawienia wolności do 20 miesięcy oraz karze grzywny do 9 000$,</li>
+                  <li>c) lamelosy - pozbawienia wolności do 20 miesięcy oraz karze grzywny do 6 000$,</li>
+                  <li>d) opioidów - pozbawienia wolności do 20 miesięcy oraz karze grzywny do 10 000$.</li>
+                </ul>
+                <h4>Art. 2. [Rozprowadzanie narkotyków]</h4>
+                <p><b>§ 1.</b> Kto zajmuje się rozprowadzaniem środków odurzających:</p>
+                <ul>
+                  <li>a) miękkich - podlega karze pozbawienia wolności do 20 miesięcy oraz karze grzywny do 5 000$,</li>
+                  <li>b) twardych - podlega karze pozbawienia wolności do 35 miesięcy oraz karze grzywny do 15 000$.</li>
+                </ul>
+                <p><b>§ 2.</b> Kto zajmuje się rozprowadzaniem suszu podlega karze pozbawienia wolności do 10 miesięcy oraz karze grzywny do 2500$.</p>
+                <h4>Art. 3. [Produkcja narkotyków]</h4>
+                <p><b>§ 1.</b> Kto zajmuje się produkcją środków odurzających:</p>
+                <ul>
+                  <li>a) miękkich - podlega karze grzywny do 15 000$ oraz karze pozbawienia wolności do 40 miesięcy,</li>
+                  <li>b) twardych - podlega karze grzywny do 40 000$ oraz karze pozbawienia wolności do 50 miesięcy.</li>
+                </ul>
+              </div>
+            </details>
+
+            <details class="criminal-chapter">
+              <summary><span>Rozdział IX. Broń</span><small>widoczne art. 1–12 • numeracja zgodna ze screenami</small></summary>
+              <div class="criminal-chapter-body">
+                <h4>Art. 1. [Niewłaściwe posługiwanie się bronią białą]</h4>
+                <p><b>§ 1.</b> Kto posługuje się bronią białą w sposób zagrażający życiu, zdrowiu lub bezpieczeństwu innych osób, podlega karze pozbawienia wolności do 16 miesięcy oraz karze grzywny do 1400$.</p>
+                <h4>Art. 2. [Nielegalne posiadanie broni]</h4>
+                <p><b>§ 1.</b> Kto jest w posiadaniu:</p>
+                <ol>
+                  <li>broni klasy II bez wymaganych zezwoleń, podlega karze grzywny do 8 000$ oraz karze pozbawienia wolności do 15 miesięcy,</li>
+                  <li>policyjnej broni klasy II bez wymaganych zezwoleń, podlega karze grzywny do 18 000$ oraz karze pozbawienia wolności do 20 miesięcy,</li>
+                  <li>broni klasy III bez wymaganych zezwoleń, podlega karze grzywny do 40 000$ oraz karze pozbawienia wolności do 40 miesięcy,</li>
+                  <li>policyjnej broni klasy III bez wymaganych zezwoleń, podlega karze grzywny do 40 000$ oraz karze pozbawienia wolności do 60 miesięcy,</li>
+                  <li>broni klasy V bez wymaganych zezwoleń, podlega karze grzywny do 4000$ oraz karze pozbawienia wolności do 25 miesięcy.</li>
+                </ol>
+                <h4>Art. 3. [Bezpodstawne użycie broni palnej]</h4>
+                <p><b>§ 1.</b> Kto bez uzasadnionego powodu posługuje się bronią palną podlega karze grzywny do 3000$, karze pozbawienia wolności do 8 miesięcy oraz utracie zezwolenia na broń.</p>
+                <h4>Art. 4. [Handel bronią]</h4>
+                <p><b>§ 1.</b> Kto handluje bronią:</p>
+                <ol>
+                  <li>krótką bez wymaganych zezwoleń, podlega karze grzywny do 20 000$ oraz karze pozbawienia wolności do 50 miesięcy,</li>
+                  <li>długą lub automatyczną podlega karze grzywny do 40 000$ oraz karze pozbawienia wolności do 75 miesięcy.</li>
+                </ol>
+                <h4>Art. 5. [Posiadanie hurtowej ilości broni]</h4>
+                <p><b>§ 1.</b> Kto posiada ilość broni wskazującą na przeznaczenie do dalszej dystrybucji, zaopatrzenia grupy przestępczej lub prowadzenia nielegalnej działalności zbrojnej, podlega karze grzywny do 150 000$ oraz karze pozbawienia wolności do 120 miesięcy.</p>
+                <p><b>§ 2.</b> Przez znaczne ilości rozumie się ilość przekraczają 5 do 10 równa się wymiarze kary 75 000 $ oraz karze pozbawienia wolności do 60 miesięcy. Od 10 wzwyż podlega maksymalnym wymiarze kary.</p>
+                <h4>Art. 6. [Handel Paralizatorami]</h4>
+                <p><b>§ 1.</b> Kto handluje paralizatorami, podlega karze grzywny do 4000$ oraz karze pozbawienia wolności do 30 miesięcy.</p>
+                <h4>Art. 7. [Nielegalne dodatki do broni]</h4>
+                <p><b>§ 1.</b> Kto posiada dodatki lub akcesoria do broni niedopuszczone przez ustawę o broni i amunicji podlega karze grzywny do 2500$ oraz karze pozbawienia wolności do 10 miesięcy.</p>
+                <p><b>§ 2.</b> Kto posiada zamontowane w dowolnej broni dodatki lub akcesoria niedopuszczone przez ustawę o broni i amunicji podlega karze grzywny do 3500$ oraz karze pozbawienia wolności do 16 miesięcy.</p>
+                <p><b>§ 3.</b> Kto handluje dodatkami lub akcesoriami niedopuszczonymi przez ustawę o broni i amunicji podlega karze grzywny do 4000$ oraz karze pozbawienia wolności do 20 miesięcy.</p>
+                <h4>Art. 8. [Posiadanie materiałów pirotechnicznych]</h4>
+                <p><b>§ 1.</b> Kto jest w posiadaniu materiałów pirotechnicznych, podlega karze grzywny do 4000$ oraz karze pozbawienia wolności do 60 miesięcy.</p>
+                <h4>Art. 8. [Rozprowadzanie materiałów pirotechnicznych]</h4>
+                <p><b>§ 1.</b> Kto zajmuje się rozprowadzaniem materiałów pirotechnicznych, podlega karze grzywny do 100000 $ oraz karze pozbawienia wolności do 80 miesięcy.</p>
+                <h4>Art. 9. [Wytwarzanie materiałów pirotechnicznych]</h4>
+                <p><b>§ 1.</b> Kto wytwarza materiały pirotechniczne, podlega karze grzywny do 23000$ oraz karze pozbawienia wolności do 100 miesięcy.</p>
+                <h4>Art. 10. [Posiadanie materiałów wybuchowych]</h4>
+                <p><b>§ 1.</b> Kto jest w posiadaniu materiałów wybuchowych, podlega karze grzywny do 15000$ oraz karze pozbawienia wolności do 100 miesięcy.</p>
+                <h4>Art. 11. [Rozprowadzanie materiałów wybuchowych]</h4>
+                <p><b>§ 1.</b> Kto zajmuje się rozprowadzaniem materiałów wybuchowych, podlega karze grzywny do 150 000 $ oraz karze pozbawienia wolności do 120 miesięcy.</p>
+                <h4>Art. 12. [Wytwarzanie materiałów wybuchowych]</h4>
+                <p><b>§ 1.</b> Kto wytwarza materiały wybuchowe, podlega karze grzywny do 40000$ oraz karze pozbawienia wolności do 150 miesięcy.</p>
+              </div>
+            </details>
+
+            <details class="criminal-chapter">
+              <summary><span>Rozdział X. Funkcje Publiczne</span><small>widoczne art. 1–4</small></summary>
+              <div class="criminal-chapter-body">
+                <h4>Art. 1. [Korupcja funkcjonariusza publicznego]</h4>
+                <p><b>§ 1.</b> Kto, w związku z pełnieniem funkcji publicznej (LSPD, LSSD, BCSO, EMS, DOC), przyjmuje korzyść majątkową, osobistą lub obietnicę takiej korzyści w zamian za działanie lub zaniechanie działania służbowego, podlega karze pozbawienia wolności nie krótszej niż 300 miesięcy.</p>
+                <p><b>§ 2.</b> W przypadku stwierdzenia współpracy ze zorganizowaną grupą przestępczą lub udziału w jej działalności, funkcjonariusz zostaje natychmiast usunięty ze służby i podlega karze pozbawienia wolności nie krótszej niż 300 miesięcy, karze grzywny do 100.000$ oraz trwałemu zakazowi pełnienia funkcji publicznych. W szczególnie rażących przypadkach sąd może orzec karę śmierci.</p>
+                <p><b>§ 3.</b> W przypadku udowodnionego udziału w handlu narkotykami lub innymi nielegalnymi substancjami, funkcjonariusz zostaje natychmiast pozbawiony stanowiska i podlega karze pozbawienia wolności nie krótszej niż 200 miesięcy oraz karze grzywny do 100.000$.</p>
+                <p><b>§ 4.</b> Kto udziela, oferuje lub obiecuje udzielić korzyści majątkowej lub osobistej osobie pełniącej funkcję publiczną w związku z pełnieniem przez nią obowiązków służbowych, podlega karze pozbawienia wolności do 200 miesięcy oraz karze grzywny do 50.000$.</p>
+                <p><b>§ 5.</b> Nie podlega karze sprawca czynu określonego w §4, jeżeli korzyść majątkowa, osobista lub jej obietnica została przyjęta przez osobę pełniącą funkcję publiczną, a sprawca zawiadomił właściwy organ ścigania o popełnionym czynie i ujawnił wszystkie istotne okoliczności sprawy przed powzięciem przez ten organ wiadomości o przestępstwie.</p>
+                <h4>Art. 2. [[Nadużycie uprawnień przez funkcjonariusza publicznego] ]</h4>
+                <p><b>§ 1.</b> Funkcjonariusz publiczny, który przekraczając swoje uprawnienia lub nie dopełniając obowiązków służbowych działa na szkodę interesu publicznego, prywatnego lub wymiaru sprawiedliwości, podlega odpowiedzialności karnej i dyscyplinarnej.</p>
+                <p><b>§ 2.</b> Funkcjonariusz, który dokonuje nieuzasadnionego przeszukania lub zatrzymania obywatela bez podstawy prawnej, podlega karze grzywny do 3000$ oraz zawieszeniu uprawnień służbowych na okres nie krótszy niż 3 dni.</p>
+                <p><b>§ 3.</b> Funkcjonariusz, który dopuszcza się napaści na obywatela bez uzasadnionej przyczyny, podlega natychmiastowemu zawieszeniu w czynnościach służbowych, odebraniu wyposażenia służbowego oraz zakazowi pełnienia służby na okres nie krótszy niż 7 dni. Nie wyłącza to odpowiedzialności karnej za popełniony czyn.</p>
+                <p><b>§ 4.</b> Funkcjonariusz, który poprzez niewłaściwe użycie siły doprowadza do śmierci obywatela bez podstawy prawnej, odpowiada na zasadach określonych w Art. 8. [Zabójstwo] Rozdziału VII oraz podlega natychmiastowemu wydaleniu ze służby.</p>
+                <p><b>§ 5.</b> Funkcjonariusz, który wykorzystuje zajmowane stanowisko do nękania, zastraszania lub szantażowania obywateli, podlega karze pozbawienia wolności nie krótszej niż 300 miesięcy, karze grzywny do 100.000$ oraz trwałemu zakazowi pełnienia funkcji publicznych.</p>
+                <p><b>§ 6.</b> Funkcjonariusz, który umyślnie ignoruje wezwanie o pomoc lub odmawia udzielenia wsparcia w sytuacji bezpośredniego zagrożenia życia lub zdrowia obywatela, podlega karze grzywny do 50.000$ oraz może zostać zawieszony w czynnościach służbowych na okres do 14 dni.</p>
+                <h4>Art. 3. [Nieuzasadnione doprowadzenie do wymiany ognia]</h4>
+                <p><b>§ 1.</b> Funkcjonariusz publiczny, który podczas wykonywania czynności służbowych umyślnie podejmuje działania prowadzące do wymiany ognia, pomimo możliwości bezpiecznego rozwiązania sytuacji oraz braku bezpośredniego zagrożenia dla życia lub zdrowia osób postronnych, podlega odpowiedzialności dyscyplinarnej.</p>
+                <p><b>§ 2.</b> Funkcjonariusz, o którym mowa w §1, zostaje niezwłocznie zawieszony w czynnościach służbowych do czasu przeprowadzenia postępowania wyjaśniającego.</p>
+                <p><b>§ 3.</b> Przywrócenie do pełnienia obowiązków służbowych może nastąpić wyłącznie po uzyskaniu pozytywnej opinii psychologicznej oraz zakończeniu postępowania prowadzonego przez Office of Inspector General oraz wydział kontroli Department of Justice.</p>
+                <h4>Art. 4. [Kontrola Obywatelska]</h4>
+                <p><b>§ 1.</b> W przypadku stwierdzenia rażącego naruszenia tego kodeksu, społeczność ma prawo do obywatelskiego zatrzymania funkcjonariusza publicznego i doprowadzenia go do Departamentu Sprawiedliwości lub powiadomienia odpowiedniej instytucji.</p>
+              </div>
+            </details>
+          </div>
+        </article>
+
+        <article class="panel law-section searchable criminal-source" data-source="Część federalna">
+          <h3 class="criminal-part-head"><span>Część federalna</span><small>odczytane ze screenów</small></h3>
+          <div class="criminal-structured">
+            <details class="criminal-chapter">
+              <summary><span>Rozdział I. Przepisy ogólne</span><small>widoczny art. 1</small></summary>
+              <div class="criminal-chapter-body">
+                <h4>Art. 1. [Zakres stosowania]</h4>
+                <p><b>§1.</b> Niniejszy kodeks określa odpowiedzialność za przestępstwa naruszające bezpieczeństwo państwa, działalność organów federalnych oraz interes publiczny o charakterze federalnym.</p>
+                <p><b>§2.</b> Przepisy niniejszego kodeksu stosuje się niezależnie od odpowiedzialności wynikającej z Kodeksu Karnego Stanowego.</p>
+              </div>
+            </details>
+
+            <details class="criminal-chapter">
+              <summary><span>Rozdział II. Przestępstwa przeciwko życiu i zdrowiu</span><small>widoczne art. 1–8</small></summary>
+              <div class="criminal-chapter-body">
+                <h4>Art. 1. [Morderstwo]</h4>
+                <p><b>§1.</b> Kto umyślnie i z premedytacją pozbawia życia inną osobę, podlega karze grzywny od 375.000$ do 500.000$ oraz karze dożywotniego pozbawienia wolności albo karze śmierci.</p>
+                <p><b>§2.</b> Za morderstwo pierwszego stopnia uważa się również zabójstwo popełnione w wyniku wcześniejszego planowania, przygotowania lub realizacji zamiaru pozbawienia życia.</p>
+                <h4>Art. 2. [Morderstwo drugiego stopnia]</h4>
+                <p><b>§1.</b> Kto umyślnie pozbawia życia inną osobę bez wcześniejszego planowania lub działania z premedytacją, podlega karze grzywny od 250.000$ do 375.000$ oraz karze pozbawienia wolności do 300 miesięcy.</p>
+                <h4>Art. 3. [Nieumyślne spowodowanie śmierci]</h4>
+                <p><b>§1.</b> Kto poprzez swoje lekkomyślne lub niedbałe zachowanie doprowadza do śmierci człowieka, podlega karze grzywny do 250.000$ oraz karze pozbawienia wolności do 180 miesięcy.</p>
+                <h4>Art. 4. [Usiłowanie zabójstwa]</h4>
+                <p><b>§1.</b> Kto podejmuje działania bezpośrednio zmierzające do pozbawienia życia innej osoby, lecz zamierzonego skutku nie osiąga, podlega karze grzywny do 200.000$ oraz karze pozbawienia wolności do 240 miesięcy.</p>
+                <h4>Art. 5. [Zabójstwo funkcjonariusza federalnego]</h4>
+                <p><b>§1.</b> Kto pozbawia życia funkcjonariusza federalnego podczas wykonywania obowiązków służbowych lub w związku z ich wykonywaniem, podlega karze grzywny do 500.000$ oraz karze dożywotniego pozbawienia wolności albo karze śmierci.</p>
+                <p><b>§2.</b> Ochrona przewidziana w §1 obejmuje funkcjonariuszy DOJ, PIA, USMS, OIG, IRS oraz innych federalnych organów ścigania.</p>
+                <h4>Art. 6. [Spiskowanie w celu dokonania zabójstwa]</h4>
+                <p><b>§1.</b> Kto wspólnie z inną osobą lub osobami planuje, przygotowuje albo uzgadnia dokonanie zabójstwa, podlega karze grzywny do 150.000$ oraz karze pozbawienia wolności do 100 miesięcy.</p>
+                <h4>Art. 7. [Zlecenie zabójstwa]</h4>
+                <p><b>§1.</b> Kto zleca innej osobie dokonanie zabójstwa, a czyn nie został wykonany, podlega karze grzywny do 35.000$ oraz karze pozbawienia wolności do 50 miesięcy.</p>
+                <p><b>§2.</b> Kto zleca innej osobie dokonanie zabójstwa, które następnie zostaje wykonane, podlega karze pozbawienia wolności do 350 miesięcy.</p>
+                <p><b>§3.</b> Odpowiedzialność z §2 nie wyłącza możliwości przypisania sprawcy odpowiedzialności za morderstwo pierwszego stopnia, jeżeli okoliczności sprawy na to wskazują.</p>
+                <h4>Art. 8. [Otrucie]</h4>
+                <p><b>§1.</b> Kto podaje innej osobie substancję trującą, toksyczną, psychoaktywną lub inną mogącą wywołać ciężki uszczerbek na zdrowiu albo śmierć, podlega karze grzywny do 50 000$ oraz karze pozbawienia wolności do 100 miesięcy.</p>
+                <p><b>§2.</b> Jeżeli następstwem czynu jest śmierć pokrzywdzonego, stosuje się przepisy dotyczące zabójstwa.</p>
+              </div>
+            </details>
+
+            <details class="criminal-chapter">
+              <summary><span>Rozdział III. Przestępstwa przeciwko funkcjonariuszom federalnym</span><small>widoczne art. 8–12</small></summary>
+              <div class="criminal-chapter-body">
+                <h4>Art. 8. [Zabójstwo funkcjonariusza federalnego]</h4>
+                <p><b>§1.</b> Kto umyślnie pozbawia życia funkcjonariusza federalnego podczas wykonywania przez niego obowiązków służbowych lub w związku z ich wykonywaniem, podlega karze grzywny do 500.000$ oraz karze dożywotniego pozbawienia wolności albo karze śmierci.</p>
+                <p><b>§2.</b> Ochrona przewidziana w §1 obejmuje funkcjonariuszy DOJ, IRS, USMS, PIA, OIG oraz innych federalnych organów ścigania.</p>
+                <h4>Art. 9. [Napaść na funkcjonariusza federalnego]</h4>
+                <p><b>§1.</b> Kto dopuszcza się napaści na funkcjonariusza federalnego podczas wykonywania przez niego obowiązków służbowych lub w związku z ich wykonywaniem, podlega karze grzywny do 30.000$ oraz karze pozbawienia wolności do 60 miesięcy.</p>
+                <p><b>§2.</b> Jeżeli w wyniku napaści funkcjonariusz doznał uszczerbku na zdrowiu, sprawca podlega dodatkowo odpowiedzialności za spowodowanie uszczerbku na zdrowiu zgodnie z właściwymi przepisami.</p>
+                <h4>Art. 10. [Odwet wobec funkcjonariusza federalnego]</h4>
+                <p><b>§1.</b> Kto stosuje przemoc, groźby, zastraszanie lub inne działania odwetowe wobec funkcjonariusza federalnego lub osoby mu najbliższej w związku z wykonywanymi przez niego obowiązkami służbowymi, podlega karze grzywny do 150.000$ oraz karze pozbawienia wolności do 240 miesięcy.</p>
+                <h4>Art. 11. [Porwanie funkcjonariusza federalnego]</h4>
+                <p><b>§1.</b> Kto bezprawnie pozbawia wolności funkcjonariusza federalnego podczas wykonywania przez niego obowiązków służbowych lub w związku z ich wykonywaniem, podlega karze grzywny do 30.000$ oraz karze pozbawienia wolności do 50 miesięcy.</p>
+                <p><b>§2.</b> Jeżeli sprawca przetrzymuje funkcjonariusza federalnego wbrew jego woli, żąda okupu, wymusza określone działania lub działa wspólnie z innymi osobami, sąd może orzec surowszą karę.</p>
+                <p><b>§3.</b> Jeżeli podczas porwania funkcjonariusz doznał ciężkiego uszczerbku na zdrowiu lub został pozbawiony życia, sprawca odpowiada również za skutki swojego działania na podstawie odrębnych przepisów.</p>
+                <h4>Art. 12. [Usiłowanie zabójstwa funkcjonariusza federalnego]</h4>
+                <p><b>§ 1.</b> Kto usiłuje zabić funkcjonariusza służb federalnych, podlega karze grzywny 18000$ oraz karze pozbawienia wolności do 60 miesięcy.</p>
+              </div>
+            </details>
+
+            <details class="criminal-chapter">
+              <summary><span>Rozdział IV. Przestępstwa przeciwko wolności</span><small>widoczne art. 12–15</small></summary>
+              <div class="criminal-chapter-body">
+                <h4>Art. 12. [Okup]</h4>
+                <p><b>§1.</b> Kto żąda korzyści majątkowej, osobistej lub podjęcia określonego działania w zamian za uwolnienie osoby pozbawionej wolności, odstąpienie od groźby lub zakończenie bezprawnych działań, podlega karze grzywny do 250.000$ oraz karze pozbawienia wolności do 240 miesięcy.</p>
+                <p><b>§2.</b> Tej samej karze podlega osoba pośrednicząca w przekazaniu żądania okupu lub uczestnicząca w jego uzyskaniu.</p>
+                <p><b>§3.</b> Jeżeli żądanie okupu zostało połączone z porwaniem, groźbą pozbawienia życia lub ciężkiego uszczerbku na zdrowiu, sprawca odpowiada również za te czyny na podstawie odrębnych przepisów.</p>
+                <h4>Art. 13. [Stalking oraz prześladowanie w sieci]</h4>
+                <p><b>§1.</b> Kto uporczywie nęka inną osobę poprzez śledzenie, obserwowanie, kontaktowanie się wbrew jej woli, kierowanie gróźb lub inne działania wywołujące poczucie zagrożenia, podlega karze grzywny od 50.000$ do 200.000$ oraz karze pozbawienia wolności od 60 do 240 miesięcy.</p>
+                <p><b>§2.</b> Tej samej karze podlega osoba, która dopuszcza się czynu określonego w §1 przy użyciu środków komunikacji elektronicznej, sieci teleinformatycznych, mediów społecznościowych lub innych narzędzi komunikacji na odległość.</p>
+                <p><b>§4.</b> Jeżeli następstwem czynu jest uszczerbek na zdrowiu, próba samobójcza lub śmierć pokrzywdzonego, sprawca odpowiada również za skutki swojego działania na podstawie odrębnych przepisów.</p>
+                <h4>Art. 15 [Handel ludźmi]</h4>
+                <p><b>§1.</b> Kto dopuszcza się handlu ludźmi podlega karze grzywny do 30 000 $ oraz karze pozbawienia wolności do 50 miesięcy.</p>
+              </div>
+            </details>
+
+            <details class="criminal-chapter">
+              <summary><span>Rozdział V. Przestępstwa przeciwko instytucjom federalnym</span><small>widoczne art. 14–16</small></summary>
+              <div class="criminal-chapter-body">
+                <h4>Art. 14. [Napad na Union Depository]</h4>
+                <p><b>§1.</b> Kto dokonuje napadu na Union Depository lub uczestniczy w takim napadzie, podlega karze grzywny do 30 000$ oraz karze pozbawienia wolności do 50 miesięcy.</p>
+                <h4>Art. 15. [Napad na Bank Pacyfik]</h4>
+                <p><b>§1.</b> Kto dokonuje napadu na Bank Pacyfik lub uczestniczy w takim napadzie, podlega karze grzywny do 65000$ oraz karze pozbawienia wolności do 70 miesięcy.</p>
+                <h4>Art. 16 [Wniesienie broni/niebezpiecznego narzędzia do obiektu federalnego]</h4>
+                <p><b>§1.</b> Kto wnosi, posiada lub usiłuje wnieść broń palną albo inne niebezpieczne narzędzie na teren obiektu federalnego, podlega karze grzywny 15 000$ oraz pozbawienia wolności do 30 miesięcy.</p>
+              </div>
+            </details>
+
+            <details class="criminal-chapter">
+              <summary><span>Rozdział VI. Przestępczość zorganizowana i finansowa</span><small>widoczne art. 15–19</small></summary>
+              <div class="criminal-chapter-body">
+                <h4>Art. 15. [Organizacja narkotykowa]</h4>
+                <p><b>§1.</b> Kto zakłada, organizuje, kieruje lub bierze udział w strukturze przestępczej zajmującej się produkcją, dystrybucją, przemytem lub handlem substancjami odurzającymi, podlega karze grzywny od 2.000.000$ (zależnie od ilości narkotyków i wyrządzonych szkód) oraz karze dożywotniego pozbawienia wolności albo karze śmierci.</p>
+                <h4>Art. 16. [Prowadzenie zorganizowanej grupy przestępczej]</h4>
+                <p><b>§1.</b> Kto zakłada, kieruje, finansuje lub sprawuje faktyczną kontrolę nad zorganizowaną grupą przestępczą, podlega karze grzywny do 1.000.000$ oraz karze pozbawienia wolności do 300 miesięcy.</p>
+                <p><b>§2.</b> Za członka kierownictwa grupy uważa się osobę wydającą polecenia, organizującą działalność grupy lub podejmującą decyzje dotyczące jej funkcjonowania.</p>
+                <h4>Art. 17. [Racketeer Influenced and Corrupt Organizations (RICO)]</h4>
+                <p><b>§1.</b> Kto uczestniczy w działalności przedsiębiorstwa, organizacji lub grupy wykorzystującej działalność przestępczą jako źródło dochodu, podlega odpowiedzialności na podstawie przepisów RICO.</p>
+                <p><b>§2.</b> Przez działalność objętą przepisami RICO rozumie się w szczególności popełnianie wielu przestępstw w ramach jednego przedsięwzięcia przestępczego, organizacji lub grupy.</p>
+                <p><b>§3.</b> Czyn ten podlega karze wyznaczoną przez Prokuratora.</p>
+                <h4>Art. 18. [Inwestowanie dochodów pochodzących z działalności przestępczej]</h4>
+                <p><b>§1.</b> Kto wykorzystuje środki finansowe pochodzące z działalności przestępczej do prowadzenia działalności gospodarczej, inwestycyjnej lub innej działalności przynoszącej korzyść majątkową, podlega karze grzywny do 500.000$ oraz karze pozbawienia wolności do 120 miesięcy.</p>
+                <h4>Art. 19. [Pranie pieniędzy]</h4>
+                <p><b>§1.</b> Kto ukrywa pochodzenie środków finansowych uzyskanych w wyniku działalności przestępczej albo podejmuje działania mające na celu nadanie im pozorów legalnego pochodzenia, podlega karze pozbawienia wolności do 240 miesięcy.</p>
+                <p><b>§2.</b> Sąd orzeka dodatkowo przepadek równowartości dwukrotności wszystkich środków finansowych objętych procederem prania pieniędzy.</p>
+              </div>
+            </details>
+
+            <details class="criminal-chapter">
+              <summary><span>Rozdział VII. Przestępstwa przeciwko bezpieczeństwu państwa</span><small>widoczne art. 20–28 • numeracja zgodna ze screenami</small></summary>
+              <div class="criminal-chapter-body">
+                <h4>Art. 20. [Finansowanie organizacji terrorystycznej]</h4>
+                <p><b>§1.</b> Kto gromadzi, przekazuje, przechowuje lub udostępnia środki finansowe przeznaczone na działalność organizacji terrorystycznej, podlega karze grzywny do 200.000$ oraz karze pozbawienia wolności do 180 miesięcy.</p>
+                <p><b>§2.</b> Tej samej karze podlega osoba pośrednicząca w przekazywaniu środków finansowych przeznaczonych na działalność terrorystyczną.</p>
+                <h4>Art. 21. [Wsparcie materialne organizacji terrorystycznej]</h4>
+                <p><b>§1.</b> Kto świadomie dostarcza organizacji terrorystycznej broń, amunicję, pojazdy, sprzęt, schronienie, środki transportu lub inne zasoby umożliwiające prowadzenie działalności terrorystycznej, podlega karze grzywny do 1.000.000$ oraz karze pozbawienia wolności do 240 miesięcy.</p>
+                <p><b>§2.</b> Tej samej karze podlega osoba zapewniająca wsparcie logistyczne, organizacyjne lub techniczne organizacji terrorystycznej.</p>
+                <h4>Art. 22. [Użycie materiałów wybuchowych]</h4>
+                <p><b>§1.</b> Kto wykorzystuje, rozmieszcza, detonuje lub usiłuje użyć materiałów wybuchowych w celu przeprowadzenia zamachu terrorystycznego, podlega karze śmierci.</p>
+                <p><b>§2.</b> Tej samej karze podlega osoba przygotowująca lub organizująca użycie materiałów wybuchowych w celach terrorystycznych.</p>
+                <p><b>§3.</b> Kto wykorzystuje, rozmieszcza, detonuje lub usiłuje użyć materiałów wybuchowych w celu dokonania napadu, włamania, kradzieży, zniszczenia mienia lub innego przestępstwa, podlega karze grzywny do 500.000$ oraz karze pozbawienia wolności do 240 miesięcy.</p>
+                <h4>Art. 23. [Przestępstwo terrorystyczne]</h4>
+                <p><b>§1.</b> Kto dopuszcza się czynu terrorystycznego mając na celu zastraszenie ludności lub określonej grupy osób, albo wywarcia wpływu na działania państwowych, federalnych lub samorządowych, podlega karze grzywny do 500 000$ oraz karze pozbawienia wolności do 240 miesięcy.</p>
+                <h4>Art. 24. [Przestępstwo terrorystyczne o zasięgu międzynarodowym]</h4>
+                <p><b>§1.</b> Kto dopuszcza się czynu terrorystycznego wykraczającego poza granice jurysdykcji Stanu San Andreas lub działającego przeciwko interesom państwa przy współudziale podmiotów zagranicznych, podlega karze śmierci.</p>
+                <p><b>§2.</b> Tej samej karze podlega osoba organizująca, koordynująca lub kierująca działalnością terrorystyczną o charakterze międzynarodowym.</p>
+                <h4>Art. 25. [Sabotaż]</h4>
+                <p><b>§1.</b> Kto podejmuje działania mające na celu zakłócenie funkcjonowania infrastruktury państwowej, federalnej, wojskowej, energetycznej, telekomunikacyjnej lub innej infrastruktury o znaczeniu strategicznym, podlega karze grzywny do 1.000.000$ oraz karze pozbawienia wolności od 240 miesięcy do dożywotniego pozbawienia wolności.</p>
+                <p><b>§2.</b> Jeżeli działanie sprawcy stworzyło bezpośrednie zagrożenie dla życia obywateli lub bezpieczeństwa państwa, sąd może orzec karę dożywotniego pozbawienia wolności.</p>
+                <h4>Art. 26. [Zdrada Służbowa]</h4>
+                <p><b>§1.</b> Zdrada Służbowa I Stopnia (Lekka) - Funkcjonariusz aktywny lub były funkcjonariusz, który dopuszcza się przestępstwa lekkiego, w szczególności kradzieży, łapówkarstwa, posiadania niedozwolonych substancji lub innego czynu o podobnym charakterze, podlega:</p>
+                <ol>
+                  <li>zwiększeniu kary pozbawienia wolności o 50% względem kary podstawowej,</li>
+                  <li>zwiększeniu grzywny o 50% względem kary podstawowej,</li>
+                  <li>wydaleniu ze służby w trybie dyscyplinarnym.</li>
+                </ol>
+                <p><b>§2.</b> Zdrada Służbowa II Stopnia (Ciężka) – Funkcjonariusz aktywny lub były funkcjonariusz, który dopuszcza się przestępstwa ciężkiego, w szczególności napadu, porwania, udziału w strzelaninie, przekazywania informacji organizacjom przestępczym lub innego czynu o podobnym charakterze, podlega:</p>
+                <ol>
+                  <li>dodatkowej karze 250 miesięcy pozbawienia wolności,</li>
+                  <li>dodatkowej grzywnie w wysokości 150 000$,</li>
+                  <li>wydaleniu ze służby w trybie dyscyplinarnym,</li>
+                </ol>
+                <h4>Art. 27 [Zdrada Stanu]</h4>
+                <p><b>§1.</b> Kto świadomie działa na rzecz wrogiego podmiotu, organizacji terrorystycznej lub innego podmiotu działającego przeciwko interesom i bezpieczeństwu Stanu San Andreas, podlega karze śmierci.</p>
+                <p><b>§2.</b> Tej samej karze podlega osoba, która podejmuje działania mające na celu:</p>
+                <ol>
+                  <li>obalenie legalnych władz Stanu San Andreas,</li>
+                  <li>przejęcie władzy przy użyciu przemocy lub bezprawnych środków,</li>
+                  <li>poważne osłabienie bezpieczeństwa lub zdolności obronnych stanu,</li>
+                </ol>
+                <p><b>§3.</b> Za zdradę stanu uznaje się również świadome udzielanie pomocy, finansowanie, organizowanie lub koordynowanie działań podmiotu prowadzącego działalność wymierzoną przeciwko bezpieczeństwu stanu, jeżeli działanie to ma istotny wpływ na funkcjonowanie lub bezpieczeństwo Stanu San Andreas.</p>
+                <p><b>§4.</b> Sam fakt kontaktu lub współpracy z organizacją przestępczą nie stanowi zdrady stanu, chyba że działanie to spełnia przesłanki określone w niniejszym artykule.</p>
+                <h4>Art. 27. [Niszczenie mienia rządowego]</h4>
+                <p><b>§1.</b> Kto niszczy, uszkadza, przywłaszcza lub doprowadza do utraty wartości mienie należące do administracji federalnej, instytucji państwowej lub organu federalnego, podlega obowiązkowi naprawienia szkody w pełnej wysokości oraz karze pozbawienia wolności do 40 miesięcy.</p>
+                <h4>Art. 28. [Fałszywy alarm i imitacja zagrożenia terrorystycznego]</h4>
+                <p><b>§1.</b> Kto, wiedząc że zagrożenie nie istnieje, zawiadamia służby publiczne lub ratunkowe o zdarzeniu mogącym zagrażać życiu, zdrowiu lub bezpieczeństwu wielu osób, w szczególności o podłożeniu ładunku wybuchowego, ataku terrorystycznym lub innym zdarzeniu wymagającym natychmiastowej interwencji, podlega karze grzywny do 15 000$ oraz karze pozbawienia wolności do 20 miesięcy.</p>
+                <p><b>§2.</b> Kto publicznie posiada, nosi, demonstruje lub wykorzystuje przedmiot przypominający materiał wybuchowy, pas z materiałami wybuchowymi, kamizelkę wybuchową lub inny przedmiot mogący wywołać uzasadnione przekonanie o istnieniu zagrożenia terrorystycznego, podlega karze grzywny do 50 000$ oraz karze pozbawienia wolności do 60 miesięcy.</p>
+                <p><b>§3.</b> Niezależnie od kary określonej w §1 i §2, Sąd, Prokurator lub funkcjonariusz prowadzący postępowanie może zobowiązać sprawcę do pokrycia kosztów działań podjętych przez służby publiczne i ratunkowe w związku z wywołanym zdarzeniem.</p>
+              </div>
+            <details class="criminal-chapter">
+              <summary><span>Rozdział VIII. Przestępstwa przeciwko wymiarowi sprawiedliwości</span><small>widoczne art. 28–36</small></summary>
+              <div class="criminal-chapter-body">
+                <h4>Art. 28. [Fałszywe zeznania w sprawie federalnej]</h4>
+                <p><b>§1.</b> Kto, będąc świadkiem, biegłym, tłumaczem lub stroną postępowania prowadzonego przez organ federalny, składa nieprawdziwe zeznania lub zataja prawdę mającą znaczenie dla sprawy, podlega karze grzywny do 100.000$ oraz karze pozbawienia wolności do 60 miesięcy.</p>
+                <h4>Art. 29. [Przeszkadzanie w postępowaniu prowadzonym przez organ federalny]</h4>
+                <p><b>§1.</b> Kto utrudnia, zakłóca lub uniemożliwia prowadzenie postępowania przez organ federalny, podlega karze grzywny do 150.000$ oraz karze pozbawienia wolności do 120 miesięcy.</p>
+                <p><b>§2.</b> W szczególności dotyczy to ukrywania dowodów, niszczenia materiałów dowodowych, utrudniania czynności procesowych lub świadomego wprowadzania organów w błąd.</p>
+                <h4>Art. 30. [Odwet wobec świadka lub informatora]</h4>
+                <p><b>§1.</b> Kto stosuje przemoc, groźby, zastraszanie lub inne działania odwetowe wobec świadka, informatora lub osoby współpracującej z organem federalnym z powodu udzielonej przez nią pomocy, podlega karze grzywny do 500.000$ oraz karze pozbawienia wolności do 240 miesięcy.</p>
+                <h4>Art. 31. [Manipulacja świadkiem lub informatorem]</h4>
+                <p><b>§1.</b> Kto nakłania, przekupuje, zastrasza lub w inny sposób wpływa na świadka, informatora lub osobę uczestniczącą w postępowaniu federalnym w celu zmiany zeznań, odmowy współpracy lub utrudnienia postępowania, podlega karze grzywny do 200.000$ oraz karze pozbawienia wolności do 170 miesięcy.</p>
+                <h4>Art. 32. [Przekupstwo urzędników i świadków]</h4>
+                <p><b>§1.</b> Kto udziela, oferuje lub obiecuje korzyść majątkową albo osobistą urzędnikowi federalnemu, świadkowi lub informatorowi w zamian za określone działanie, zaniechanie działania lub zmianę stanowiska w sprawie, podlega karze grzywny do 250.000$ oraz karze pozbawienia wolności do 180 miesięcy.</p>
+                <p><b>§2.</b> Tej samej karze podlega osoba przyjmująca taką korzyść.</p>
+                <h4>Art. 33. [Ucieczka z aresztu federalnego]</h4>
+                <p><b>§1.</b> Kto samowolnie opuszcza areszt federalny, miejsce zatrzymania lub konwój federalny, podlega karze grzywny do 60.000$ oraz karze pozbawienia wolności do 60 miesięcy.</p>
+                <p><b>§2.</b> Tej samej karze podlega osoba pomagająca w organizacji lub przeprowadzeniu ucieczki.</p>
+                <h4>Art. 34. [Pozbawienie praw pod pozorem prawa]</h4>
+                <p><b>§1.</b> Kto, działając pod pozorem wykonywania prawa, pozbawia inną osobę praw lub wolności gwarantowanych przez Konstytucję, Prawo Federalne lub Prawo Stanowe, podlega karze grzywny do 250.000$ oraz karze pozbawienia wolności do 120 miesięcy.</p>
+                <p><b>§2.</b> Jeżeli sprawcą czynu jest funkcjonariusz publiczny lub federalny, sąd może dodatkowo orzec zakaz pełnienia funkcji publicznych.</p>
+                <h4>Art. 35 [Zakłócanie przebiegu rozprawy sądowej]</h4>
+                <p><b>§1.</b> Kto celowo zakłóca przebieg rozprawy lub innego postępowania sądowego, w szczególności poprzez agresywne zachowanie, uniemożliwianie prowadzenia rozprawy, ignorowanie poleceń sądu lub podejmowanie działań zakłócających porządek na sali sądowej, podlega odpowiedzialności karnej w wymiarze 30 000$.</p>
+                <h4>Art. 36 [Zastraszenie świadka]</h4>
+                <p><b>§1.</b> Kto poprzez groźby, przemoc, szantaż lub inne bezprawne działania próbuje wpłynąć na świadka w celu zmiany jego zeznań, decyzji lub sposobu wykonywania obowiązków związanych z postępowaniem sądowym, podlega karze do 50 000$ oraz karze pozbawienia wolności do 70 miesięcy.</p>
+              </div>
+            </details>
+
+            <details class="criminal-chapter">
+              <summary><span>Rozdział IX. Przestępstwa finansowe i podatkowe</span><small>widoczne art. 35–40</small></summary>
+              <div class="criminal-chapter-body">
+                <h4>Art. 35. [Oszustwo bankowe]</h4>
+                <p><b>§1.</b> Kto poprzez wprowadzenie w błąd, wykorzystanie fałszywych dokumentów, nieuprawniony dostęp do rachunków bankowych lub inne oszukańcze działania doprowadza instytucję finansową do niekorzystnego rozporządzenia mieniem, podlega karze grzywny do 1.000.000$ oraz karze pozbawienia wolności do 320 miesięcy.</p>
+                <p><b>§2.</b> Tej samej karze podlega osoba usiłująca dokonać czynu określonego w §1.</p>
+                <h4>Art. 36. [Nieprzekazanie pobranego podatku]</h4>
+                <p><b>§1.</b> Kto będąc zobowiązanym do pobrania i przekazania podatku właściwemu organowi podatkowemu, nie przekazuje pobranych środków w terminie lub zatrzymuje je dla własnej korzyści, podlega karze grzywny do 100.000$ oraz karze pozbawienia wolności do 60 miesięcy.</p>
+                <h4>Art. 37. [Nieprawidłowe złożenie zeznania podatkowego]</h4>
+                <p><b>§1.</b> Kto składa zeznanie podatkowe zawierające nieprawdziwe dane, zataja dochody lub przedstawia niezgodne z prawdą informacje mające wpływ na wysokość zobowiązania podatkowego, podlega karze grzywny do 25.000$ oraz karze pozbawienia wolności do 12 miesięcy.</p>
+                <h4>Art. 38. [Konflikt finansowy]</h4>
+                <p><b>§1.</b> Kto wykorzystuje zajmowane stanowisko, funkcję publiczną lub dostęp do informacji w celu osiągnięcia korzyści majątkowej dla siebie lub osoby trzeciej, podlega karze grzywny do 50.000$ oraz karze pozbawienia wolności do 12 miesięcy.</p>
+                <h4>Art. 39. [Nielegalne wynagrodzenie za usługi urzędnicze]</h4>
+                <p><b>§1.</b> Kto żąda, przyjmuje lub uzyskuje wynagrodzenie, korzyść majątkową lub osobistą za wykonanie czynności urzędowej, do której jest zobowiązany z racji pełnionej funkcji, podlega karze grzywny do 250.000$ oraz karze pozbawienia wolności do 60 miesięcy.</p>
+                <p><b>§2.</b> Tej samej karze podlega osoba udzielająca takiego wynagrodzenia lub korzyści.</p>
+                <h4>Art. 40. [Korupcja]</h4>
+                <p><b>§1.</b> Kto, w związku z pełnieniem funkcji federalnej, przyjmuje, żąda, oferuje lub obiecuje korzyść majątkową albo osobistą w zamian za działanie lub zaniechanie działania służbowego, podlega karze grzywny do 250.000$ oraz karze pozbawienia wolności do 350 miesięcy.</p>
+                <p><b>§2.</b> Jeżeli czyn został popełniony przez funkcjonariusza publicznego lub federalnego, sąd może dodatkowo orzec trwały zakaz pełnienia funkcji publicznych.</p>
+                <p><b>§3.</b> Jeżeli korupcja pozostaje w związku ze współpracą z organizacją przestępczą, terrorystyczną lub działaniem przeciwko interesom państwa, sprawca może odpowiadać również za inne przestępstwa określone w niniejszym kodeksie, w tym zdradę stanu.</p>
+              </div>
+            </details>
+
+            <details class="criminal-chapter">
+              <summary><span>Rozdział X. Przestępstwa przeciwko dokumentom i tożsamości</span><small>widoczne art. 41–42</small></summary>
+              <div class="criminal-chapter-body">
+                <h4>Art. 41. [Fałszowanie tożsamości]</h4>
+                <p><b>§1.</b> Kto posługuje się fałszywą tożsamością, dokumentami należącymi do innej osoby lub świadomie podaje nieprawdziwe dane osobowe w celu osiągnięcia korzyści majątkowej bądź społecznej, uniknięcia odpowiedzialności karnej lub wprowadzenia w błąd organów państwowych, podlega karze grzywny do 250.000$ oraz karze pozbawienia wolności do 180 miesięcy.</p>
+                <p><b>§2.</b> Tej samej karze podlega osoba, która wytwarza, nabywa, udostępnia lub przekazuje fałszywe dokumenty tożsamości innym osobom.</p>
+                <h4>Art. 42. [Podszywanie się pod Funkcjonariusza Federalnego]</h4>
+                <p><b>§1.</b> Kto podszywa się pod funkcjonariusza federalnego, podlega karze grzywny do 10000$ oraz karze pozbawienia wolności do 50 miesięcy.</p>
+              </div>
+            </details>
+
+            <details class="criminal-chapter">
+              <summary><span>Rozdział XI. Cyberprzestępczość</span><small>widoczny art. 42</small></summary>
+              <div class="criminal-chapter-body">
+                <h4>Art. 42. [Cyberprzestępczość wymierzona w instytucje federalne]</h4>
+                <p><b>§1.</b> Kto bez uprawnienia uzyskuje dostęp do systemów teleinformatycznych instytucji federalnych, zakłóca ich funkcjonowanie, usuwa, modyfikuje lub pozyskuje znajdujące się w nich dane, podlega karze grzywny do 350.000$ oraz karze pozbawienia wolności do 270 miesięcy.</p>
+                <p><b>§2.</b> Tej samej karze podlega osoba, która tworzy, udostępnia lub wykorzystuje złośliwe oprogramowanie, narzędzia hakerskie lub inne środki służące do popełnienia czynów określonych w §1.</p>
+                <p><b>§3.</b> Jeżeli działanie sprawcy doprowadziło do ujawnienia informacji niejawnych, zakłócenia funkcjonowania instytucji federalnej lub zagrożenia bezpieczeństwa państwa, sąd może orzec surowszą karę.</p>
+              </div>
+            </details>
+
+            <details class="criminal-chapter">
+              <summary><span>Rozdział XII. Przestępstwa przeciwko prawom obywatelskim</span><small>widoczny art. 43 • brzmienie zgodne ze screenem</small></summary>
+              <div class="criminal-chapter-body">
+                <h4>Art. 43. [Cyberprzestępczość wymierzona w instytucje federalne]</h4>
+                <p><b>§1.</b> Kto bez uprawnienia uzyskuje dostęp do systemów teleinformatycznych instytucji federalnych, zakłóca ich funkcjonowanie, usuwa, modyfikuje lub pozyskuje znajdujące się w nich dane, podlega karze grzywny do 350.000$ oraz karze pozbawienia wolności do 270 miesięcy.</p>
+                <p><b>§2.</b> Tej samej karze podlega osoba, która tworzy, udostępnia lub wykorzystuje złośliwe oprogramowanie, narzędzia hakerskie lub inne środki służące do popełnienia czynów określonych w §1.</p>
+                <p><b>§3.</b> Jeżeli działanie sprawcy doprowadziło do ujawnienia informacji niejawnych, zakłócenia funkcjonowania instytucji federalnej lub zagrożenia bezpieczeństwa państwa, sąd może orzec surowszą karę.</p>
+              </div>
+            </details>
+
+            <details class="criminal-chapter">
+              <summary><span>Rozdział XIII. Przestępstwa przeciwko porządkowi publicznemu</span><small>widoczne art. 44–56 • numeracja zgodna ze screenami</small></summary>
+              <div class="criminal-chapter-body">
+                <h4>Art. 44 [Zamieszki]</h4>
+                <p><b>§1.</b> Udział w zamieszkach polega na czynnym uczestnictwie w agresywnym zbiegowisku, które w sposób gwałtowny narusza porządek publiczny, w szczególności poprzez stosowanie przemocy fizycznej, niszczenie mienia lub bezpośrednie stwarzanie zagrożenia dla życia lub zdrowia ludzi. Odpowiedzialności podlega osoba, która aktywnie uczestniczy w nielegalnych działaniach tłumu, bezpośrednio przyczynia się do powstania zagrożenia lub świadomie ignoruje wydane przez uprawnione służby polecenie natychmiastowego rozejścia się. Czyn podlega karze pozbawienia wolności do 35 miesięcy oraz grzywnie w wysokości 25 000$.</p>
+                <h4>Art. 45 [Napaść na terenie placówki federalnej lub stanowej]</h4>
+                <p><b>§1.</b> Ciężkie przestępstwo polegające na bezprawnym i agresywnym ataku na osoby lub mienie znajdujące się na terenie obiektu rządowego lub samorządowego, w szczególności sądu, ratusza, komendy lub bazy wojskowej. Czyn ten charakteryzuje się bezpośrednim zamachem na bezpieczeństwo publiczne oraz naruszeniem szczególnie chronionej strefy państwowej. Czyn podlega karze pozbawienia wolności do 85 miesięcy oraz grzywnie w wysokości 50 000$.</p>
+                <h4>Art. 47 [Napaść z bronią białą lub walka wręcz]</h4>
+                <p><b>§1.</b> Zarzut stosuje się, gdy sprawca fizycznie atakuje osobę na terenie obiektu za pomocą niebezpiecznego narzędzia, w szczególności noża lub pałki, albo przy użyciu siły fizycznej. Czyn ten charakteryzuje się bezpośrednim naruszeniem nietykalności cielesnej lub stwarzaniem realnego zagrożenia dla życia i zdrowia osób przebywających na terenie obiektu chronionego. Kwalifikację prawną stosuje się w momencie podjęcia próby zadania ciosu lub zranienia cywila albo funkcjonariusza. Karą jest pozbawienie wolności do 20 miesięcy oraz grzywna w wysokości 15 000$.</p>
+                <h4>Art. 48 [Wymuszenie]</h4>
+                <p><b>§1.</b> Przestępstwo polegające na zmuszaniu innej osoby do przekazania majątku, pieniędzy lub wykonania określonego działania poprzez groźbę, szantaż lub wywołanie obawy przed przyszłymi konsekwencjami. W przeciwieństwie do zwykłego rabunku, kluczowym elementem czynu jest wywarcie presji psychicznej, w szczególności poprzez groźbę ujawnienia informacji, uszkodzenia ciała lub zniszczenia mienia. Przestępstwo charakteryzuje się surowym wymiarem kary, szczególnie gdy jest popełniane w sposób zorganizowany lub z użyciem groźby przemocy. Karą jest pozbawienie wolności do 30 miesięcy oraz grzywna w wysokości 15 000$.</p>
+                <h4>Art. 49 [Wymuszenie na służbach publicznych/federalnych]</h4>
+                <p><b>§1.</b> Przestępstwo polegające na próbie zmuszenia funkcjonariuszy służb publicznych lub federalnych do podjęcia określonej decyzji poprzez szantaż, bezprawne groźby lub groźbę pozbawienia życia zakładników. Czyn ten kwalifikuje się jako ciężki zamach na prawidłowe funkcjonowanie organów ścigania i podlega odpowiedzialności na poziomie stanowym. Karą jest pozbawienie wolności do 50 miesięcy oraz grzywna w wysokości 25 000$.</p>
+                <h4>Art. 50 [Uprowadzenie funkcjonariusza z użyciem jego broni]</h4>
+                <p><b>§1.</b> Przestępstwo polegające na uprowadzeniu funkcjonariusza oraz wykorzystaniu go jako zakładnika lub żywej tarczy w celu wymuszenia na służbach zgody na opuszczenie aresztu lub budynku. Czyn obejmuje również sytuację, w której osoba aresztowana rozbraja funkcjonariusza i wykorzystuje przejętą broń podczas uprowadzenia. Karą jest pozbawienie wolności do 30 miesięcy oraz grzywna w wysokości 15 000$.</p>
+                <h4>Art. 51 [Masowe uwięzienie i szantaż ludności]</h4>
+                <p><b>§1.</b> Przestępstwo polegające na bezprawnym pozbawieniu wolności dużej grupy cywilów lub osób postronnych w celu wymuszenia określonych ustępstw od służb ratunkowych lub władz. Sprawcy wykorzystują życie i zdrowie wielu niewinnych osób jako środek nacisku, tworząc sytuację wysokiego ryzyka oraz wywołując stan masowego zagrożenia. Karą jest pozbawienie wolności do 35 miesięcy oraz grzywna w wysokości 30 000$.</p>
+                <h4>Art. 52 [Wtargnięcie na teren placówki stanowej lub federalnej z użyciem siły]</h4>
+                <p><b>§1.</b> Przestępstwo polegające na siłowym wtargnięciu przez sprawcę lub grupę sprawców na teren placówki stanowej lub federalnej. Karą jest pozbawienie wolności do 40 miesięcy oraz grzywna w wysokości 30 000$.</p>
+                <h4>Art. 53 [Wtargnięcie z bronią bez poszkodowanych i zakładników]</h4>
+                <p><b>§1.</b> Obejmuje przypadek, gdy sprawca lub grupa sprawców siłą wdziera się do placówki z odbezpieczoną bronią, jednak nie dochodzi do wzięcia zakładników, obrażeń ciała ani uszczerbku na zdrowiu cywilów lub personelu. Czyn ten traktowany jest jako poważne naruszenie ciągłości funkcjonowania organów państwowych oraz bezprawne przełamanie bariery bezpieczeństwa obiektu chronionego. Karą jest pozbawienie wolności do 60 miesięcy oraz grzywna w wysokości 30 000$.</p>
+                <h4>Art. 54 [Wtargnięcie z bronią z uwięzieniem ludzi lub uszczerbkiem na zdrowiu]</h4>
+                <p><b>§1.</b> Stosuje się w sytuacji, gdy siłowemu wtargnięciu towarzyszy pozbawienie wolności obecnych osób, stworzenie sytuacji zakładniczej lub doprowadzenie do obrażeń ciała cywilów bądź pracowników. Czyn ten jest równoznaczny z Zamachem określonym w Art. 55.</p>
+                <h4>Art. 55 [Zamach]</h4>
+                <p><b>§1.</b> Przestępstwo polegające na bezpośrednim i zaplanowanym ataku na teren obiektu stanowego lub federalnego, połączonym z uwięzieniem przebywających tam osób lub wyrządzeniem uszczerbku na zdrowiu cywilów albo pracowników. Czyn ten charakteryzuje się wykorzystaniem broni w celu wywołania terroru, sparaliżowania funkcjonowania władz oraz stworzenia bezpośredniego zagrożenia dla życia ludzkiego. Czyn nie jest kwalifikowany jako terroryzm. Karą jest pozbawienie wolności do 250 miesięcy oraz grzywna w wysokości 200 000$.</p>
+                <h4>Art. 56 [Porwanie funkcjonariusza szczebla zarządzającego]</h4>
+                <p><b>§1.</b> Ciężkie przestępstwo polegające na uprowadzeniu przedstawiciela dowództwa służb w celu wywarcia nacisku, szantażu lub wymuszenia określonych ustępstw od organów ścigania. Czyn ten stanowi bezpośrednie uderzenie w strukturę zarządzania jednostką, a wykorzystanie życia lub bezpieczeństwa funkcjonariusza wyższego szczebla jako środka nacisku nadaje sprawie szczególny priorytet operacyjny. Karą jest pozbawienie wolności do 65 miesięcy oraz grzywna w wysokości 25 000$.</p>
+              </div>
+            </details>
+
+            <details class="criminal-chapter">
+              <summary><span>Rozdział XIV. Definicje</span><small>widoczne art. 44–45 • numeracja zgodna ze screenami</small></summary>
+              <div class="criminal-chapter-body">
+                <h4>Art. 44. [Definicja przestępstwa terrorystycznego]</h4>
+                <p><b>§1.</b> Przestępstwem terrorystycznym jest czyn zabroniony popełniony w celu:</p>
+                <ol>
+                  <li>zastraszenia ludności lub określonej grupy osób,</li>
+                  <li>wywarcia wpływu na działania organów państwowych, federalnych lub samorządowych,</li>
+                  <li>wymuszenia określonego zachowania od władz publicznych,</li>
+                  <li>destabilizacji porządku publicznego, bezpieczeństwa państwa lub funkcjonowania instytucji publicznych,</li>
+                  <li>wywołania stanu zagrożenia powszechnego przy użyciu przemocy, materiałów wybuchowych, broni, środków chemicznych lub innych niebezpiecznych metod.</li>
+                </ol>
+                <p><b>§2.</b> Nie stanowi przestępstwa terrorystycznego użycie przemocy lub materiałów wybuchowych wyłącznie w celu osiągnięcia korzyści majątkowej, dokonania kradzieży, napadu lub innego przestępstwa o charakterze kryminalnym, chyba że czyn spełnia przesłanki określone w §1.</p>
+                <h4>Art. 45. [Narkotyki]</h4>
+                <p><b>§1.</b> Narkotyki twarde – substancje charakteryzujące się wysokim potencjałem uzależniającym oraz znacznym ryzykiem negatywnego wpływu na zdrowie i życie człowieka, w szczególności poprzez możliwość szybkiego rozwoju uzależnienia, poważnego wyniszczenia organizmu oraz przedawkowania prowadzącego do śmierci.</p>
+                <p><b>§2.</b> Narkotyki miękkie – substancje charakteryzujące się niższym potencjałem uzależniającym i mniejszym ryzykiem krótkotrwałego wyniszczenia organizmu niż narkotyki twarde, jednak ich używanie nadal może prowadzić do uzależnienia oraz powodować szkody zdrowotne i psychiczne.</p>
+                <h4>Art. 45. [Produkcja narkotyków]</h4>
+                <p><b>§1.</b> Produkcję narkotyków klasyfikuje się jako podejmowanie czynności mających na celu wytworzenie, przetworzenie, przygotowanie lub uzyskanie substancji sklasyfikowanej jako narkotyk w Kodeksie Karnym.</p>
+                <p><b>§2.</b> Za produkcję uznaje się również przebywanie w miejscu przystosowanym do wytwarzania lub przetwarzania narkotyków oraz posiadanie w tym miejscu materiałów, substancji, urządzeń lub innych przedmiotów przeznaczonych do ich produkcji, jeżeli okoliczności wskazują na zamiar wytworzenia narkotyku.</p>
+                <p>Przykład: osoba zatrzymana w miejscu przystosowanym do przetwarzania substancji narkotycznych, posiadająca materiały i wyposażenie służące do ich wytwarzania, może odpowiadać za produkcję narkotyków, nawet jeżeli proces produkcji nie został jeszcze zakończony.</p>
+                <h4>Art. 45. [ZGP]</h4>
+                <p><b>§1.</b> <b>Przynależność do zorganizowanej grupy przestępczej (ZGP)</b> – uznaje się za potwierdzoną w przypadku ustalenia przynależności danej osoby do grupy w toku prowadzonego śledztwa lub na podstawie wiarygodnych informacji przekazanych przez policyjnego informatora, odpowiednio udokumentowanych, oraz stwierdzenia jej aktywności wspólnie z innymi osobami, których przynależność do danej grupy została potwierdzona.</p>
+                <p><b>§2.</b> Od powyższej zasady można odstąpić, jeżeli grupa osób znajdujących się w tym samym miejscu wspólnie dokonuje przestępstwa, a jej członkowie posługują się <b>jednolitym oznaczeniem lub widoczną kolorystyką charakterystyczną dla danej grupy przestępczej</b>, wskazującą na ich wspólną przynależność.</p>
+                <p><b>§3.</b> Samo przebywanie w miejscu wraz z członkami ZGP lub jednorazowe dokonanie przestępstwa wspólnie z innymi osobami nie stanowi automatycznie podstawy do przypisania przynależności do ZGP, jeżeli brak jest dodatkowych okoliczności potwierdzających tę przynależność.</p>
+                <h4>Art. 45. [Praca w grupie o charakterze kryminalnym]</h4>
+                <p><b>§1.</b> <b>Praca w grupie o charakterze kryminalnym</b> – zorganizowane i wspólne działanie co najmniej kilku osób zmierzające do popełnienia przestępstwa lub realizacji działań o charakterze przestępczym, w szczególności podczas <b>zamieszek, ustawek, zorganizowanych strzelanin, odbicia konwoju lub porwania.</b></p>
+                <p><b>§1.</b> Do pracy w grupie o charakterze kryminalnym nie zalicza się dokonania napadu na obiekt w celu uzyskania korzyści majątkowej lub materialnej, jeżeli samo przestępstwo napadu przewiduje zorganizowany charakter działania.</p>
+                <p><b>§2.</b> W przypadku napadów kwalifikacja pracy w grupie o charakterze kryminalnym nie jest dodatkowo doliczana, natomiast może zostać zastosowana w przypadku innych zorganizowanych działań, w szczególności <b>zorganizowanej strzelaniny, porwania lub odbicia konwoju.</b></p>
+              </div>
+            </details>
+
+            </details>
+          </div>
+        </article>
+
+        <article class="panel law-section searchable criminal-source" data-source="Rejestr wyroków">
+          <h3 class="criminal-part-head"><span>Rejestr wyroków</span><small>kategorie przestępstw ze screenów</small></h3>
+          <div class="criminal-structured">
+            <details class="criminal-chapter">
+              <summary><span>Rozdział I. Przestępstwa lekkie</span><small>19 pozycji</small></summary>
+              <div class="criminal-chapter-body">
+                <h4>Art. 1.</h4>
+                <p><b>§ 1.</b> Do kategorii przestępstw lekkich zalicza się następujące przestępstwa:</p>
+                <ol>
+                  <li>[Naruszenie miru domowego]</li>
+                  <li>[Kradzież pojazdu]</li>
+                  <li>[Kradzież pojazdów uprzywilejowanych]</li>
+                  <li>[Podszywanie się pod inną osobę]</li>
+                  <li>[Nielegalne wyścigi]</li>
+                  <li>[Groźby karalne]</li>
+                  <li>[Kradzież]</li>
+                  <li>[Nękanie]</li>
+                  <li>[Składanie fałszywych zeznań]</li>
+                  <li>[Spowodowanie uszczerbku na zdrowiu]</li>
+                  <li>[Nieudzielenie pomocy]</li>
+                  <li>[Bójka lub pobicie]</li>
+                  <li>[Naruszenie nietykalności cielesnej funkcjonariusza publicznego]</li>
+                  <li>[Naruszenie nietykalności cielesnej]</li>
+                  <li>[Posiadanie narkotyków miękkich]</li>
+                  <li>[Niewłaściwe posługiwanie się bronią białą]</li>
+                  <li>[Bezpodstawne użycie broni palnej]</li>
+                  <li>[Rozbój]</li>
+                  <li>[Paserstwo]</li>
+                </ol>
+              </div>
+            </details>
+
+            <details class="criminal-chapter">
+              <summary><span>Rozdział II. Przestępstwa ciężkie</span><small>39 pozycji</small></summary>
+              <div class="criminal-chapter-body">
+                <h4>Art. 1.</h4>
+                <p><b>§ 1.</b> Do kategorii przestępstw ciężkich zalicza się następujące przestępstwa:</p>
+                <ol>
+                  <li>[Ucieczka przed policją]</li>
+                  <li>[Podszywanie się pod funkcjonariusza]</li>
+                  <li>[Posiadanie sprzętu policyjnego]</li>
+                  <li>[Karalne niezawiadomienie o przestępstwie]</li>
+                  <li>[Tworzenie fałszywych dokumentów]</li>
+                  <li>[Tworzenie fałszywych dowodów]</li>
+                  <li>[Szantaż]</li>
+                  <li>[Zbezczeszczenie zwłok]</li>
+                  <li>[Znieważenie zwłok poprzez czynność o charakterze seksualnym]</li>
+                  <li>[Znęcanie się nad zwierzętami]</li>
+                  <li>[Cyberstalking]</li>
+                  <li>[Uporczywe nękanie (stalking)]</li>
+                  <li>[Próba odbicia osoby zatrzymanej]</li>
+                  <li>[Ucieczka z konwoju]</li>
+                  <li>[Bezprawne uwolnienie]</li>
+                  <li>[Złamanie zasad Dozoru Elektronicznego]</li>
+                  <li>[Strzelanina]</li>
+                  <li>[Wtargnięcie na teren o ograniczonym dostępie]</li>
+                  <li>[Spowodowanie niebezpieczeństwa w ruchu powietrznym]</li>
+                  <li>[Napady]</li>
+                  <li>[Udaremniona próba porwania]</li>
+                  <li>[Udaremniona próba porwania funkcjonariusza publicznego]</li>
+                  <li>[Usiłowanie zabójstwa]</li>
+                  <li>[Doprowadzenie do samobójstwa]</li>
+                  <li>[Posiadanie narkotyków twardych]</li>
+                  <li>[Rozprowadzanie narkotyków]</li>
+                  <li>[Produkcja narkotyków]</li>
+                  <li>[Nielegalne posiadanie broni]</li>
+                  <li>[Handel bronią]</li>
+                  <li>[Handel paralizatorami]</li>
+                  <li>[Nielegalne dodatki do broni]</li>
+                  <li>[Posiadanie materiałów pirotechnicznych]</li>
+                  <li>[Rozprowadzanie materiałów pirotechnicznych]</li>
+                  <li>[Wytwarzanie materiałów pirotechnicznych]</li>
+                  <li>[Posiadanie hurtowej ilości broni]</li>
+                  <li>[Posiadanie materiałów wybuchowych]</li>
+                  <li>[Rozprowadzanie materiałów wybuchowych]</li>
+                  <li>[Wytwarzanie materiałów wybuchowych]</li>
+                  <li>[Gwałt]</li>
+                </ol>
+              </div>
+            </details>
+          </div>
+        </article>
+
+        <div class="panel legal-source-note">Kodeks karny został wpisany wyłącznie z widocznych fragmentów przesłanych screenów. Zachowano numerację i brzmienie widoczne na materiałach, w tym ewentualne niespójności OCR lub numeracji. Kolejne rozdziały zostały dopisane wyłącznie z dodatkowych screenów dosłanych po wersji podglądowej. Dodano również część federalną, w tym rozdział dotyczący wymiaru sprawiedliwości, oraz fragment "Rejestru wyroków" dokładnie na podstawie kolejnych screenów. Braki w numeracji lub nieobecne artykuły nie są uzupełniane z żadnych zewnętrznych źródeł.</div>
+      </section>
+
+
+      <div id="legalNoResults" class="panel legal-no-results" hidden>Brak wyników dla podanej frazy.</div>
+    </main>
+  </div>
+</div>
+<script>
+const tabs=[...document.querySelectorAll('.legal-act-tab')];
+const acts=[...document.querySelectorAll('.legal-act')];
+const search=document.getElementById('legalSearch');
+const count=document.getElementById('legalCount');
+const nores=document.getElementById('legalNoResults');
+const prevResultBtn=document.getElementById('legalPrevResult');
+const nextResultBtn=document.getElementById('legalNextResult');
+const searchPosition=document.getElementById('legalSearchPosition');
+const searchNav=document.querySelector('.legal-search-nav');
+const searchToolbar=document.querySelector('.legal-search-toolbar');
+
+let searchMatches=[];
+let currentMatchIndex=-1;
+
+function escapeHtml(v){return v.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]||c));}
+function escapeRegExp(v){return v.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');}
+function normalizeChapterTitle(line){return line.replace(/\s+/g,' ').trim();}
+function isChapterHeading(line){
+  const t=normalizeChapterTitle(line);
+  return /^Rozdział\s+[IVXLCDM]+(?:\.|\s|$)/i.test(t) || /^CZĘŚĆ\s+(?:STANOWA|FEDERALNA|OGÓLNA|SZCZEGÓLNA)/i.test(t);
+}
+function enhanceCriminalCode(){
+  document.querySelectorAll('.criminal-source').forEach((article)=>{
+    const pre=article.querySelector('.criminal-code-text');
+    if(!pre||article.querySelector('.criminal-structured')) return;
+    const raw=pre.textContent.replace(/\r/g,'');
+    pre.hidden=true;
+    const lines=raw.split('\n');
+    const groups=[]; let current={title:'Fragment źródłowy',lines:[]};
+    lines.forEach(line=>{
+      if(isChapterHeading(line)){
+        if(current.lines.some(x=>x.trim())) groups.push(current);
+        current={title:normalizeChapterTitle(line),lines:[]};
+      }else current.lines.push(line);
+    });
+    if(current.lines.some(x=>x.trim())) groups.push(current);
+    const wrap=document.createElement('div'); wrap.className='criminal-structured';
+    groups.forEach((g,i)=>{
+      const d=document.createElement('details'); d.className='criminal-chapter'; d.open=i===0;
+      const summary=document.createElement('summary');
+      summary.innerHTML=`<span>${escapeHtml(g.title)}</span><small>${g.lines.filter(x=>x.trim()).length} linii</small>`;
+      const body=document.createElement('pre'); body.className='criminal-code-text criminal-chapter-text'; body.textContent=g.lines.join('\n').trim();
+      d.append(summary,body); wrap.appendChild(d);
+    });
+    article.appendChild(wrap);
+  });
+}
+
+function activate(id){
+  tabs.forEach(x=>x.classList.toggle('active',x.dataset.act===id));
+  acts.forEach(x=>x.classList.toggle('active',x.id==='act-'+id));
+}
+tabs.forEach(t=>t.addEventListener('click',()=>activate(t.dataset.act)));
+
+function getKeywords(){
+  return [...new Set(search.value.trim().split(/\s+/).map(x=>x.trim()).filter(Boolean))];
+}
+function isSearching(){
+  return getKeywords().length>0;
+}
+function clearHighlights(root=document){
+  root.querySelectorAll('mark.legal-search-hit').forEach(mark=>{
+    const parent=mark.parentNode;
+    parent.replaceChild(document.createTextNode(mark.textContent),mark);
+    parent.normalize();
+  });
+}
+function clearActiveMatch(){
+  document.querySelectorAll('mark.legal-search-hit-active').forEach(mark=>mark.classList.remove('legal-search-hit-active'));
+}
+function countHits(text,keywords){
+  let total=0;
+  keywords.forEach(k=>{
+    const m=text.match(new RegExp(escapeRegExp(k),'giu'));
+    if(m) total+=m.length;
+  });
+  return total;
+}
+function highlightHits(root,keywords){
+  if(!keywords.length) return;
+  const pattern=new RegExp('('+keywords.slice().sort((a,b)=>b.length-a.length).map(escapeRegExp).join('|')+')','giu');
+  const walker=document.createTreeWalker(root,NodeFilter.SHOW_TEXT,{acceptNode(node){
+    if(!node.nodeValue.trim()) return NodeFilter.FILTER_REJECT;
+    const p=node.parentElement;
+    if(!p || p.closest('mark.legal-search-hit,script,style')) return NodeFilter.FILTER_REJECT;
+    pattern.lastIndex=0;
+    return pattern.test(node.nodeValue) ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
+  }});
+  const nodes=[]; while(walker.nextNode()) nodes.push(walker.currentNode);
+  nodes.forEach(node=>{
+    pattern.lastIndex=0;
+    const frag=document.createDocumentFragment();
+    let last=0;
+    node.nodeValue.replace(pattern,(match,_g,offset)=>{
+      if(offset>last) frag.append(document.createTextNode(node.nodeValue.slice(last,offset)));
+      const mark=document.createElement('mark'); mark.className='legal-search-hit'; mark.textContent=match; frag.append(mark);
+      last=offset+match.length; return match;
+    });
+    if(last<node.nodeValue.length) frag.append(document.createTextNode(node.nodeValue.slice(last)));
+    node.parentNode.replaceChild(frag,node);
+  });
+}
+function setTabHit(tab,hits){
+  let badge=tab.querySelector('.legal-tab-hit');
+  if(!badge){badge=document.createElement('em');badge.className='legal-tab-hit';tab.appendChild(badge);}
+  badge.textContent=hits;
+  badge.hidden=hits===0;
+}
+function updateFloatingSearchNav(){
+  if(!searchNav || !searchToolbar) return;
+  // Pasek wyszukiwania ma być stale pływający i widoczny także podczas przewijania.
+  searchToolbar.classList.add('is-floating');
+  searchNav.classList.remove('is-floating');
+}
+function updateSearchNavigation(){
+  const hasQuery=isSearching();
+  const hasMatches=searchMatches.length>0;
+  if(searchPosition){
+    searchPosition.hidden=!hasQuery;
+    searchPosition.textContent=hasMatches?`${currentMatchIndex+1} / ${searchMatches.length}`:'0 / 0';
+  }
+  if(prevResultBtn) prevResultBtn.disabled=!hasMatches;
+  if(nextResultBtn) nextResultBtn.disabled=!hasMatches;
+  updateFloatingSearchNav();
+}
+function collectSearchMatches(){
+  searchMatches=[...document.querySelectorAll('mark.legal-search-hit')];
+}
+function revealMatchContext(mark){
+  const act=mark.closest('.legal-act');
+  if(act) activate(act.id.replace('act-',''));
+  const searchable=mark.closest('.searchable');
+  if(searchable) searchable.hidden=false;
+  const chapter=mark.closest('.criminal-chapter');
+  if(chapter){
+    chapter.hidden=false;
+    chapter.open=true;
+  }
+}
+function focusMatch(index,{scroll=true}={}){
+  if(!searchMatches.length){
+    currentMatchIndex=-1;
+    clearActiveMatch();
+    updateSearchNavigation();
+    return;
+  }
+  if(index<0) index=searchMatches.length-1;
+  if(index>=searchMatches.length) index=0;
+  clearActiveMatch();
+  const mark=searchMatches[index];
+  revealMatchContext(mark);
+  currentMatchIndex=index;
+  mark.classList.add('legal-search-hit-active');
+  updateSearchNavigation();
+  if(scroll){
+    requestAnimationFrame(()=>{
+      const top=mark.getBoundingClientRect().top + window.scrollY - 140;
+      window.scrollTo({top: Math.max(top,0), behavior:'smooth'});
+    });
+  }
+}
+function goToNextMatch(){
+  if(!searchMatches.length) return;
+  const target=currentMatchIndex<0?0:currentMatchIndex+1;
+  focusMatch(target);
+}
+function goToPrevMatch(){
+  if(!searchMatches.length) return;
+  const target=currentMatchIndex<0?searchMatches.length-1:currentMatchIndex-1;
+  focusMatch(target);
+}
+
+function filter(){
+  clearHighlights();
+  clearActiveMatch();
+  searchMatches=[];
+  currentMatchIndex=-1;
+
+  const keywords=getKeywords();
+  const searching=keywords.length>0;
+  let totalHits=0;
+  let totalSections=0;
+  const actHits={};
+  let actsWithHits=0;
+
+  acts.forEach(act=>{
+    let hitsForAct=0;
+    let sectionsForAct=0;
+    act.querySelectorAll('.searchable').forEach(el=>{
+      if(el.classList.contains('criminal-source') && el.querySelector('.criminal-structured')){
+        let articleHits=0;
+        let visibleChapters=0;
+        el.querySelectorAll('.criminal-chapter').forEach(ch=>{
+          const text=ch.innerText || ch.textContent || '';
+          const hits=searching?countHits(text,keywords):0;
+          const ok=!searching||hits>0;
+          ch.hidden=!ok;
+          if(searching&&ok){ch.open=true;highlightHits(ch,keywords);}
+          if(ok) visibleChapters++;
+          articleHits+=hits;
+        });
+        el.hidden=searching&&visibleChapters===0;
+        if(searching&&articleHits>0){sectionsForAct+=visibleChapters;hitsForAct+=articleHits;}
+      }else{
+        const text=el.innerText || el.textContent || '';
+        const hits=searching?countHits(text,keywords):0;
+        const ok=!searching||hits>0;
+        el.hidden=!ok;
+        if(searching&&ok){highlightHits(el,keywords);sectionsForAct++;hitsForAct+=hits;}
+      }
+    });
+    actHits[act.id.replace('act-','')]=hitsForAct;
+    totalHits+=hitsForAct;
+    totalSections+=sectionsForAct;
+    if(hitsForAct>0) actsWithHits++;
+  });
+
+  tabs.forEach(tab=>setTabHit(tab,searching?(actHits[tab.dataset.act]||0):0));
+
+  if(searching){
+    count.textContent=`${totalHits} trafień • ${totalSections} sekcji • ${actsWithHits} akty`;
+    nores.hidden=totalHits!==0;
+    collectSearchMatches();
+    currentMatchIndex=searchMatches.length? -1 : -1;
+    updateSearchNavigation();
+  }else{
+    count.textContent='3 akty prawne';
+    nores.hidden=true;
+    acts.forEach(act=>act.querySelectorAll('.searchable,.criminal-chapter').forEach(el=>el.hidden=false));
+    updateSearchNavigation();
+  }
+}
+search.addEventListener('input',filter);
+search.addEventListener('keydown',(e)=>{
+  if(e.key==='Enter'){
+    e.preventDefault();
+    if(e.shiftKey) goToPrevMatch();
+    else goToNextMatch();
+  }
+});
+prevResultBtn?.addEventListener('click',goToPrevMatch);
+nextResultBtn?.addEventListener('click',goToNextMatch);
+window.addEventListener('resize',updateFloatingSearchNav);
+
+document.getElementById('criminalExpandAll')?.addEventListener('click',()=>document.querySelectorAll('#act-criminal .criminal-chapter').forEach(x=>{if(!x.hidden)x.open=true;}));
+document.getElementById('criminalCollapseAll')?.addEventListener('click',()=>document.querySelectorAll('#act-criminal .criminal-chapter').forEach(x=>x.open=false));
+
+enhanceCriminalCode();
+filter();
+</script>
+{% endblock %}

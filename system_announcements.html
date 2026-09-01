@@ -1,0 +1,257 @@
+{% extends "base.html" %}
+{% block title %}Ogłoszenia — USMS Panel{% endblock %}
+{% block content %}
+<div class="page-head">
+    <div>
+        <h1>Ogłoszenia</h1>
+        <p>Publikuj ogłoszenia i Status 9 w formacie Discord Markdown — ten sam układ będzie widoczny na stronie i Discordzie.</p>
+    </div>
+    <div class="date-chip">{{ rows|length }} wpisów</div>
+</div>
+
+{% if saved and discord_sent %}<div class="alert success">Wpis został opublikowany na stronie i wysłany na Discord — {{ discord_channel }}.</div>{% elif saved %}<div class="alert success">Wpis został opublikowany na stronie.</div>{% endif %}
+{% if edited %}<div class="alert success">Wpis został zaktualizowany{% if discord_updated %} również na Discordzie{% endif %}.</div>{% endif %}
+{% if deleted %}<div class="alert success">Wpis został usunięty{% if not discord_error %} również z Discorda, jeśli był z nim powiązany{% endif %}.</div>{% endif %}
+{% if discord_error %}<div class="alert error">Wpis zapisano na stronie, ale nie udało się wysłać go na Discord: {{ discord_error }}</div>{% endif %}
+{% if error %}<div class="alert error">{{ error }}</div>{% endif %}
+
+<section class="panel full announcement-composer-panel">
+    <div class="panel-title"><h2>Nowy wpis</h2></div>
+    <form method="post" class="announcement-composer">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <div class="announcement-type-row">
+            <label>
+                <span>Rodzaj</span>
+                <select name="kind" id="announcement-kind" required>
+                    <option value="announcement">Ogłoszenie</option>
+                    <option value="status9">Status 9</option>
+                </select>
+            </label>
+            <label>
+                <span>Kanał Discord</span>
+                <select name="channel_id" id="announcement-channel" required>
+                    {% for channel_id, channel_name in announcement_channels.items() %}
+                    <option value="{{ channel_id }}">{{ channel_name }}</option>
+                    {% endfor %}
+                </select>
+            </label>
+        </div>
+
+        <div class="announcement-editor-shell">
+            <div class="discord-toolbar" aria-label="Formatowanie Discord Markdown">
+                <button type="button" data-wrap="**|**" title="Pogrubienie"><strong>B</strong></button>
+                <button type="button" data-wrap="*|*" title="Kursywa"><em>I</em></button>
+                <button type="button" data-wrap="__|__" title="Podkreślenie"><u>U</u></button>
+                <button type="button" data-wrap="~~|~~" title="Przekreślenie"><s>S</s></button>
+                <span class="toolbar-sep"></span>
+                <button type="button" data-line="# " title="Nagłówek duży">H1</button>
+                <button type="button" data-line="## " title="Nagłówek średni">H2</button>
+                <button type="button" data-line="### " title="Nagłówek mały">H3</button>
+                <button type="button" data-line="> " title="Cytat">❯</button>
+                <button type="button" data-line="- " title="Lista">• Lista</button>
+                <button type="button" data-wrap="`|`" title="Kod">&lt;/&gt;</button>
+            </div>
+            <div class="announcement-editor-grid">
+                <label class="announcement-text-label">
+                    <span>Treść</span>
+                    <textarea id="announcement-content" name="content" maxlength="12000" required autocomplete="off" placeholder="# OGŁOSZENIE&#10;&#10;**Treść:** wpisz komunikat...&#10;&#10;Wpisz @787, aby oznaczyć funkcjonariusza, albo @usms, aby oznaczyć całą rolę USMS."></textarea>
+                    <div id="mention-suggestions" class="mention-suggestions" hidden></div>
+                </label>
+                <div class="announcement-preview-wrap">
+                    <span>Podgląd w stylu Discord</span>
+                    <div id="announcement-preview" class="discord-message-preview" aria-live="polite"><span class="preview-placeholder">Podgląd pojawi się tutaj podczas pisania.</span></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="markdown-help">
+            <code>#</code> duży nagłówek · <code>##</code> średni · <code>###</code> mały · <code>**tekst**</code> pogrubienie · <code>@787</code> ping funkcjonariusza · <code>@usms</code> ping roli USMS · linki <code>https://...</code> są klikalne · puste linie i emotikony są zachowywane.
+        </div>
+        <div class="announcement-form-footer">
+            <small>Strona zapisuje surowy Discord Markdown. Ten sam tekst jest wysyłany na Discord, a Dashboard renderuje jego nagłówki, grubość, odstępy, listy, cytaty i emotikony w zbliżonym stylu.</small>
+            <button class="btn" type="submit">Opublikuj na stronie i Discordzie</button>
+        </div>
+    </form>
+</section>
+
+<section class="panel full">
+    <div class="panel-title"><h2>Wpisy ze strony</h2></div>
+    <div class="web-announcement-list">
+        {% for r in rows %}
+        <article class="web-announcement-row {{ 'status9' if r.kind == 'status9' else 'announcement' }}">
+            <div class="web-announcement-head">
+                <div>
+                    <span class="entry-kind {{ r.kind }}">{{ 'STATUS 9' if r.kind == 'status9' else 'OGŁOSZENIE' }}</span>
+                    <strong>{{ r.author_name or ('Discord ID ' ~ r.author_id) }}</strong>
+                </div>
+                <div class="web-announcement-actions">
+                    <time>{{ r.created_at.strftime('%d.%m.%Y %H:%M') if r.created_at else '—' }}</time>
+                    <a class="btn smallbtn" href="{{ url_for('edit_web_announcement', item_id=r.id) }}">Edytuj</a>
+                    {% if r.discord_channel_id and r.discord_message_ids %}
+                    <a class="btn smallbtn" target="_blank" rel="noopener" href="https://discord.com/channels/{{ guild_id }}/{{ r.discord_channel_id }}/{{ r.discord_message_ids[0] }}">Discord ↗</a>
+                    {% endif %}
+                    <form method="post" action="{{ url_for('delete_web_announcement', item_id=r.id) }}" onsubmit="return confirm('Usunąć ten wpis ze strony i — jeśli jest powiązany — również z Discorda?');">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <button class="danger-btn smallbtn" type="submit">Usuń</button>
+                    </form>
+                </div>
+            </div>
+            <div class="web-announcement-content discord-rendered">{{ r.content|discord_markdown }}</div>
+        </article>
+        {% else %}
+        <div class="empty">Nie opublikowano jeszcze żadnego wpisu ze strony.</div>
+        {% endfor %}
+    </div>
+</section>
+
+{% if bot_rows %}
+<section class="panel full announcement-bot-history">
+    <div class="panel-title"><h2>Historia sesji ogłoszeń bota</h2></div>
+    <div class="table-wrap"><table>
+        <thead><tr><th>Autor Discord ID</th><th>Data</th><th>Kanał</th><th>Wiadomość</th></tr></thead>
+        <tbody>
+        {% for r in bot_rows %}
+        <tr><td>{{ r.author_id }}</td><td>{{ r.created_at }}</td><td>{{ r.channel_id }}</td><td><a class="btn smallbtn" target="_blank" rel="noopener" href="https://discord.com/channels/{{ guild_id }}/{{ r.channel_id }}/{{ r.message_id }}">Otwórz na Discordzie ↗</a></td></tr>
+        {% endfor %}
+        </tbody>
+    </table></div>
+</section>
+{% endif %}
+
+<script>
+(() => {
+    const mentionOfficers = {{ mention_officers|tojson }};
+    const kind = document.getElementById('announcement-kind');
+    const channel = document.getElementById('announcement-channel');
+    const textarea = document.getElementById('announcement-content');
+    const preview = document.getElementById('announcement-preview');
+    if (kind && channel) {
+        const status9Id = '1541198053254627488';
+        const announcementId = '1511317009466396716';
+        kind.addEventListener('change', () => { channel.value = kind.value === 'status9' ? status9Id : announcementId; });
+    }
+    if (!textarea || !preview) return;
+
+    const esc = (v) => v.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
+    const mentionLabels = Object.fromEntries(mentionOfficers.map(o => [String(o.badge || ''), String(o.name || '')]));
+    const inline = (v) => {
+        let x = esc(v);
+        x = x.replace(/\b(https?:\/\/[^\s<]+)/gi, '<a class="discord-link" href="$1" target="_blank" rel="noopener noreferrer">$1</a>')
+             .replace(/(^|[^A-Za-z0-9_])@(\d{3})(?!\d)/g, (m, prefix, badge) => {
+                 const name = mentionLabels[badge];
+                 const label = name ? `[${badge}] ${name}` : `[${badge}]`;
+                 return prefix + '<span class="discord-mention">' + esc(label) + '</span>';
+             })
+             .replace(/(^|[^A-Za-z0-9_])@usms\b/gi, '$1<span class="discord-mention discord-role-mention">@USMS</span>')
+             .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+             .replace(/__(.+?)__/g, '<u>$1</u>')
+             .replace(/~~(.+?)~~/g, '<s>$1</s>')
+             .replace(/(^|[^*])\*([^*\n]+?)\*(?!\*)/g, '$1<em>$2</em>')
+             .replace(/`([^`\n]+)`/g, '<code class="discord-inline-code">$1</code>');
+        return x;
+    };
+    function renderDiscord(text) {
+        if (!text.trim()) return '<span class="preview-placeholder">Podgląd pojawi się tutaj podczas pisania.</span>';
+        const lines = text.replace(/\r/g, '').split('\n');
+        let html = '', ul = false, ol = false, inCode = false, code = [];
+        const closeLists = () => { if (ul) { html += '</ul>'; ul = false; } if (ol) { html += '</ol>'; ol = false; } };
+        for (const raw of lines) {
+            if (raw.startsWith('```')) {
+                closeLists();
+                if (inCode) { html += '<pre class="discord-code-block"><code>' + esc(code.join('\n')) + '</code></pre>'; code = []; inCode = false; }
+                else inCode = true;
+                continue;
+            }
+            if (inCode) { code.push(raw); continue; }
+            let m;
+            if ((m = raw.match(/^(#{1,3})\s+(.+)$/))) { closeLists(); const n=m[1].length; html += `<h${n} class="discord-h${n}">${inline(m[2])}</h${n}>`; }
+            else if ((m = raw.match(/^[-*]\s+(.+)$/))) { if (ol) { html += '</ol>'; ol=false; } if (!ul) { html += '<ul class="discord-list">'; ul=true; } html += '<li>'+inline(m[1])+'</li>'; }
+            else if ((m = raw.match(/^\d+[.)]\s+(.+)$/))) { if (ul) { html += '</ul>'; ul=false; } if (!ol) { html += '<ol class="discord-list">'; ol=true; } html += '<li>'+inline(m[1])+'</li>'; }
+            else if ((m = raw.match(/^>\s?(.*)$/))) { closeLists(); html += '<blockquote class="discord-quote">'+(inline(m[1]) || '&nbsp;')+'</blockquote>'; }
+            else if (!raw.trim()) { closeLists(); html += '<div class="discord-spacer"></div>'; }
+            else { closeLists(); html += '<div class="discord-line">'+inline(raw)+'</div>'; }
+        }
+        closeLists();
+        if (inCode) html += '<pre class="discord-code-block"><code>' + esc(code.join('\n')) + '</code></pre>';
+        return html;
+    }
+    const refresh = () => { preview.innerHTML = renderDiscord(textarea.value); };
+    const suggestions = document.getElementById('mention-suggestions');
+    let mentionStart = -1;
+
+    function hideSuggestions() {
+        if (!suggestions) return;
+        suggestions.hidden = true;
+        suggestions.innerHTML = '';
+        mentionStart = -1;
+    }
+    function chooseMention(value) {
+        if (mentionStart < 0) return;
+        const end = textarea.selectionStart;
+        textarea.setRangeText(value + ' ', mentionStart, end, 'end');
+        textarea.focus();
+        hideSuggestions();
+        refresh();
+    }
+    function updateMentionSuggestions() {
+        if (!suggestions) return;
+        const pos = textarea.selectionStart;
+        const before = textarea.value.slice(0, pos);
+        const match = before.match(/(?:^|\s)@([^\s@]*)$/);
+        if (!match) { hideSuggestions(); return; }
+        const query = (match[1] || '').toLowerCase();
+        mentionStart = pos - query.length - 1;
+        const options = [];
+        if ('usms'.startsWith(query)) options.push({value:'@usms', badge:'USMS', name:'Rola — ping wszystkich USMS', role:true});
+        mentionOfficers.forEach(o => {
+            const badge = String(o.badge || '');
+            const name = String(o.name || '');
+            if (!query || badge.toLowerCase().startsWith(query) || name.toLowerCase().includes(query)) {
+                options.push({value:'@' + badge, badge, name, role:false});
+            }
+        });
+        const shown = options.slice(0, 8);
+        if (!shown.length) { hideSuggestions(); return; }
+        suggestions.innerHTML = '';
+        shown.forEach(opt => {
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = 'mention-suggestion';
+            const badge = document.createElement('strong');
+            badge.textContent = opt.role ? '@USMS' : '[' + opt.badge + ']';
+            const name = document.createElement('span');
+            name.textContent = opt.name;
+            btn.append(badge, name);
+            btn.addEventListener('mousedown', e => e.preventDefault());
+            btn.addEventListener('click', () => chooseMention(opt.value));
+            suggestions.appendChild(btn);
+        });
+        suggestions.hidden = false;
+    }
+
+    textarea.addEventListener('input', () => { refresh(); updateMentionSuggestions(); });
+    textarea.addEventListener('click', updateMentionSuggestions);
+    textarea.addEventListener('keyup', e => { if (e.key === 'Escape') hideSuggestions(); });
+    textarea.addEventListener('blur', () => setTimeout(hideSuggestions, 120));
+    refresh();
+
+    document.querySelectorAll('.discord-toolbar button').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const start = textarea.selectionStart, end = textarea.selectionEnd;
+            const selected = textarea.value.slice(start, end);
+            if (btn.dataset.wrap) {
+                const [before, after] = btn.dataset.wrap.split('|');
+                textarea.setRangeText(before + selected + after, start, end, 'end');
+                textarea.focus();
+                if (!selected) textarea.setSelectionRange(start + before.length, start + before.length);
+            } else if (btn.dataset.line) {
+                const lineStart = textarea.value.lastIndexOf('\n', Math.max(0, start - 1)) + 1;
+                textarea.setRangeText(btn.dataset.line, lineStart, lineStart, 'end');
+                textarea.focus();
+            }
+            refresh();
+        });
+    });
+})();
+</script>
+{% endblock %}

@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}Kontrola dokumentów — USMS Panel{% endblock %}
+{% block content %}
+<div class="page-head">
+    <div><h1>Kontrola dokumentów</h1><p>Widok Inspekcji — dokumentacja funkcjonariuszy USMS.</p></div>
+</div>
+<section class="panel full">
+    <form method="get" class="search-row">
+        <input type="search" name="q" value="{{ q }}" placeholder="Szukaj po nazwisku, odznace lub stopniu…">
+        <button class="small-button" type="submit">Szukaj</button>
+    </form>
+</section>
+<section class="panel full">
+    <div class="panel-title"><h2>Funkcjonariusze</h2><span class="muted">{{ officers|length }} osób</span></div>
+    <div class="inspection-list">
+    {% for officer in officers %}
+        <a class="inspection-row" href="{{ url_for('officer_detail', badge=officer.badge) }}">
+            <div><strong>#{{ officer.badge }} — {{ officer.full_name }}</strong><small>{{ officer.rank }}</small></div>
+            <div class="inspection-doc-count"><strong>{{ officer.document_count }}</strong><small>dokumentów</small></div>
+            <span>→</span>
+        </a>
+    {% else %}<div class="empty">Brak funkcjonariuszy.</div>{% endfor %}
+    </div>
+</section>
+{% endblock %}

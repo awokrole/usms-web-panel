@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}Panel Admina — USMS Panel{% endblock %}
+{% block content %}
+<div class="page-head">
+    <div>
+        <h1>Panel Admina</h1>
+        <p>Centrum administracyjne systemu USMS.</p>
+    </div>
+</div>
+
+<div class="admin-hub-grid">
+    <a class="admin-hub-card" href="{{ url_for('duty_page') }}">
+        <span class="admin-hub-icon">◷</span><div><strong>Służba</strong><small>Aktywne służby, pauzy i czas funkcjonariuszy.</small></div><b>→</b>
+    </a>
+    <a class="admin-hub-card" href="{{ url_for('payroll_page') }}">
+        <span class="admin-hub-icon">$</span><div><strong>Wypłaty</strong><small>Zestawienia, statusy wypłat i mnożnik zarobków.</small></div><b>→</b>
+    </a>
+    <a class="admin-hub-card" href="{{ url_for('absences_page') }}">
+        <span class="admin-hub-icon">□</span><div><strong>Urlopy i zawieszenia</strong><small>Aktualne urlopy, zawieszenia i terminy powrotu.</small></div><b>→</b>
+    </a>
+    <a class="admin-hub-card" href="{{ url_for('announcements_page') }}">
+        <span class="admin-hub-icon">◁</span><div><strong>Ogłoszenia</strong><small>Historia ogłoszeń i odnośniki do wiadomości Discord.</small></div><b>→</b>
+    </a>
+    <a class="admin-hub-card" href="{{ url_for('logs') }}">
+        <span class="admin-hub-icon">≡</span><div><strong>Logi komend</strong><small>Audyt użycia komend i ostatnie działania.</small></div><b>→</b>
+    </a>
+    <a class="admin-hub-card" href="{{ url_for('system_status') }}">
+        <span class="admin-hub-icon">●</span><div><strong>Stan systemu</strong><small>PostgreSQL, Discord API i stan usług panelu.</small></div><b>→</b>
+    </a>
+    <a class="admin-hub-card" href="{{ url_for('inspection_documents') }}">
+        <span class="admin-hub-icon">▤</span><div><strong>Kontrola dokumentów</strong><small>Kontrola dokumentów funkcjonariuszy w trybie tylko do odczytu.</small></div><b>→</b>
+    </a>
+    <a class="admin-hub-card" href="{{ url_for('weekly_summary') }}">
+        <span class="admin-hub-icon">▥</span><div><strong>Podsumowanie tygodnia</strong><small>Godziny, norma, ocena, szkolenia i statystyki funkcjonariuszy.</small></div><b>→</b>
+    </a>
+</div>
+{% endblock %}

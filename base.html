@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="pl">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}USMS Panel{% endblock %}</title>
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='usms-favicon.png') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+{% if current_user %}
+<div class="layout">
+    <aside class="sidebar">
+        <a class="brand" href="{{ url_for('dashboard') }}" title="Przejdź do strony głównej">
+            <div class="seal seal-logo"><img src="{{ url_for('static', filename='usms-seal.png') }}" alt="U.S. Marshals Service"></div>
+            <div>
+                <strong>UNITED STATES</strong>
+                <strong>MARSHALS SERVICE</strong>
+                <small>USMS PANEL</small>
+            </div>
+        </a>
+
+        <nav class="sidebar-panels">
+            <details class="side-panel" {% if request.endpoint in ['officers','officer_detail','trainings','akta'] %}open{% endif %}>
+                <summary><span class="side-panel-icon">☰</span><strong>USMS PANEL</strong><span class="chevron">⌄</span></summary>
+                <div class="side-panel-list">
+                    <a href="{{ url_for('officers') }}" class="{% if request.endpoint in ['officers','officer_detail'] %}active{% endif %}">♙ Funkcjonariusze</a>
+                    <a href="{{ url_for('akta') }}" class="{% if request.endpoint == 'akta' %}active{% endif %}">▤ Akta</a>
+                    <a href="{{ url_for('trainings') }}" class="{% if request.endpoint == 'trainings' %}active{% endif %}">✚ Szkolenia</a>
+                </div>
+            </details>
+
+            <details class="side-panel" {% if request.endpoint in ['kompendium','directives','legal_acts','exam_home','exam_take','exam_result','exam_admin','exam_admin_session','exam_admin_attempt'] %}open{% endif %}>
+                <summary><span class="side-panel-icon">☰</span><strong>BAZA WIEDZY</strong><span class="chevron">⌄</span></summary>
+                <div class="side-panel-list">
+                    <a href="{{ url_for('kompendium') }}" class="{% if request.endpoint == 'kompendium' %}active{% endif %}">⌘ Kompendium</a>
+                    <a href="{{ url_for('directives') }}" class="{% if request.endpoint == 'directives' %}active{% endif %}">▧ Dyrektywy PIA</a>
+                    <a href="{{ url_for('legal_acts') }}" class="{% if request.endpoint == 'legal_acts' %}active{% endif %}">§ Akty prawne</a>
+                    <a href="{{ url_for('exam_home') }}" class="{% if request.endpoint in ['exam_home','exam_take','exam_result'] %}active{% endif %}">✓ Egzaminy</a>
+                    {% if is_admin %}<a href="{{ url_for('exam_admin') }}" class="{% if request.endpoint in ['exam_admin','exam_admin_session','exam_admin_attempt'] %}active{% endif %}">⚙ Egzaminy — Admin</a>{% endif %}
+                </div>
+            </details>
+
+            <details class="side-panel" {% if request.endpoint in ['training_haw'] %}open{% endif %}>
+                <summary><span class="side-panel-icon">✦</span><strong>MATERIAŁY SZKOLENIOWE</strong><span class="chevron">⌄</span></summary>
+                <div class="side-panel-list">
+                    <a href="{{ url_for('training_haw') }}" class="{% if request.endpoint == 'training_haw' %}active{% endif %}">▣ HAW</a>
+                </div>
+            </details>
+
+        </nav>
+
+        {% if is_inspection and not is_admin %}
+        <a class="side-inspection-panel side-inspection-bottom {% if request.endpoint == 'inspection_documents' %}active{% endif %}" href="{{ url_for('inspection_documents') }}">
+            <span class="side-panel-icon">▤</span><strong>KONTROLA DOKUMENTÓW</strong><span>→</span>
+        </a>
+        {% endif %}
+
+        {% if is_admin %}
+        <a class="side-admin-panel side-admin-bottom {% if request.endpoint in ['admin_panel','inspection_documents'] %}active{% endif %}" href="{{ url_for('admin_panel') }}">
+            <span class="side-panel-icon">⚙</span><strong>PANEL ADMINA</strong><span>→</span>
+        </a>
+        {% endif %}
+
+        <div class="sidebar-user{% if is_admin %} has-admin{% endif %}">
+            <a class="sidebar-user-profile" href="{{ url_for('my_profile') }}" title="Przejdź do mojego profilu">
+                <img src="{{ current_user.avatar_url }}" alt="">
+                <div>
+                    <strong>{{ current_user.username }}</strong>
+                    <small>Discord ID: {{ current_user.id }}</small>
+                </div>
+            </a>
+            <a class="sidebar-logout" href="{{ url_for('logout') }}" title="Wyloguj">↪</a>
+        </div>
+    </aside>
+
+    <main class="main">
+        <header class="topbar">
+            <a class="topbar-home" href="{{ url_for('dashboard') }}">USMS PANEL</a>
+            <div class="top-user">
+                <span class="status-dot"></span>
+                {{ current_user.username }}
+            </div>
+        </header>
+
+        <section class="content">
+            {% block content %}{% endblock %}
+        </section>
+    </main>
+</div>
+{% else %}
+    {% block public_content %}{% endblock %}
+{% endif %}
+</body>
+</html>

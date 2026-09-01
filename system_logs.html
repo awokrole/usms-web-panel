@@ -1,0 +1,52 @@
+{% extends "base.html" %}{% block title %}Logi komend — USMS Panel{% endblock %}{% block content %}
+<div class="page-head">
+  <div>
+    <h1>Logi komend</h1>
+    <p>Pełny audyt ostatnich użyć komend bota. Widok tylko dla administracji.</p>
+  </div>
+  <div class="date-chip">{{ rows|length }} wpisów</div>
+</div>
+{% if error %}<div class="alert error">{{ error }}</div>{% endif %}
+<section class="panel full">
+  <div class="system-log-list">
+    {% for r in rows %}
+      <article class="system-log system-log-detailed">
+        <div class="system-log-head">
+          <div>
+            <strong>{{ r.author }}</strong>
+            {% if r.author_id %}<small class="log-meta-id">Discord ID: {{ r.author_id }}</small>{% endif %}
+          </div>
+          <div class="log-head-right">
+            <span>{{ r.timestamp }}</span>
+            {% if r.message_url %}<a class="log-discord-link" href="{{ r.message_url }}" target="_blank" rel="noopener">Otwórz na Discordzie ↗</a>{% endif %}
+          </div>
+        </div>
+
+        {% if r.content %}<div class="log-content">{{ r.content }}</div>{% endif %}
+
+        {% for e in r.embeds %}
+          <div class="log-embed log-embed-detailed">
+            {% if e.title %}<div class="log-embed-title">{{ e.title }}</div>{% endif %}
+            {% if e.description %}<div class="log-embed-description">{{ e.description }}</div>{% endif %}
+
+            {% if e.fields %}
+              <div class="log-field-grid">
+                {% for f in e.fields %}
+                  <div class="log-field {% if not f.inline %}log-field-wide{% endif %}">
+                    <span>{{ f.name or 'Informacja' }}</span>
+                    <div>{{ f.value or '—' }}</div>
+                  </div>
+                {% endfor %}
+              </div>
+            {% endif %}
+
+            {% if e.footer and e.footer.text %}<div class="log-footer">{{ e.footer.text }}</div>{% endif %}
+          </div>
+        {% endfor %}
+      </article>
+    {% else %}
+      <div class="empty">Brak wpisów do wyświetlenia.</div>
+    {% endfor %}
+  </div>
+</section>
+{% endblock %}

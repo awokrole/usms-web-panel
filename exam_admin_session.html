@@ -1,0 +1,35 @@
+{% extends "base.html" %}{% block title %}Sesja egzaminacyjna — Admin{% endblock %}{% block content %}
+<div class="page-head"><div><h1>{{ exam_session.title }}</h1><p>Sesja #{{ exam_session.id }} • {{ exam_session.question_count }} pytań • {{ exam_session.duration_minutes }} min • próg {{ exam_session.pass_percent }}%</p></div><div class="exam-session-actions"><form method="post" action="{{ url_for('exam_admin_close', session_id=exam_session.id) }}"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="btn danger" onclick="return confirm('Zamknąć możliwość rozpoczynania egzaminu?')">Zamknij sesję</button></form><form method="post" action="{{ url_for('exam_admin_delete', session_id=exam_session.id) }}"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="btn danger ghost-danger" onclick="return confirm('Trwale usunąć ten egzamin? Jeśli ktoś właśnie go pisze, jego podejście zostanie natychmiast przerwane i usunięte wraz ze wszystkimi wynikami, odpowiedziami oraz indywidualnymi terminami. Tej operacji nie można cofnąć.')">Usuń egzamin</button></form></div></div>
+<section class="panel exam-override-panel">
+  <h2>Indywidualny termin / poprawka</h2>
+  <p class="muted">Wybierz funkcjonariusza. Możesz wyznaczyć termin, otworzyć egzamin tylko dla niego albo przyznać dodatkowe podejście.</p>
+  <form method="post" action="{{ url_for('exam_admin_override', session_id=exam_session.id) }}" class="override-form">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <label class="override-officer">Funkcjonariusz
+      <select name="discord_id" required>
+        <option value="">Wybierz...</option>
+        {% for o in officers %}
+          {% if o.discord_id %}
+            <option value="{{ o.discord_id }}">#{{ o.badge }} — {{ o.full_name }}</option>
+          {% endif %}
+        {% endfor %}
+      </select>
+    </label>
+    <label>Od
+      <input type="datetime-local" name="opens_at">
+    </label>
+    <label>Do
+      <input type="datetime-local" name="closes_at">
+    </label>
+    <div class="override-actions">
+      <button class="btn" name="action" value="schedule">Wyznacz termin</button>
+      <button class="btn primary" name="action" value="open_now">Otwórz teraz tylko dla niego</button>
+      <button class="btn warnbtn" name="action" value="extra_attempt">Zezwól na dodatkowe podejście</button>
+    </div>
+  </form>
+  {% if not officers %}
+    <p class="exam-form-warning">Nie udało się pobrać listy funkcjonariuszy. Sprawdź połączenie z PostgreSQL / listą funkcjonariuszy.</p>
+  {% endif %}
+</section>
+<section class="panel"><h2>Wyniki i podejścia</h2>{% if attempts %}<div class="table-wrap"><table><thead><tr><th>Funkcjonariusz</th><th>Odznaka</th><th>Próba</th><th>Wynik</th><th>Status</th><th>Start</th><th>Szczegóły</th></tr></thead><tbody>{% for a in attempts %}<tr><td>{{ a.display_name }}<small class="block">{{ a.discord_id }}</small></td><td>#{{ a.badge_number or '—' }}</td><td>{{ a.attempt_no }}</td><td>{% if a.status!='in_progress' %}{{ a.score }}/{{ a.total }} — {{ a.percent }}%{% else %}—{% endif %}</td><td>{% if a.status=='in_progress' %}<span class="pill warn">W trakcie</span>{% elif a.status=='pending_review' %}<span class="pill warn">Do weryfikacji ({{ a.pending_review }})</span>{% elif a.passed %}<span class="pill ok">Zaliczony</span>{% else %}<span class="pill bad">Niezaliczony</span>{% endif %}</td><td>{{ a.started_at.astimezone().strftime('%d.%m.%Y %H:%M') if a.started_at else '—' }}</td><td><a class="btn smallbtn" href="{{ url_for('exam_admin_attempt', attempt_id=a.id) }}">Sprawdź odpowiedzi</a></td></tr>{% endfor %}</tbody></table></div>{% else %}<p class="muted">Nikt jeszcze nie rozpoczął tej sesji.</p>{% endif %}</section>
+{% endblock %}

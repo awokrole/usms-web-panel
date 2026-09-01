@@ -1,0 +1,127 @@
+{% extends "base.html" %}
+{% block title %}Dashboard — USMS Panel{% endblock %}
+{% block content %}
+<div class="page-head">
+    <div>
+        <h1>Dashboard</h1>
+        <p>Witaj z powrotem, {{ current_user.username }}.</p>
+    </div>
+    {% if my_officer %}
+    <a class="dashboard-profile-chip" href="{{ url_for('my_profile') }}">
+        {% if my_profile_meta and my_profile_meta.has_photo %}
+            <img src="{{ url_for('officer_photo_media', badge=my_officer.badge) }}" alt="{{ my_officer.full_name }}">
+        {% else %}
+            <img src="{{ current_user.avatar_url }}" alt="{{ current_user.username }}">
+        {% endif %}
+        <span><small>MÓJ PROFIL</small><strong>{{ my_officer.full_name }}</strong></span>
+        <b>→</b>
+    </a>
+    {% else %}
+    <a class="dashboard-profile-chip" href="{{ url_for('my_profile') }}">
+        <img src="{{ current_user.avatar_url }}" alt="{{ current_user.username }}">
+        <span><small>MÓJ PROFIL</small><strong>{{ current_user.username }}</strong></span>
+        <b>→</b>
+    </a>
+    {% endif %}
+</div>
+
+{% if sheet_error %}
+<div class="alert error">Nie udało się pobrać danych z PostgreSQL: {{ sheet_error }}</div>
+{% endif %}
+
+{% if payroll_multiplier > 1 %}
+<div class="payroll-bonus-banner">
+    <div class="payroll-bonus-icon">$</div>
+    <div><span>AKTYWNY BONUS ZAROBKÓW</span><small>Aktualne zarobki są naliczane z aktywnym bonusem.</small></div>
+</div>
+{% endif %}
+
+<div class="stats-grid">
+    <div class="stat-card blue"><span>FUNKCJONARIUSZE</span><strong>{{ officers|length }}</strong><small>Łącznie w bazie</small></div>
+    <div class="stat-card green"><span>NA SŁUŻBIE</span><strong>{{ active|length }}</strong><small>Aktualnie aktywni</small></div>
+    <div class="stat-card yellow"><span>NA URLOPIE</span><strong>{{ vacation_count }}</strong><small>Aktywne urlopy</small></div>
+    <div class="stat-card purple"><span>ZAWIESZENI</span><strong>{{ suspended_count }}</strong><small>Aktywne zawieszenia</small></div>
+    <div class="stat-card cyan"><span>ŁĄCZNE GODZINY W TYGODNIU</span><strong>{{ weekly_hours }}h</strong><small>Resetowane przez /resetgodzin</small></div>
+    <div class="stat-card cyan"><span>ŁĄCZNE GODZINY</span><strong>{{ lifetime_hours }}h</strong><small>Historia — bez resetu</small></div>
+</div>
+
+<div class="dashboard-grid">
+    <section class="panel">
+        <div class="panel-title">
+            <h2>Aktualnie na służbie</h2>
+            <a href="{{ url_for('officers') }}">Zobacz wszystkich →</a>
+        </div>
+        {% if active %}
+        <div class="table-wrap">
+            <table>
+                <thead><tr><th>Funkcjonariusz</th><th>Stopień</th><th>Czas</th></tr></thead>
+                <tbody>
+                {% for officer in active %}
+                <tr>
+                    <td><span class="online-dot"></span><a href="{{ url_for('officer_detail', badge=officer.badge) }}"><strong>{{ officer.full_name }}</strong></a><small>#{{ officer.badge }}</small></td>
+                    <td>{{ officer.rank }}</td>
+                    <td class="time">{{ officer.current_shift_text }}</td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="empty">Aktualnie nikt nie jest na służbie.</div>
+        {% endif %}
+    </section>
+
+    <section class="panel dashboard-status9-panel">
+        <div class="panel-title">
+            <h2>Status 9</h2>
+            {% if is_admin %}<a href="{{ url_for('announcements_page') }}">Edytuj →</a>{% endif %}
+        </div>
+        {% if dashboard_status9 %}
+        <div class="dashboard-status9-scroll">
+            <div class="dashboard-status9-meta">
+                <span>STATUS 9</span>
+                <small>{{ dashboard_status9.created_at.strftime('%d.%m.%Y %H:%M') if dashboard_status9.created_at else '' }}</small>
+            </div>
+            <div class="dashboard-status9-content discord-rendered">{{ dashboard_status9.content|discord_markdown }}</div>
+        </div>
+        {% else %}
+        <div class="dashboard-status9-empty">Brak opublikowanego Statusu 9.</div>
+        {% endif %}
+    </section>
+</div>
+
+<section class="panel full">
+    <div class="panel-title">
+        <h2>Ostatni podgląd funkcjonariuszy</h2>
+        <a href="{{ url_for('officers') }}">Pełna baza →</a>
+    </div>
+    <div class="officer-cards">
+        {% for officer in officers[:8] %}
+        <a class="officer-card" href="{{ url_for('officer_detail', badge=officer.badge) }}">
+            <div class="avatar-fallback">{{ officer.full_name[:1] }}</div>
+            <div><strong>{{ officer.full_name }}</strong><span>#{{ officer.badge }}</span><small>{{ officer.rank }}</small></div>
+        </a>
+        {% endfor %}
+    </div>
+</section>
+
+<section class="panel full dashboard-announcements-panel">
+    <div class="panel-title">
+        <h2>Ogłoszenia</h2>
+        {% if is_admin %}<a href="{{ url_for('announcements_page') }}">Zarządzaj →</a>{% endif %}
+    </div>
+    <div class="dashboard-announcement-list">
+        {% for item in dashboard_announcements %}
+        <article class="dashboard-announcement-item">
+            <div class="dashboard-announcement-meta">
+                <strong>{{ item.author_name or 'Administracja USMS' }}</strong>
+                <time>{{ item.created_at.strftime('%d.%m.%Y %H:%M') if item.created_at else '' }}</time>
+            </div>
+            <div class="dashboard-announcement-content discord-rendered">{{ item.content|discord_markdown }}</div>
+        </article>
+        {% else %}
+        <div class="empty">Brak aktualnych ogłoszeń.</div>
+        {% endfor %}
+    </div>
+</section>
+{% endblock %}

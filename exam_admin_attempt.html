@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block title %}Weryfikacja egzaminu — Admin{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <a class="back-link" href="{{ url_for('exam_admin_session', session_id=attempt.session_id) }}">← Wróć do sesji</a>
+    <h1>{{ attempt.display_name }}</h1>
+    <p>#{{ attempt.badge_number or '—' }} • Próba {{ attempt.attempt_no }} • {{ attempt.title }}</p>
+  </div>
+  <div class="admin-score-box">
+    <strong>{{ attempt.score or 0 }}/{{ attempt.total or 0 }}</strong>
+    <span>{{ attempt.percent or 0 }}%</span>
+    {% if attempt.status == 'pending_review' %}<span class="pill warn">{{ attempt.pending_review }} do weryfikacji</span>
+    {% elif attempt.passed %}<span class="pill ok">Zaliczony</span>
+    {% else %}<span class="pill bad">Niezaliczony</span>{% endif %}
+  </div>
+</div>
+
+<section class="panel">
+  <h2>Odpowiedzi funkcjonariusza</h2>
+  <p class="muted">Widzisz dokładnie, jaki zestaw odpowiedzi zaznaczył funkcjonariusz i jaki zestaw był poprawny.</p>
+  <div class="answer-review-list admin-review-list">
+  {% for q in questions %}
+    <article class="answer-review-card {% if q.grading_status == 'review' %}review{% elif q.is_correct %}correct{% else %}incorrect{% endif %}">
+      <div class="answer-review-head">
+        <strong>Pytanie {{ q.position }}</strong>
+        {% if q.grading_status == 'review' %}<span class="pill warn">Do weryfikacji</span>
+        {% elif q.is_correct %}<span class="pill ok">Poprawna</span>
+        {% else %}<span class="pill bad">Błędna</span>{% endif %}
+      </div>
+      <h3>{{ q.question_text }}</h3>
+      <div class="answer-line"><span>Zaznaczył:</span><b>{{ q.selected_answer or 'Brak odpowiedzi' }}</b></div>
+      <div class="answer-line expected"><span>Poprawny zestaw:</span><b>{% if q.correct_answers %}{{ q.correct_answers|join(' • ') }}{% else %}Żadna z powyższych odpowiedzi{% endif %}</b></div>
+      <div class="grading-meta"><span>{{ q.grading_reason or 'Brak informacji o ocenie' }}</span>{% if q.similarity_score is not none %}<span>Zgodność: {{ q.similarity_score }}%</span>{% endif %}</div>
+      {% if q.grading_status == 'review' %}
+      <form class="manual-review-actions" method="post" action="{{ url_for('exam_admin_review_answer', attempt_id=attempt.id, answer_id=q.id) }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <button class="btn primary" name="decision" value="correct">Uznaj za poprawną</button>
+        <button class="btn danger" name="decision" value="incorrect">Uznaj za błędną</button>
+      </form>
+      {% elif q.reviewed_at %}<div class="manual-reviewed">Zweryfikowano ręcznie.</div>{% endif %}
+    </article>
+  {% endfor %}
+  </div>
+</section>
+{% endblock %}

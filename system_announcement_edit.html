@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+{% block title %}Edytuj ogłoszenie — USMS Panel{% endblock %}
+{% block content %}
+<div class="page-head">
+    <div>
+        <h1>Edytuj wpis</h1>
+        <p>Zmiana zapisze się na stronie i — jeśli wpis jest powiązany — zaktualizuje tę samą wiadomość na Discordzie bez ponownego pingu.</p>
+    </div>
+    <a class="btn" href="{{ url_for('announcements_page') }}">← Wróć</a>
+</div>
+{% if error %}<div class="alert error">{{ error }}</div>{% endif %}
+<section class="panel full announcement-composer-panel">
+    <form method="post" class="announcement-composer">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <div class="announcement-type-row">
+            <label><span>Rodzaj</span><select name="kind" id="announcement-kind" required>
+                <option value="announcement" {% if row.kind == 'announcement' %}selected{% endif %}>Ogłoszenie</option>
+                <option value="status9" {% if row.kind == 'status9' %}selected{% endif %}>Status 9</option>
+            </select></label>
+            <label><span>Kanał Discord</span>
+                <select name="channel_id" disabled>
+                    {% for channel_id, channel_name in announcement_channels.items() %}
+                    <option value="{{ channel_id }}" {% if row.discord_channel_id == channel_id %}selected{% endif %}>{{ channel_name }}</option>
+                    {% endfor %}
+                </select>
+                <small>Kanał istniejącego wpisu nie jest zmieniany podczas edycji.</small>
+            </label>
+        </div>
+        <div class="announcement-editor-shell">
+            <div class="discord-toolbar" aria-label="Formatowanie Discord Markdown">
+                <button type="button" data-wrap="**|**" title="Pogrubienie"><strong>B</strong></button>
+                <button type="button" data-wrap="*|*" title="Kursywa"><em>I</em></button>
+                <button type="button" data-wrap="__|__" title="Podkreślenie"><u>U</u></button>
+                <button type="button" data-wrap="~~|~~" title="Przekreślenie"><s>S</s></button>
+                <span class="toolbar-sep"></span>
+                <button type="button" data-line="# " title="Nagłówek duży">H1</button>
+                <button type="button" data-line="## " title="Nagłówek średni">H2</button>
+                <button type="button" data-line="### " title="Nagłówek mały">H3</button>
+                <button type="button" data-line="> " title="Cytat">❯</button>
+                <button type="button" data-line="- " title="Lista">• Lista</button>
+                <button type="button" data-wrap="`|`" title="Kod">&lt;/&gt;</button>
+            </div>
+            <div class="announcement-editor-grid">
+                <label class="announcement-text-label"><span>Treść</span>
+                    <textarea id="announcement-content" name="content" maxlength="12000" required autocomplete="off">{{ row.content }}</textarea>
+                    <div id="mention-suggestions" class="mention-suggestions" hidden></div>
+                </label>
+                <div class="announcement-preview-wrap"><span>Podgląd w stylu Discord</span>
+                    <div id="announcement-preview" class="discord-message-preview" aria-live="polite"></div>
+                </div>
+            </div>
+        </div>
+        <div class="markdown-help"><strong>Edycja nie wysyła ponownego pingu.</strong> Wzmianki nadal będą widoczne w treści Discorda.</div>
+        <div class="announcement-form-footer">
+            <small>{% if row.discord_message_ids %}Powiązano z {{ row.discord_message_ids|length }} wiadomością/wiadomościami Discord.{% else %}Ten starszy wpis nie ma zapisanego ID wiadomości Discord — zostanie zmieniony tylko na stronie.{% endif %}</small>
+            <button class="btn" type="submit">Zapisz zmiany</button>
+        </div>
+    </form>
+</section>
+<script>
+(() => {
+    const mentionOfficers = {{ mention_officers|tojson }};
+    const textarea = document.getElementById('announcement-content');
+    const preview = document.getElementById('announcement-preview');
+    const suggestions = document.getElementById('mention-suggestions');
+    if (!textarea || !preview) return;
+    const esc = (v) => v.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
+    const labels = Object.fromEntries(mentionOfficers.map(o => [String(o.badge || ''), String(o.name || '')]));
+    const inline = (v) => {
+        let x = esc(v);
+        x = x.replace(/\b(https?:\/\/[^\s<]+)/gi, '<a class="discord-link" href="$1" target="_blank" rel="noopener noreferrer">$1</a>')
+             .replace(/(^|[^A-Za-z0-9_])@(\d{3})(?!\d)/g, (m,p,b) => p + '<span class="discord-mention">' + esc(labels[b] ? `[${b}] ${labels[b]}` : `[${b}]`) + '</span>')
+             .replace(/(^|[^A-Za-z0-9_])@usms\b/gi, '$1<span class="discord-mention discord-role-mention">@USMS</span>')
+             .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>').replace(/__(.+?)__/g, '<u>$1</u>')
+             .replace(/~~(.+?)~~/g, '<s>$1</s>').replace(/(^|[^*])\*([^*\n]+?)\*(?!\*)/g, '$1<em>$2</em>')
+             .replace(/`([^`\n]+)`/g, '<code class="discord-inline-code">$1</code>');
+        return x;
+    };
+    function render(text) {
+        if (!text.trim()) return '<span class="preview-placeholder">Podgląd pojawi się tutaj.</span>';
+        const lines = text.replace(/\r/g,'').split('\n'); let html='', ul=false, ol=false, inCode=false, code=[];
+        const close=()=>{if(ul){html+='</ul>';ul=false;}if(ol){html+='</ol>';ol=false;}};
+        for(const raw of lines){ let m;
+            if(raw.startsWith('```')){ close(); if(inCode){html+='<pre class="discord-code-block"><code>'+esc(code.join('\n'))+'</code></pre>';code=[];inCode=false;}else inCode=true; continue; }
+            if(inCode){code.push(raw);continue;}
+            if((m=raw.match(/^(#{1,3})\s+(.+)$/))){close();const n=m[1].length;html+=`<h${n} class="discord-h${n}">${inline(m[2])}</h${n}>`;}
+            else if((m=raw.match(/^[-*]\s+(.+)$/))){if(ol){html+='</ol>';ol=false;}if(!ul){html+='<ul class="discord-list">';ul=true;}html+='<li>'+inline(m[1])+'</li>';}
+            else if((m=raw.match(/^\d+[.)]\s+(.+)$/))){if(ul){html+='</ul>';ul=false;}if(!ol){html+='<ol class="discord-list">';ol=true;}html+='<li>'+inline(m[1])+'</li>';}
+            else if((m=raw.match(/^>\s?(.*)$/))){close();html+='<blockquote class="discord-quote">'+(inline(m[1])||'&nbsp;')+'</blockquote>';}
+            else if(!raw.trim()){close();html+='<div class="discord-spacer"></div>';}
+            else {close();html+='<div class="discord-line">'+inline(raw)+'</div>';}
+        }
+        close(); if(inCode) html+='<pre class="discord-code-block"><code>'+esc(code.join('\n'))+'</code></pre>'; return html;
+    }
+    const refresh=()=>preview.innerHTML=render(textarea.value); let mentionStart=-1;
+    const hide=()=>{if(!suggestions)return;suggestions.hidden=true;suggestions.innerHTML='';mentionStart=-1;};
+    function choose(v){if(mentionStart<0)return;const end=textarea.selectionStart;textarea.setRangeText(v+' ',mentionStart,end,'end');textarea.focus();hide();refresh();}
+    function update(){if(!suggestions)return;const pos=textarea.selectionStart,before=textarea.value.slice(0,pos),match=before.match(/(?:^|\s)@([^\s@]*)$/);if(!match){hide();return;}const q=(match[1]||'').toLowerCase();mentionStart=pos-q.length-1;const opts=[];if('usms'.startsWith(q))opts.push({v:'@usms',b:'@USMS',n:'Rola — ping wszystkich USMS'});mentionOfficers.forEach(o=>{const b=String(o.badge||''),n=String(o.name||'');if(!q||b.startsWith(q)||n.toLowerCase().includes(q))opts.push({v:'@'+b,b:'['+b+']',n});});const shown=opts.slice(0,8);if(!shown.length){hide();return;}suggestions.innerHTML='';shown.forEach(o=>{const btn=document.createElement('button');btn.type='button';btn.className='mention-suggestion';btn.innerHTML='<strong></strong><span></span>';btn.querySelector('strong').textContent=o.b;btn.querySelector('span').textContent=o.n;btn.addEventListener('mousedown',e=>e.preventDefault());btn.addEventListener('click',()=>choose(o.v));suggestions.appendChild(btn);});suggestions.hidden=false;}
+    textarea.addEventListener('input',()=>{refresh();update();});textarea.addEventListener('click',update);textarea.addEventListener('keyup',e=>{if(e.key==='Escape')hide();});textarea.addEventListener('blur',()=>setTimeout(hide,120));
+    document.querySelectorAll('.discord-toolbar button').forEach(btn=>btn.addEventListener('click',()=>{const start=textarea.selectionStart,end=textarea.selectionEnd,sel=textarea.value.slice(start,end);if(btn.dataset.wrap){const [a,b]=btn.dataset.wrap.split('|');textarea.setRangeText(a+sel+b,start,end,'end');textarea.focus();if(!sel)textarea.setSelectionRange(start+a.length,start+a.length);}else if(btn.dataset.line){const ls=textarea.value.lastIndexOf('\n',Math.max(0,start-1))+1;textarea.setRangeText(btn.dataset.line,ls,ls,'end');textarea.focus();}refresh();}));
+    refresh();
+})();
+</script>
+{% endblock %}

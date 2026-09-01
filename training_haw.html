@@ -1,0 +1,193 @@
+{% extends "base.html" %}
+{% block title %}Materiały szkoleniowe HAW — USMS Panel{% endblock %}
+{% block content %}
+<div class="haw-page">
+  <section class="panel haw-hero">
+    <div class="haw-hero-copy">
+      <div class="eyebrow">MATERIAŁY SZKOLENIOWE • HAW</div>
+      <h1>Materiał szkoleniowy HAW</h1>
+      <p>Materiał szkoleniowy United States Marshals Service.</p>
+      <div class="haw-meta">
+        <span>8 stron materiału</span>
+        <span>Training Division</span>
+        <span>HAW</span>
+        <a class="haw-pdf-link" href="{{ url_for('static', filename='haw-material-szkoleniowy.pdf') }}" target="_blank" rel="noopener">Otwórz oryginalny PDF ↗</a>
+      </div>
+    </div>
+    <img class="haw-training-seal" src="{{ url_for('static', filename='haw-training-division.png') }}" alt="U.S. Marshals Service Training Division">
+  </section>
+
+  <div class="haw-layout">
+    <aside class="panel haw-toc">
+      <strong>SPIS TREŚCI</strong>
+      <a class="haw-toc-link" href="#haw-blos"><span>01</span>BLOS</a>
+      <a class="haw-toc-link" href="#haw-fire"><span>02</span>Rodzaje ognia</a>
+      <a class="haw-toc-link" href="#haw-rifle"><span>03</span>Budowa broni długiej</a>
+      <a class="haw-toc-link" href="#haw-first-aid"><span>04</span>Pierwsza pomoc</a>
+      <a class="haw-toc-link" href="#haw-cqb"><span>05</span>CQB</a>
+      <a class="haw-toc-link" href="#haw-auto-fire"><span>06</span>Ogień automatyczny</a>
+      <a class="haw-toc-link" href="#haw-ammo"><span>07</span>Amunicja SOG</a>
+      <a class="haw-toc-link" href="#haw-tactics"><span>08</span>Taktyki CQB</a>
+      <a class="haw-toc-link" href="#haw-entry"><span>09</span>Metody wejścia</a>
+      <a class="haw-toc-link" href="#haw-malfunctions"><span>10</span>Zacięcia broni</a>
+      <a class="haw-toc-link" href="#haw-room"><span>11</span>Praca w pomieszczeniu</a>
+    </aside>
+
+    <main class="haw-content">
+      <article id="haw-blos" class="panel haw-section">
+        <div class="haw-section-no">01</div>
+        <div class="eyebrow">PODSTAWY BEZPIECZEŃSTWA</div>
+        <h2>Co to BLOS?</h2>
+        <div class="haw-blos-list">
+          <div class="haw-blos-item"><strong>B - Broń</strong><p>Broń traktuj zawsze jakby była naładowana.</p></div>
+          <div class="haw-blos-item"><strong>L - Lufa</strong><p>Lufa skierowana w stronę celu albo w ziemię.</p></div>
+          <div class="haw-blos-item"><strong>O - Otoczenie</strong><p>Przed strzałem upewniamy się czy nie ma nikogo na linii strzału.</p></div>
+          <div class="haw-blos-item"><strong>S - Spust</strong><p>Palec trzymaj na spuście tylko w momencie oddania strzału.</p></div>
+        </div>
+      </article>
+
+      <article id="haw-fire" class="panel haw-section">
+        <div class="haw-section-no">02</div>
+        <div class="eyebrow">PROWADZENIE OGNIA</div>
+        <h2>Rodzaje ognia</h2>
+        <p>Mamy kilka rodzajów ognia:</p>
+        <div class="haw-definition-list">
+          <div><strong>Bezpośredni</strong><p>wsparcie udzielane oddziałowi, który prowadzi działania bojowe. Ogień jest kierowany bezpośrednio na cele zagrażające wspieranemu pododdziałowi.</p></div>
+          <div><strong>Bezpośredniego wsparcia</strong><p>sposób działania jednostki ogniowej, której głównym zadaniem jest wspieranie konkretnego pododdziału przez cały czas wykonywania zadania.</p></div>
+          <div><strong>Ciągły</strong><p>wsparcie prowadzone nieprzerwanie przez określony czas, aby stale oddziaływać na przeciwnika i utrzymać przewagę.</p></div>
+          <div><strong>Wspierający</strong><p>ogień prowadzony w celu ułatwienia działania własnym wojskom, np. osłony natarcia, obrony lub odwrotu.</p></div>
+          <div><strong>Krzyżowy</strong><p>ogień prowadzony z co najmniej dwóch różnych kierunków, które przecinają się na celu. Utrudnia przeciwnikowi ukrycie się i zwiększa skuteczność rażenia.</p></div>
+          <div><strong>Zaporowy</strong><p>intensywny ogień prowadzony na wyznaczonym odcinku terenu, którego celem jest zatrzymanie lub spowolnienie ruchu przeciwnika.</p></div>
+          <div><strong>Kurtynowy</strong><p>ogień prowadzony wzdłuż określonej linii, tworzący „kurtynę ogniową”, która osłania własne siły lub uniemożliwia przeciwnikowi przemieszczanie się przez dany obszar.</p></div>
+        </div>
+      </article>
+
+      <article id="haw-rifle" class="panel haw-section haw-visual-section">
+        <div class="haw-section-no">03</div>
+        <div class="eyebrow">WYPOSAŻENIE</div>
+        <h2>Budowa broni długiej</h2>
+        <figure class="haw-figure">
+          <img src="{{ url_for('static', filename='haw-budowa-broni-dlugiej.png') }}" alt="Budowa broni długiej — opis elementów">
+          <figcaption>Grafika z materiału szkoleniowego HAW.</figcaption>
+        </figure>
+      </article>
+
+      <article id="haw-first-aid" class="panel haw-section">
+        <div class="haw-section-no">04</div>
+        <div class="eyebrow">PIERWSZA POMOC</div>
+        <h2>Pierwsza pomoc przy postrzale</h2>
+        <div class="haw-callout">Najważniejsze jest tamowanie krwawienie przez zrobienie opatrunku uciskowego. W najcięższych przypadkach założenie stazy.</div>
+      </article>
+
+      <article id="haw-cqb" class="panel haw-section">
+        <div class="haw-section-no">05</div>
+        <div class="eyebrow">CLOSE QUARTERS BATTLE</div>
+        <h2>Co to jest CQB?</h2>
+        <p><strong>CQB (Close Quarters Battle)</strong> – taktyka walki na bardzo bliskim dystansie, prowadzona w zamkniętych lub ograniczonych przestrzeniach, takich jak budynki, mieszkania, magazyny czy wąskie korytarze. Polega na szybkim i skoordynowanym działaniu zespołu, bezpiecznym przemieszczaniu się, oczyszczaniu pomieszczeń, odpowiednim wykorzystaniu osłon oraz skutecznej neutralizacji zagrożeń przy zachowaniu bezpieczeństwa własnych sił i osób postronnych.</p>
+      </article>
+
+      <article id="haw-auto-fire" class="panel haw-section">
+        <div class="haw-section-no">06</div>
+        <div class="eyebrow">RYZYKO</div>
+        <h2>Najważniejsze ryzyka podczas prowadzenia ognia automatycznego w zamkniętym pomieszczeniu</h2>
+        <div class="haw-warning">Bardzo duża szansa na utratę kontroli nad bronią i trafienie cywila lub operatora SOG, Ryzyko rykoszetów i niekontrolowanego rozrzutu w zamkniętej przestrzeni</div>
+      </article>
+
+      <article id="haw-ammo" class="panel haw-section">
+        <div class="haw-section-no">07</div>
+        <div class="eyebrow">WYPOSAŻENIE</div>
+        <h2>Rodzaje amunicji wykorzystywanych przez jednostkę SOG</h2>
+        <div class="haw-ammo-list">
+          <div><b>5,56 × 45 mm NATO</b><span>AR-15 / M16 / M4 / FN SCAR-L</span></div>
+          <div><b>7,62 × 39 mm</b><span>AK-47 / AKM / AK-103.</span></div>
+          <div><b>9x19 mm Parabellum</b><span>MP5 / UZI / CZ Scorpion Evo 3</span></div>
+          <div><b>5.7x28 mm FN</b><span>FN P90</span></div>
+          <div><b>7,62 × 51 mm NATO</b><span>M24 / M40 / SAKO TRG / HK G28. ( Karabiny snajperskie )</span></div>
+          <div><b>.50 BMG</b><span>Browning M2 / McMillan TAC-50 ( Ciężkie karabiny snajperskie )</span></div>
+          <div><b>12 GA</b><span>Mossberg 500 / Benelli M4 ( Shotgun )</span></div>
+        </div>
+      </article>
+
+      <article id="haw-tactics" class="panel haw-section">
+        <div class="haw-section-no">08</div>
+        <div class="eyebrow">TAKTYKA</div>
+        <h2>Taktyki w CQB i czym się zajmują</h2>
+        <div class="haw-tactics-grid">
+          <div class="haw-tactic green"><strong>Taktyka zielona</strong><p>obejmuje działania prowadzone w terenie otwartym i naturalnym, takim jak lasy, pola, łąki czy tereny górskie. Skupia się na patrolowaniu, obserwacji, maskowaniu, przemieszczaniu się w trudnym terenie oraz poszukiwaniu i zatrzymywaniu osób.</p></div>
+          <div class="haw-tactic black"><strong>Taktyka czarna</strong><p>dotyczy działań prowadzonych w budynkach i innych obiektach infrastruktury. Obejmuje wejścia do pomieszczeń, przeszukiwanie budynków, oczyszczanie pomieszczeń (CQB), odbijanie zakładników oraz zatrzymywanie niebezpiecznych osób.</p></div>
+          <div class="haw-tactic red"><strong>Taktyka czerwona</strong><p>koncentruje się na działaniach przeciwko aktywnym napastnikom i innym bezpośrednim zagrożeniom. Jej celem jest szybka eliminacja zagrożenia, zabezpieczenie miejsca zdarzenia oraz ewakuacja rannych do bezpiecznej strefy.</p></div>
+          <div class="haw-tactic blue"><strong>Taktyka niebieska</strong><p>obejmuje działania prowadzone na wodzie i w jej pobliżu. Dotyczy operacji z wykorzystaniem łodzi i innych jednostek pływających, patroli wodnych, abordażu oraz akcji ratunkowych.</p></div>
+          <div class="haw-tactic gray"><strong>Taktyka szara</strong><p>odnosi się do działań prowadzonych w tłumie i na terenach miejskich o dużym zagęszczeniu ludzi. Obejmuje kontrolę zgromadzeń, zabezpieczanie imprez masowych, rozpoznawanie zagrożeń oraz zatrzymywanie osób przy jednoczesnym minimalizowaniu ryzyka dla postronnych.</p></div>
+        </div>
+      </article>
+
+      <article id="haw-entry" class="panel haw-section">
+        <div class="haw-section-no">09</div>
+        <div class="eyebrow">CQB</div>
+        <h2>Metody wejścia w CQB</h2>
+        <div class="haw-entry-list">
+          <div><strong>Wejście dynamiczne</strong><p>szybkie i zdecydowane wejście zespołu do pomieszczenia, stosowane zazwyczaj wtedy, gdy liczy się element zaskoczenia i natychmiastowe przejęcie kontroli nad obiektem. Operatorzy wchodzą jeden za drugim w bardzo krótkich odstępach czasu, aby jak najszybciej zabezpieczyć wnętrze. Pierwsze osoby po wejściu natychmiast kontrolują najbliższe narożniki pomieszczenia, a kolejne osoby zajmują pozostałe sektory i wspierają działania zespołu. Celem jest szybkie opanowanie przestrzeni i wyeliminowanie zagrożeń.</p></div>
+          <div><strong>Wejście statyczne / sekwencyjne</strong><p>metoda polegająca na powolnym i kontrolowanym przejmowaniu pomieszczenia. Stosowana jest wtedy, gdy przeciwnik może być świadomy obecności zespołu lub nie ma możliwości zastosowania pełnego zaskoczenia. Operatorzy stopniowo przesuwają się do wnętrza, kontrolując kolejne sektory i wzajemnie zabezpieczając swoje pola widzenia. Pozwala to na dokładniejsze sprawdzenie pomieszczenia oraz ograniczenie ryzyka dla zespołu i osób postronnych.</p></div>
+          <div><strong>Wejście przez przełamanie (siłowe)</strong><p>polega na uzyskaniu dostępu do pomieszczenia poprzez usunięcie przeszkody, np. otwarcie lub wyważenie drzwi. Stosowane jest, gdy nie ma możliwości normalnego wejścia albo wymaga tego sytuacja. Po przełamaniu przeszkody zespół natychmiast przechodzi do zabezpieczenia obiektu.</p></div>
+          <div><strong>Wejście po cichu (skryte)</strong><p>metoda wykorzystująca element zaskoczenia i minimalizowanie wykrycia przez przeciwnika. Operatorzy poruszają się spokojnie, kontrolują otoczenie i starają się wejść do obiektu bez wzbudzania alarmu. Stosowane głównie podczas działań wymagających dyskrecji i dokładnego rozpoznania.</p></div>
+        </div>
+      </article>
+
+      <article id="haw-malfunctions" class="panel haw-section">
+        <div class="haw-section-no">10</div>
+        <div class="eyebrow">BEZPIECZEŃSTWO</div>
+        <h2>Zasady bezpieczeństwa i procedury natychmiastowego reagowania przy zacięciach broni</h2>
+        <p><strong>Zacięcie broni</strong> – jest to sytuacja, w której broń nie działa prawidłowo, np. nie dochodzi do oddania strzału, nabój nie zostaje prawidłowo podany do komory lub mechanizm broni przestaje działać. Może wystąpić zarówno podczas szkolenia, jak i działań w sytuacji zagrożenia.</p>
+        <p>W przypadku zacięcia najważniejsze jest zachowanie spokoju, bezpieczeństwa oraz kontrolowanie sytuacji. Należy skierować broń w bezpiecznym kierunku, nie kierować jej w stronę osób postronnych oraz unikać przypadkowego naciśnięcia spustu.</p>
+        <p>Podczas trwania ostrzału, jeżeli broń długa ulegnie zacięciu i uniemożliwia dalsze prowadzenie ognia, należy przejść na broń krótką, aby utrzymać zdolność do reagowania i dalszego zabezpieczania siebie oraz zespołu. Broń długa powinna zostać zabezpieczona i naprawiona lub sprawdzona w bezpiecznych warunkach.</p>
+        <p>Po zakończeniu zagrożenia należy usunąć przyczynę zacięcia zgodnie z procedurami, sprawdzić stan techniczny broni oraz upewnić się, że jest ona ponownie gotowa do użycia. Ważna jest również komunikacja z członkami zespołu, aby poinformować ich o problemie i uniknąć dezorganizacji działań.</p>
+      </article>
+
+      <article id="haw-room" class="panel haw-section">
+        <div class="haw-section-no">11</div>
+        <div class="eyebrow">CQB</div>
+        <h2>Praca wewnątrz pomieszczenia</h2>
+        <div class="haw-room-grid">
+          <div><strong>Głębokie kąty</strong><p>Nigdy nie zostawiaj nie sprawdzonych rogów za plecami lub po bokach zaraz po przekroczeniu progu.</p></div>
+          <div><strong>Unikanie „wyspy”</strong><p>Przemieszczanie się wzdłuż ścian zamiast w samym środku pokoju, chyba że wymaga tego struktura przestrzeni i osłona zespołu.</p></div>
+          <div><strong>Komunikacja</strong><p>Jasne i krótkie meldunki (np. „czysto”) wydawane dopiero po pełnym zabezpieczeniu przypisanego sektora.</p></div>
+        </div>
+      </article>
+
+      <div class="panel haw-source-note">Treść oraz grafiki pochodzą z przekazanego materiału szkoleniowego HAW. Nie uzupełniano ani nie zastępowano treści informacjami zewnętrznymi.</div>
+    </main>
+  </div>
+</div>
+
+<script>
+(() => {
+  const toc = document.querySelector('.haw-toc');
+  if (!toc) return;
+  const links = [...toc.querySelectorAll('.haw-toc-link')];
+  const sections = links.map(link => document.querySelector(link.getAttribute('href'))).filter(Boolean);
+
+  links.forEach(link => {
+    link.addEventListener('click', event => {
+      const target = document.querySelector(link.getAttribute('href'));
+      if (!target) return;
+      event.preventDefault();
+      links.forEach(item => item.classList.toggle('active', item === link));
+      target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      history.replaceState(null, '', link.getAttribute('href'));
+    });
+  });
+
+  if ('IntersectionObserver' in window) {
+    const observer = new IntersectionObserver(entries => {
+      const visible = entries
+        .filter(entry => entry.isIntersecting)
+        .sort((a, b) => Math.abs(a.boundingClientRect.top) - Math.abs(b.boundingClientRect.top))[0];
+      if (!visible) return;
+      const id = '#' + visible.target.id;
+      links.forEach(link => link.classList.toggle('active', link.getAttribute('href') === id));
+    }, { rootMargin: '-90px 0px -65% 0px', threshold: 0.01 });
+    sections.forEach(section => observer.observe(section));
+  }
+})();
+</script>
+{% endblock %}
