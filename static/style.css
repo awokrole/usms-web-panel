@@ -605,27 +605,37 @@ nav{display:flex;flex-direction:column;gap:5px;overflow:auto}.nav-label{font-siz
 .training-material-page{
   position:relative;
   isolation:isolate;
+  background:transparent;
 }
 .training-material-page::before{
   content:"";
   position:absolute;
   inset:0;
-  z-index:-1;
+  z-index:0;
   pointer-events:none;
   background-image:url('/static/training-division-watermark.png');
   background-repeat:repeat-y;
-  background-position:center 120px;
-  background-size:min(760px,68vw) auto;
-  opacity:.06;
+  background-position:center 110px;
+  background-size:min(720px,62vw) auto;
+  opacity:.20;
 }
-/* Panele pozostają czytelne, ale delikatnie przepuszczają watermark z tła. */
+.training-material-page > *{
+  position:relative;
+  z-index:1;
+}
+/* Panele są lekko transparentne, dzięki czemu watermark jest widoczny pod treścią. */
 .training-material-page .panel{
-  background-color:rgba(8,22,36,.96);
+  background-color:rgba(8,22,36,.78);
+  backdrop-filter:blur(1px);
+  -webkit-backdrop-filter:blur(1px);
 }
 @media(max-width:700px){
   .training-material-page::before{
-    background-size:min(560px,88vw) auto;
+    background-size:min(560px,86vw) auto;
     background-position:center 80px;
-    opacity:.05;
+    opacity:.17;
+  }
+  .training-material-page .panel{
+    background-color:rgba(8,22,36,.82);
   }
 }
