@@ -1545,6 +1545,7 @@ def legal_acts():
     return render_template("legal_acts.html")
 
 
+@app.route("/start-trainee")
 @app.route("/baza-wiedzy/start-trainee")
 @logged_in_required
 def trainee_start():
