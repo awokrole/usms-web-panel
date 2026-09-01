@@ -14,10 +14,10 @@
         <div class="legal-search-nav" aria-label="Nawigacja po wynikach wyszukiwania">
           <span id="legalSearchPosition" class="legal-search-position" hidden>0 / 0</span>
           <button id="legalPrevResult" type="button" class="legal-search-arrow" aria-label="Poprzedni wynik" title="Poprzedni wynik">
-            <span aria-hidden="true">&#8249;</span>
+            <span aria-hidden="true">&#8593;</span>
           </button>
           <button id="legalNextResult" type="button" class="legal-search-arrow" aria-label="Następny wynik" title="Następny wynik">
-            <span aria-hidden="true">&#8250;</span>
+            <span aria-hidden="true">&#8595;</span>
           </button>
         </div>
       </div>
@@ -1258,8 +1258,8 @@ function setTabHit(tab,hits){
 }
 function updateFloatingSearchNav(){
   if(!searchNav || !searchToolbar) return;
-  const shouldFloat=isSearching() && searchMatches.length>0 && searchToolbar.getBoundingClientRect().bottom<12;
-  searchToolbar.classList.toggle('is-floating',shouldFloat);
+  // Pasek wyszukiwania ma być stale pływający i widoczny także podczas przewijania.
+  searchToolbar.classList.add('is-floating');
   searchNav.classList.remove('is-floating');
 }
 function updateSearchNavigation(){
@@ -1370,14 +1370,9 @@ function filter(){
   if(searching){
     count.textContent=`${totalHits} trafień • ${totalSections} sekcji • ${actsWithHits} akty`;
     nores.hidden=totalHits!==0;
-    const activeId=document.querySelector('.legal-act.active')?.id.replace('act-','');
-    if(totalHits>0 && (!activeId || !(actHits[activeId]>0))){
-      const first=tabs.find(t=>(actHits[t.dataset.act]||0)>0);
-      if(first) activate(first.dataset.act);
-    }
     collectSearchMatches();
-    if(searchMatches.length) focusMatch(0,{scroll:false});
-    else updateSearchNavigation();
+    currentMatchIndex=searchMatches.length? -1 : -1;
+    updateSearchNavigation();
   }else{
     count.textContent='3 akty prawne';
     nores.hidden=true;
@@ -1395,7 +1390,6 @@ search.addEventListener('keydown',(e)=>{
 });
 prevResultBtn?.addEventListener('click',goToPrevMatch);
 nextResultBtn?.addEventListener('click',goToNextMatch);
-window.addEventListener('scroll',updateFloatingSearchNav,{passive:true});
 window.addEventListener('resize',updateFloatingSearchNav);
 
 document.getElementById('criminalExpandAll')?.addEventListener('click',()=>document.querySelectorAll('#act-criminal .criminal-chapter').forEach(x=>{if(!x.hidden)x.open=true;}));

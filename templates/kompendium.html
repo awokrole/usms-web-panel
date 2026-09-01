@@ -13,8 +13,8 @@
         <input id="compendiumSearch" class="compendium-search" type="search" placeholder="Szukaj: 10-80, PWC, JSD, PIT, Bean Bag, Miranda…" autocomplete="off">
         <div class="compendium-search-nav" aria-label="Nawigacja po wynikach wyszukiwania">
           <span id="compendiumSearchPosition" class="compendium-search-position" hidden>0 / 0</span>
-          <button id="compendiumPrevResult" type="button" class="compendium-search-arrow" aria-label="Poprzedni wynik" title="Poprzedni wynik"><span aria-hidden="true">&#8249;</span></button>
-          <button id="compendiumNextResult" type="button" class="compendium-search-arrow" aria-label="Następny wynik" title="Następny wynik"><span aria-hidden="true">&#8250;</span></button>
+          <button id="compendiumPrevResult" type="button" class="compendium-search-arrow" aria-label="Poprzedni wynik" title="Poprzedni wynik"><span aria-hidden="true">&#8593;</span></button>
+          <button id="compendiumNextResult" type="button" class="compendium-search-arrow" aria-label="Następny wynik" title="Następny wynik"><span aria-hidden="true">&#8595;</span></button>
         </div>
       </div>
       <span id="searchCount" class="search-count"></span>
@@ -235,20 +235,19 @@
    matches=[...document.querySelectorAll('mark.compendium-search-hit')];
    no.hidden=!querying||matches.length>0;
    count.textContent=querying?`${matches.length} trafień • ${visible} sekcji`:'';
-   if(matches.length)focus(0,{scroll:false});else updateNav();
+   current=matches.length?-1:-1;
+   updateNav();
    updateFloating();
  }
  function updateFloating(){
    if(!wrap||!toolbar)return;
-   if(!floatSentinelTop)floatSentinelTop=wrap.getBoundingClientRect().top+window.scrollY;
-   const shouldFloat=window.scrollY>floatSentinelTop+24;
-   toolbar.classList.toggle('is-floating',shouldFloat);
-   wrap.classList.toggle('has-floating-toolbar',shouldFloat);
+   toolbar.classList.add('is-floating');
+   wrap.classList.add('has-floating-toolbar');
  }
  input.addEventListener('input',runSearch);
  input.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();e.shiftKey?prev():next()}else if(e.key==='Escape'&&input.value){input.value='';runSearch();input.focus()}});
  prevBtn.addEventListener('click',prev);nextBtn.addEventListener('click',next);
- window.addEventListener('scroll',updateFloating,{passive:true});window.addEventListener('resize',()=>{floatSentinelTop=0;updateFloating()});
+ window.addEventListener('resize',()=>{floatSentinelTop=0;updateFloating()});
  document.querySelectorAll('.kb-tab').forEach(b=>b.addEventListener('click',()=>{const root=b.closest('.kb-section');root.querySelectorAll('.kb-tab').forEach(x=>x.classList.remove('active'));root.querySelectorAll('.kb-tab-panel').forEach(x=>x.classList.remove('active'));b.classList.add('active');root.querySelector('[data-panel="'+b.dataset.tab+'"]').classList.add('active')}));
  document.querySelectorAll('.equip-tab').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('.equip-tab').forEach(x=>x.classList.remove('active'));document.querySelectorAll('.equip-panel').forEach(x=>x.classList.remove('active'));b.classList.add('active');document.querySelector('[data-equip-panel="'+b.dataset.equip+'"]').classList.add('active')}));
  document.querySelectorAll('.compendium-toc a').forEach(a=>a.addEventListener('click',()=>{if(input.value){input.value='';runSearch()}}));
