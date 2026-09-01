@@ -789,3 +789,157 @@ nav{display:flex;flex-direction:column;gap:5px;overflow:auto}.nav-label{font-siz
 .trainee-dont-v3{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}.trainee-dont-v3>div{display:flex;align-items:center;gap:11px;padding:10px 12px;border:1px solid rgba(188,62,62,.28);border-radius:8px;background:rgba(85,21,25,.12)}.trainee-dont-v3 b{display:grid;place-items:center;flex:0 0 30px;height:30px;border:1px solid #a8363d;border-radius:7px;color:#ff595f;font-size:24px;line-height:1;font-weight:950}.trainee-dont-v3 span{color:#b6c4d1;font-size:9px;line-height:1.5}
 @media(max-width:1100px){.trainee-radio-lines{grid-template-columns:1fr}.trainee-blos-v3,.trainee-kpp-v3{grid-template-columns:repeat(2,minmax(0,1fr))}.uofbar{grid-template-columns:38px 1fr 1.35fr}.uofbar p:last-child{grid-column:2/-1}}
 @media(max-width:700px){.trainee-status-lines,.trainee-1313,.trainee-dont-v3{grid-template-columns:1fr}.trainee-blos-v3,.trainee-kpp-v3{grid-template-columns:1fr}.uofbar{grid-template-columns:36px 1fr}.uofbar p{grid-column:2/-1}.trainee-radio-lines>div{grid-template-columns:62px 14px 1fr}}
+
+/* Start Trainee: direct sidebar button + compact radio rows */
+.side-direct-link{display:grid;grid-template-columns:18px 1fr;align-items:center;gap:7px;min-height:38px;padding:9px 11px;border:1px solid #20344a;border-radius:9px;background:#0a1724;color:#e7eef7;font-size:12px;font-weight:800;text-decoration:none}
+.side-direct-link:hover{background:#0e2032;color:#fff}
+.side-direct-link.active{background:linear-gradient(90deg,#123367,#102750);border-color:#294d7c;color:#fff}
+.trainee-side-direct .side-panel-icon{color:#79aff0}
+.trainee-radio-lines>div{grid-template-columns:max-content 10px minmax(0,1fr);column-gap:5px}
+.trainee-status-lines .status-important{padding-left:0;padding-right:0}
+@media(max-width:700px){.trainee-radio-lines>div{grid-template-columns:max-content 10px minmax(0,1fr)}}
+
+/* Start Trainee — uporządkowane statusy i kody */
+.trainee-radio-columns{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}
+.trainee-radio-column{display:flex;flex-direction:column;gap:0}
+.trainee-radio-column>div{display:flex;align-items:baseline;gap:7px;padding:3px 0;font-size:9px;min-height:20px}
+.trainee-radio-column b{flex:0 0 64px;color:#78b3f4}
+.trainee-radio-column span{color:#a8b8c8;line-height:1.45}
+.trainee-status-columns .trainee-radio-column b{flex-basis:66px}
+.trainee-status-columns .status-important{border-radius:6px;background:rgba(61,137,207,.10);padding-left:0;padding-right:0}
+.trainee-status-columns .status-important b{color:#9ac9ff}
+@media(max-width:700px){.trainee-radio-columns{grid-template-columns:1fr}.trainee-status-columns .trainee-radio-column b,.trainee-radio-column b{flex-basis:62px}}
+
+/* START TRAINEE — direct tile visually matched to the main sidebar panels */
+.side-direct-link{
+  display:grid;
+  grid-template-columns:18px 1fr auto;
+  align-items:center;
+  gap:7px;
+  min-height:38px;
+  padding:9px 11px;
+  border:1px solid #20344a;
+  border-radius:9px;
+  background:#0a1724;
+  color:#e7eef7;
+  font-size:12px;
+  font-weight:800;
+  line-height:1.2;
+  text-decoration:none;
+  box-sizing:border-box;
+}
+.side-direct-link:hover{background:#0e2032;color:#fff}
+.side-direct-link.active{
+  background:#0a1724;
+  border-color:#294660;
+  color:#fff;
+  box-shadow:inset 0 0 0 1px rgba(126,179,237,.04);
+}
+.trainee-side-direct .side-panel-icon{color:#7eb3ed;font-size:13px}
+.side-direct-arrow{color:#7293b6;font-size:12px;font-weight:900;line-height:1}
+.trainee-side-direct:hover .side-direct-arrow,.trainee-side-direct.active .side-direct-arrow{color:#8eb7df}
+
+
+/* START TRAINEE — sidebar tile hard-match to side-panel geometry */
+.trainee-direct-panel{
+  overflow:hidden;
+  border:1px solid #20344a;
+  border-radius:9px;
+  background:#0a1724;
+}
+.trainee-direct-panel:hover{background:#0e2032}
+.trainee-direct-panel.active{
+  border-color:#294660;
+  background:#0a1724;
+  box-shadow:inset 0 0 0 1px rgba(126,179,237,.04);
+}
+.sidebar-panels .trainee-direct-panel > .trainee-direct-link{
+  display:grid !important;
+  grid-template-columns:18px minmax(0,1fr) 18px !important;
+  align-items:center !important;
+  column-gap:8px !important;
+  width:100% !important;
+  min-height:38px !important;
+  padding:9px 11px !important;
+  margin:0 !important;
+  box-sizing:border-box !important;
+  border:0 !important;
+  border-radius:0 !important;
+  background:transparent !important;
+  color:#e7eef7 !important;
+  font-size:12px !important;
+  font-weight:800 !important;
+  line-height:1.2 !important;
+  text-decoration:none !important;
+}
+.sidebar-panels .trainee-direct-panel > .trainee-direct-link strong{
+  min-width:0;
+  justify-self:start;
+  white-space:nowrap;
+}
+.sidebar-panels .trainee-direct-panel .trainee-direct-icon{
+  width:18px;
+  margin:0 !important;
+  justify-self:center;
+  color:#7eb3ed;
+  font-size:13px;
+}
+.sidebar-panels .trainee-direct-panel .side-direct-arrow{
+  width:18px;
+  margin:0 !important;
+  justify-self:end;
+  text-align:right;
+  color:#7293b6;
+  font-size:12px;
+  font-weight:900;
+  line-height:1;
+}
+.sidebar-panels .trainee-direct-panel:hover .side-direct-arrow,
+.sidebar-panels .trainee-direct-panel.active .side-direct-arrow{color:#8eb7df}
+
+
+/* START TRAINEE — exact geometry match with main sidebar panels */
+.sidebar-panels > a.trainee-direct-panel{
+  display:grid !important;
+  grid-template-columns:18px 1fr auto !important;
+  align-items:center !important;
+  gap:7px !important;
+  width:100% !important;
+  min-height:38px !important;
+  padding:9px 11px !important;
+  margin:0 !important;
+  box-sizing:border-box !important;
+  border:1px solid #20344a !important;
+  border-radius:9px !important;
+  background:#0a1724 !important;
+  color:#e7eef7 !important;
+  font-size:12px !important;
+  font-weight:800 !important;
+  line-height:1.2 !important;
+  text-decoration:none !important;
+  overflow:hidden !important;
+}
+.sidebar-panels > a.trainee-direct-panel:hover{background:#0e2032 !important;color:#fff !important}
+.sidebar-panels > a.trainee-direct-panel strong{min-width:0;white-space:nowrap;justify-self:start}
+.sidebar-panels > a.trainee-direct-panel .trainee-direct-icon{
+  width:18px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  color:#7eb3ed;
+  font-size:13px;
+  margin:0;
+}
+.sidebar-panels > a.trainee-direct-panel .side-direct-arrow{
+  justify-self:end;
+  color:#7293b6;
+  font-size:12px;
+  font-weight:900;
+  line-height:1;
+  margin-left:8px;
+}
+.sidebar-panels > a.trainee-direct-panel.active{
+  border-color:#294660 !important;
+  background:#0a1724 !important;
+  color:#fff !important;
+}
