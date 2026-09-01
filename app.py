@@ -1527,6 +1527,12 @@ def trainings():
     return render_template("trainings.html", officers=records)
 
 
+@app.route("/taryfikator")
+@login_required
+def taryfikator():
+    return render_template("taryfikator.html")
+
+
 @app.route("/kompendium")
 @logged_in_required
 def kompendium():
