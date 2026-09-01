@@ -1,83 +1,83 @@
 {% extends "base.html" %}
 {% block title %}Start Trainee — USMS Panel{% endblock %}
 {% block content %}
-<div class="trainee-page training-material-page">
+<div class="trainee-page training-material-page trainee-v3">
   <section class="panel haw-hero trainee-training-hero">
     <div class="haw-hero-copy">
       <div class="eyebrow">START TRAINEE • USMS</div>
-      <h1>Przewodnik startowy Trainee</h1>
-      <p>Najważniejsze zasady, które trzeba rozumieć od początku służby. Materiał jest skrótem informacji z Kompendium oraz szkoleń HAW, RO, SV i KPP.</p>
-      <div class="haw-meta">
-        <span>8 sekcji</span>
-        <span>Podstawy służby</span>
-        <span>Trainee</span>
-      </div>
+      <h1>Najważniejsze informacje na start</h1>
+      <p>Skrócone kompendium dla kadeta USMS — radio, BLOS, UOF, działania w terenie i minimum KPP.</p>
+      <div class="haw-meta"><span>RO</span><span>BLOS</span><span>UOF</span><span>KPP</span></div>
     </div>
     <div class="haw-hero-watermark" aria-hidden="true"></div>
-  </section>
-
-  <section class="panel trainee-intro-card">
-    <div class="eyebrow">NAJWAŻNIEJSZE NA POCZĄTEK</div>
-    <h2>5 zasad Trainee</h2>
-    <div class="trainee-core-rules">
-      <div><span>1</span><div><strong>Nie znasz kodu — mów normalnie.</strong><p>Zrozumiały komunikat jest lepszy niż błędnie użyty kod radiowy.</p></div></div>
-      <div><span>2</span><div><strong>Radio ma być krótkie i czytelne.</strong><p>Nie wchodź innym w komunikaty i przekazuj tylko potrzebne informacje.</p></div></div>
-      <div><span>3</span><div><strong>BLOS obowiązuje zawsze.</strong><p>Broń, lufa, otoczenie i spust są podstawą bezpiecznej pracy z bronią.</p></div></div>
-      <div><span>4</span><div><strong>UOF dopasowujesz do poziomu oporu.</strong><p>Najpierw rozpoznaj zachowanie i poziom zagrożenia, dopiero potem dobieraj środek.</p></div></div>
-      <div><span>5</span><div><strong>Wiedz, kto prowadzi działanie.</strong><p>Na akcji zwracaj uwagę na dowodzenie i wykonuj polecenia osoby prowadzącej.</p></div></div>
-    </div>
   </section>
 
   <div class="haw-layout trainee-training-layout">
     <aside class="panel haw-toc trainee-toc">
       <strong>SPIS TREŚCI</strong>
-      <a class="haw-toc-link" href="#tr-basics"><span>1</span>Podstawy służby</a>
+      <a class="haw-toc-link" href="#tr-rules"><span>1</span>5 zasad Trainee</a>
       <a class="haw-toc-link" href="#tr-radio"><span>2</span>Radio</a>
       <a class="haw-toc-link" href="#tr-blos"><span>3</span>BLOS</a>
       <a class="haw-toc-link" href="#tr-uof"><span>4</span>UOF</a>
       <a class="haw-toc-link" href="#tr-action"><span>5</span>Interwencje i pościgi</a>
       <a class="haw-toc-link" href="#tr-kpp"><span>6</span>KPP minimum</a>
       <a class="haw-toc-link" href="#tr-dont"><span>7</span>Czego unikać</a>
-      <a class="haw-toc-link" href="#tr-check"><span>8</span>Checklista i nauka</a>
     </aside>
 
     <main class="haw-content trainee-content">
-      <article id="tr-basics" class="panel haw-section trainee-section">
+      <article id="tr-rules" class="panel haw-section trainee-section">
         <div class="haw-section-no">1</div>
-        <div class="eyebrow">ORGANIZACJA SŁUŻBY</div>
-        <h2>Podstawy służby i dowodzenie</h2>
-        <p class="trainee-lead">Na początku najważniejsze jest rozumienie swojej roli, słuchanie komunikacji i wiedza, kto aktualnie prowadzi działanie.</p>
-        <div class="trainee-two-col">
-          <div class="trainee-info-card"><strong>PWC</strong><p>Organizuje patrole, MAIN, przydział jednostek, EDWARD i kanały taktyczne.</p></div>
-          <div class="trainee-info-card"><strong>APWC</strong><p>Wspiera PWC. Na MAIN powinien pozostawać PWC albo APWC.</p></div>
-          <div class="trainee-info-card"><strong>SV — Supervisor</strong><p>Po wyznaczeniu dowodzi konkretną akcją.</p></div>
-          <div class="trainee-info-card"><strong>OC — Operations Commander</strong><p>Przygotowuje plan działania i raportuje do SV.</p></div>
+        <div class="eyebrow">NAJWAŻNIEJSZE NA POCZĄTEK</div>
+        <h2>5 zasad Trainee</h2>
+        <div class="trainee-rule-rows">
+          <div><b>1.</b><section><strong>Nie znasz kodu — mów normalnie.</strong><p>Zrozumiały komunikat jest lepszy niż błędnie użyty kod radiowy.</p></section></div>
+          <div><b>2.</b><section><strong>Radio ma być krótkie i czytelne.</strong><p>Nie wchodź innym w komunikaty i przekazuj tylko potrzebne informacje.</p></section></div>
+          <div><b>3.</b><section><strong>BLOS obowiązuje zawsze.</strong><p>Broń, lufa, otoczenie i spust są podstawą bezpiecznej pracy z bronią.</p></section></div>
+          <div><b>4.</b><section><strong>UOF dopasowujesz do poziomu oporu.</strong><p>Najpierw rozpoznaj zachowanie i poziom zagrożenia, dopiero potem dobieraj środek.</p></section></div>
+          <div><b>5.</b><section><strong>Wiedz, kto prowadzi działanie.</strong><p>Na akcji zwracaj uwagę na dowodzenie i wykonuj polecenia osoby prowadzącej.</p></section></div>
         </div>
-        <div class="haw-callout trainee-callout"><b>Zapamiętaj:</b> zanim zaczniesz działać samodzielnie, ustal kto prowadzi akcję i czego oczekuje od Twojej jednostki.</div>
       </article>
 
       <article id="tr-radio" class="panel haw-section trainee-section">
         <div class="haw-section-no">2</div>
         <div class="eyebrow">RO • RADIO</div>
         <h2>Radio — zasady, które muszą wejść w nawyk</h2>
-        <div class="trainee-simple-list">
-          <div><span>1</span><p>Komunikaty mają być <strong>krótkie, zwięzłe i zrozumiałe</strong>.</p></div>
-          <div><span>2</span><p>Nie wchodzimy sobie w komunikaty.</p></div>
-          <div><span>3</span><p>Na radiu obowiązuje kultura.</p></div>
-          <div><span>4</span><p>Nie znasz kodu — przekaż informację zwykłym językiem.</p></div>
+        <div class="trainee-radio-rules">
+          <div><b>1.</b><span>Komunikaty mają być <strong>krótkie, zwięzłe i zrozumiałe.</strong></span></div>
+          <div><b>2.</b><span>Nie wchodzimy sobie w komunikaty.</span></div>
+          <div><b>3.</b><span>Na radiu obowiązuje kultura.</span></div>
+          <div><b>4.</b><span>Nie znasz kodu — przekaż informację zwykłym językiem.</span></div>
         </div>
-        <h3>Podstawowe kody</h3>
-        <div class="trainee-code-grid clean">
-          <div><b>10-4</b><span>Przyjąłem / Zrozumiano</span></div>
-          <div><b>10-5</b><span>W drodze</span></div>
-          <div><b>10-20</b><span>Obecna lokalizacja</span></div>
-          <div><b>10-21</b><span>Potrzebne wsparcie</span></div>
-          <div><b>10-23</b><span>Jednostka na miejscu</span></div>
-          <div><b>10-32</b><span>Osoba z bronią</span></div>
-          <div><b>10-71</b><span>Strzały</span></div>
-          <div><b>10-80</b><span>Rozpoczynam pościg</span></div>
-          <div><b>10-90</b><span>Napad</span></div>
-          <div><b>10-13A/B</b><span>Ranny funkcjonariusz</span></div>
+
+        <div class="trainee-radio-box">
+          <h3>Statusy — ważne dla Trainee</h3>
+          <div class="trainee-radio-lines trainee-status-lines">
+            <div><b>Status 1</b><i>—</i><span>Rozpoczęcie służby</span></div>
+            <div><b>Status 2</b><i>—</i><span>Przerwa w służbie</span></div>
+            <div><b>Status 3</b><i>—</i><span>Koniec służby</span></div>
+            <div class="status-important"><b>Status 4</b><i>—</i><span>Wolna jednostka</span></div>
+          </div>
+          <h3>Podstawowe kody</h3>
+          <div class="trainee-radio-lines">
+            <div><b>Kod 0</b><i>—</i><span>Strzały w kierunku funkcjonariusza — natychmiastowa pomoc reszty jednostek</span></div>
+            <div><b>10-0</b><i>—</i><span>Do wszystkich jednostek</span></div>
+            <div><b>10-1</b><i>—</i><span>Prośba o meldunek wszystkich jednostek</span></div>
+            <div><b>10-2</b><i>—</i><span>Potwierdzam (Tak)</span></div>
+            <div><b>10-3</b><i>—</i><span>Odmawiam (Nie)</span></div>
+            <div><b>10-4</b><i>—</i><span>Przyjąłem / Zrozumiano</span></div>
+            <div><b>10-5</b><i>—</i><span>W drodze</span></div>
+            <div><b>10-20</b><i>—</i><span>Obecna lokalizacja</span></div>
+            <div><b>10-21</b><i>—</i><span>Potrzebne wsparcie</span></div>
+            <div><b>10-23</b><i>—</i><span>Jednostka na miejscu</span></div>
+            <div><b>10-32</b><i>—</i><span>Osoba z bronią</span></div>
+            <div><b>10-71</b><i>—</i><span>Strzały</span></div>
+            <div><b>10-80</b><i>—</i><span>Rozpoczynam pościg</span></div>
+            <div><b>10-90</b><i>—</i><span>Napad</span></div>
+          </div>
+          <div class="trainee-1313">
+            <div><b>10-13A</b><p><strong>Ranny funkcjonariusz</strong><br>Inni funkcjonariusze <u>mogą dojechać</u>.</p></div>
+            <div><b>10-13B</b><p><strong>Ranny funkcjonariusz</strong><br>Inni funkcjonariusze <u>nie mogą dojechać</u>.</p></div>
+          </div>
         </div>
         <a class="trainee-more" href="{{ url_for('training_ro') }}">Otwórz pełny materiał RO →</a>
       </article>
@@ -86,31 +86,28 @@
         <div class="haw-section-no">3</div>
         <div class="eyebrow">BEZPIECZEŃSTWO BRONI</div>
         <h2>BLOS</h2>
-        <div class="haw-blos-grid trainee-blos-grid">
-          <div><strong>B - Broń</strong><p>Broń traktuj zawsze jakby była naładowana.</p></div>
-          <div><strong>L - Lufa</strong><p>Lufa skierowana w stronę celu albo w ziemię.</p></div>
-          <div><strong>O - Otoczenie</strong><p>Przed strzałem upewniamy się czy nie ma nikogo na linii strzału.</p></div>
-          <div><strong>S - Spust</strong><p>Palec trzymaj na spuście tylko w momencie oddania strzału.</p></div>
+        <div class="trainee-blos-v3">
+          <div><span class="trainee-icon">◈</span><section><strong>B - Broń</strong><p>Broń traktuj zawsze jakby była naładowana.</p></section></div>
+          <div><span class="trainee-icon">◉</span><section><strong>L - Lufa</strong><p>Lufa skierowana w stronę celu albo w ziemię.</p></section></div>
+          <div><span class="trainee-icon">◎</span><section><strong>O - Otoczenie</strong><p>Przed strzałem upewniamy się czy nie ma nikogo na linii strzału.</p></section></div>
+          <div><span class="trainee-icon">☝</span><section><strong>S - Spust</strong><p>Palec trzymaj na spuście tylko w momencie oddania strzału.</p></section></div>
         </div>
-        <a class="trainee-more" href="{{ url_for('training_haw') }}">Otwórz pełny materiał HAW →</a>
+        <a class="trainee-more" href="{{ url_for('kompendium') }}#uof">Otwórz BLOS w Kompendium →</a>
       </article>
 
       <article id="tr-uof" class="panel haw-section trainee-section trainee-uof-section">
         <div class="haw-section-no">4</div>
         <div class="eyebrow">USE OF FORCE</div>
-        <h2>UOF — najważniejsza zasada: rozpoznaj poziom oporu</h2>
-        <p class="trainee-lead">UOF nie jest jedną reakcją na każdą sytuację. Kompendium rozdziela zachowanie osoby na kolejne poziomy i przypisuje do nich dopuszczalne środki.</p>
-        <div class="trainee-uof-stack">
-          <div class="uof-coop"><span>1</span><div><strong>Współpracujący</strong><p>Kajdanki, komunikacja werbalna, blokowanie niebezpiecznych ruchów, obecność funkcjonariuszy / K9.</p></div></div>
-          <div class="uof-passive"><span>2</span><div><strong>Pasywny opór</strong><p>Taser, obalenie, pchnięcie, wymuszone przemieszczenie.</p></div></div>
-          <div class="uof-active"><span>3</span><div><strong>Aktywny opór</strong><p>Bean Bag po dwóch przypadkach niepodporządkowania, lekka tonfa, K9 do obalenia, chwyty obezwładniające.</p></div></div>
-          <div class="uof-aggressive"><span>4</span><div><strong>Agresywny opór</strong><p>K9 bite, Bean Bag, mocna tonfa; broń palna zgodnie z warunkami zagrożenia.</p></div></div>
-          <div class="uof-high"><span>5</span><div><strong>Zwiększony agresywny opór</strong><p>Broń krótka lub długa zgodnie z zasadami użycia broni.</p></div></div>
+        <h2>UOF — rozpoznaj poziom oporu</h2>
+        <p class="trainee-lead">Najpierw rozpoznaj zachowanie osoby, potem dobierz środek przypisany do danego poziomu w Kompendium.</p>
+        <div class="uof-training-bars">
+          <div class="uofbar coop"><span class="uof-picto">✓</span><strong>WSPÓŁPRACUJĄCY</strong><p><b>Jak rozpoznać:</b> wykonuje polecenia, nie stawia oporu.</p><p><b>Możliwe środki:</b> kajdanki, komunikacja werbalna, blokowanie niebezpiecznych ruchów, obecność funkcjonariuszy / K9.</p></div>
+          <div class="uofbar passive"><span class="uof-picto">✋</span><strong>PASYWNY OPÓR</strong><p><b>Jak rozpoznać:</b> nie wykonuje poleceń, ale nie podejmuje aktywnego ataku.</p><p><b>Możliwe środki:</b> Taser, obalenie, pchnięcie, wymuszone przemieszczenie.</p></div>
+          <div class="uofbar active"><span class="uof-picto">✊</span><strong>AKTYWNY OPÓR</strong><p><b>Jak rozpoznać:</b> aktywnie utrudnia zatrzymanie, wyrywa się lub próbuje uciekać.</p><p><b>Możliwe środki:</b> Bean Bag po dwóch przypadkach niepodporządkowania, lekka tonfa, K9 do obalenia, chwyty obezwładniające.</p></div>
+          <div class="uofbar aggressive"><span class="uof-picto">⚡</span><strong>AGRESYWNY OPÓR</strong><p><b>Jak rozpoznać:</b> zachowanie agresywne i bezpośrednie zagrożenie.</p><p><b>Możliwe środki:</b> K9 bite, Bean Bag, mocna tonfa; broń palna zgodnie z warunkami zagrożenia.</p></div>
+          <div class="uofbar high"><span class="uof-picto">◆</span><strong>ZWIĘKSZONY AGRESYWNY OPÓR</strong><p><b>Jak rozpoznać:</b> najwyższy poziom zagrożenia życia lub zdrowia.</p><p><b>Możliwe środki:</b> broń krótka lub długa zgodnie z zasadami użycia broni.</p></div>
         </div>
-        <div class="trainee-note-grid">
-          <div><strong>Taser</strong><p>Użycie tasera wobec osoby zakutej jest zabronione. Wobec osoby niezakutej i nieuzbrojonej maksymalnie 2 użycia.</p></div>
-          <div><strong>Użycie broni</strong><p>Pełne warunki użycia broni sprawdzaj w Kompendium. Nie opieraj decyzji wyłącznie na tej skróconej stronie.</p></div>
-        </div>
+        <div class="trainee-uof-note"><b>Taser:</b> użycie tasera wobec osoby zakutej jest zabronione. Wobec osoby niezakutej i nieuzbrojonej maksymalnie 2 użycia.</div>
         <a class="trainee-more" href="{{ url_for('kompendium') }}#uof">Otwórz pełny UOF w Kompendium →</a>
       </article>
 
@@ -122,13 +119,6 @@
           <div class="trainee-info-card"><strong>Na miejscu</strong><p>Rozpoznaj dowodzenie, pilnuj radia, BLOS i aktualnego poziomu UOF. Nie zagłuszaj komunikacji.</p></div>
           <div class="trainee-info-card"><strong>Pościg 10-80</strong><p>Jednostka rozpoczynająca przekazuje wymagane informacje. U1 prowadzi ciągłą radiówkę z kierunkiem i lokalizacją.</p></div>
         </div>
-        <h3>Kody pościgu</h3>
-        <div class="trainee-pursuit-grid clean">
-          <div class="pursuit-green"><b>ZIELONY</b><span>Standardowy start.</span></div>
-          <div class="pursuit-yellow"><b>ŻÓŁTY</b><span>Podwyższony poziom zagrożenia.</span></div>
-          <div class="pursuit-red"><b>CZERWONY</b><span>Wyższy poziom zagrożenia.</span></div>
-          <div class="pursuit-black"><b>CZARNY</b><span>Najwyższy poziom zagrożenia.</span></div>
-        </div>
         <div class="haw-warning trainee-warning"><b>Manewry pościgowe:</b> PIT, RAM, BOX, STRZAŁKA i inne wymagają właściwej autoryzacji PWC lub SV. RUCHOMA jest wskazana w Kompendium jako ściśle zabroniona.</div>
       </article>
 
@@ -136,11 +126,11 @@
         <div class="haw-section-no">6</div>
         <div class="eyebrow">KPP • MINIMUM</div>
         <h2>Pierwsza pomoc — minimum do zapamiętania</h2>
-        <div class="trainee-two-col trainee-kpp-cards">
-          <div class="trainee-info-card"><strong>ABCDE</strong><p>A — drożność dróg oddechowych, B — oddech, C — krążenie, D — przytomność, E — pełne oględziny ciała.</p></div>
-          <div class="trainee-info-card"><strong>AVPU</strong><p>A — Alert, V — Verbal, P — Pain, U — Unresponsive.</p></div>
-          <div class="trainee-info-card"><strong>RKO — dorosły</strong><p>100–120 uciśnięć/min, głębokość ok. 5–6 cm, 30 uciśnięć na 2 oddechy.</p></div>
-          <div class="trainee-info-card"><strong>Krwotok</strong><p>Natychmiastowy mocny ucisk miejsca krwawienia; w razie potrzeby opatrunek uciskowy i wezwanie pomocy.</p></div>
+        <div class="trainee-kpp-v3">
+          <div><span class="kpp-picto">✚</span><section><strong>ABCDE</strong><p>A — drożność dróg oddechowych</p><p>B — oddech</p><p>C — krążenie</p><p>D — przytomność</p><p>E — pełne oględziny ciała</p></section></div>
+          <div><span class="kpp-picto">◉</span><section><strong>AVPU</strong><p>A — Alert</p><p>V — Verbal</p><p>P — Pain</p><p>U — Unresponsive</p></section></div>
+          <div><span class="kpp-picto">♥</span><section><strong>RKO — dorosły</strong><p>100–120 uciśnięć/min</p><p>Głębokość ok. 5–6 cm</p><p>30 uciśnięć na 2 oddechy</p></section></div>
+          <div><span class="kpp-picto">●</span><section><strong>Krwotok</strong><p>Natychmiastowy mocny ucisk miejsca krwawienia.</p><p>W razie potrzeby opatrunek uciskowy i wezwanie pomocy.</p></section></div>
         </div>
         <a class="trainee-more" href="{{ url_for('training_kpp') }}">Otwórz pełny materiał KPP →</a>
       </article>
@@ -149,59 +139,25 @@
         <div class="haw-section-no">7</div>
         <div class="eyebrow">NA POCZĄTKU SZCZEGÓLNIE UWAŻAJ</div>
         <h2>Czego Trainee powinien unikać</h2>
-        <div class="trainee-dont-list">
-          <div><span>×</span><p>Używania kodu radiowego, którego znaczenia nie zna.</p></div>
-          <div><span>×</span><p>Wchodzenia innym funkcjonariuszom w komunikaty radiowe.</p></div>
-          <div><span>×</span><p>Pomijania BLOS nawet podczas dynamicznej sytuacji.</p></div>
-          <div><span>×</span><p>Używania tasera wobec osoby zakutej.</p></div>
-          <div><span>×</span><p>Wykonywania manewrów pościgowych bez wymaganej autoryzacji.</p></div>
-          <div><span>×</span><p>Stosowania RUCHOMEJ blokady.</p></div>
-        </div>
-      </article>
-
-      <article id="tr-check" class="panel haw-section trainee-section">
-        <div class="haw-section-no">8</div>
-        <div class="eyebrow">PRZED WYJAZDEM</div>
-        <h2>Krótka checklista i dalsza nauka</h2>
-        <div class="trainee-check-grid clean">
-          <section><h3>Przed służbą</h3><label><input type="checkbox"> Pamiętam zasady BLOS</label><label><input type="checkbox"> Znam podstawowe zasady radia</label><label><input type="checkbox"> Rozumiem poziomy UOF</label><label><input type="checkbox"> Pamiętam minimum KPP</label></section>
-          <section><h3>Podczas służby</h3><label><input type="checkbox"> Komunikuję się krótko i jasno</label><label><input type="checkbox"> Wiem, kto prowadzi działanie</label><label><input type="checkbox"> Kontroluję poziom zagrożenia</label><label><input type="checkbox"> W razie wątpliwości wracam do pełnego materiału</label></section>
-        </div>
-        <h3 class="trainee-materials-title">Pełne materiały</h3>
-        <div class="trainee-link-grid clean">
-          <a href="{{ url_for('kompendium') }}"><b>Kompendium</b><span>UOF, pościgi i procedury →</span></a>
-          <a href="{{ url_for('training_haw') }}"><b>HAW</b><span>BLOS, broń i bezpieczeństwo →</span></a>
-          <a href="{{ url_for('training_ro') }}"><b>RO</b><span>Radiokomunikacja →</span></a>
-          <a href="{{ url_for('training_sv') }}"><b>SV</b><span>Dowodzenie akcją →</span></a>
-          <a href="{{ url_for('training_kpp') }}"><b>KPP</b><span>Pierwsza pomoc →</span></a>
+        <div class="trainee-dont-v3">
+          <div><b>×</b><span>Używania kodu radiowego, którego znaczenia nie znasz.</span></div>
+          <div><b>×</b><span>Wchodzenia innym funkcjonariuszom w komunikaty radiowe.</span></div>
+          <div><b>×</b><span>Pomijania BLOS nawet podczas dynamicznej sytuacji.</span></div>
+          <div><b>×</b><span>Używania tasera wobec osoby zakutej.</span></div>
+          <div><b>×</b><span>Wykonywania manewrów pościgowych bez wymaganej autoryzacji.</span></div>
+          <div><b>×</b><span>Stosowania RUCHOMEJ blokady.</span></div>
         </div>
       </article>
     </main>
   </div>
 </div>
-
 <script>
-(() => {
-  const toc = document.querySelector('.trainee-toc');
-  if (!toc) return;
-  const links = [...toc.querySelectorAll('.haw-toc-link')];
-  const sections = links.map(link => document.querySelector(link.getAttribute('href'))).filter(Boolean);
-  links.forEach(link => link.addEventListener('click', event => {
-    const target = document.querySelector(link.getAttribute('href'));
-    if (!target) return;
-    event.preventDefault();
-    target.scrollIntoView({behavior:'smooth', block:'start'});
-    history.replaceState(null, '', link.getAttribute('href'));
-  }));
-  if ('IntersectionObserver' in window) {
-    const observer = new IntersectionObserver(entries => {
-      const visible = entries.filter(x => x.isIntersecting).sort((a,b) => Math.abs(a.boundingClientRect.top)-Math.abs(b.boundingClientRect.top))[0];
-      if (!visible) return;
-      const id = '#' + visible.target.id;
-      links.forEach(link => link.classList.toggle('active', link.getAttribute('href') === id));
-    }, {rootMargin:'-90px 0px -65% 0px', threshold:.01});
-    sections.forEach(section => observer.observe(section));
-  }
+(function(){
+  const links=[...document.querySelectorAll('.trainee-toc .haw-toc-link')];
+  const sections=[...document.querySelectorAll('.trainee-section[id]')];
+  links.forEach(link=>link.addEventListener('click',()=>links.forEach(x=>x.classList.toggle('active',x===link))));
+  const observer=new IntersectionObserver(entries=>entries.forEach(e=>{if(e.isIntersecting){const id='#'+e.target.id;links.forEach(l=>l.classList.toggle('active',l.getAttribute('href')===id));}}),{rootMargin:'-90px 0px -65% 0px',threshold:.01});
+  sections.forEach(s=>observer.observe(s));
 })();
 </script>
 {% endblock %}
