@@ -723,3 +723,29 @@ nav{display:flex;flex-direction:column;gap:5px;overflow:auto}.nav-label{font-siz
 .ro-topography-section h2{margin-bottom:18px}
 @media(max-width:900px){.ro-code-grid,.ro-rule-grid,.ro-shortcuts-list,.ro-place-grid{grid-template-columns:1fr}.ro-signal-grid{grid-template-columns:1fr}.ro-directions{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:520px){.ro-directions{grid-template-columns:1fr}.ro-code-grid>div,.ro-shortcuts-list>div{grid-template-columns:1fr}}
+
+/* NL I + SV — materiały szkoleniowe rozdzielone ze wspólnego źródła */
+.nli-page .haw-hero:after{content:"NL I";right:160px;letter-spacing:-4px}
+.sv-page .haw-hero:after{content:"SV";right:165px;letter-spacing:-4px}
+.training-list{margin:10px 0 0;padding-left:20px;color:#c7d3df;font-size:11px;line-height:1.7}
+.training-list li{margin:5px 0}
+.training-list-danger li::marker{color:#d86868}
+.training-list-red-text li{color:#ff6b6b;font-weight:700}
+.training-subtitle{margin:12px 0 8px;color:#e7f0f8;font-size:14px}
+.training-alert{margin:12px 0;padding:13px 15px;border-radius:8px;font-size:11px;line-height:1.6}
+.training-alert-black{background:#05080c;border:1px solid #2f3a45;color:#eef3f8}
+.training-alert-red{background:rgba(170,24,24,.16);border:1px solid rgba(255,64,64,.65);color:#ffd4d4}
+.training-code-card{margin-top:12px;padding:15px 16px;border-radius:9px;background:#081522;border:1px solid #203b57}
+.training-code-card>strong{display:inline-block;margin-bottom:9px;padding:3px 7px;border-radius:3px;font-size:14px;line-height:1.2}
+.training-code-card p{margin:7px 0}
+.training-code-yellow>strong{background:#f1c232;color:#111;font-weight:950}
+.training-code-yellow{border-left:4px solid #f1c232}
+.training-code-red>strong{background:#d90000;color:#fff;font-weight:950}
+.training-code-red{border-left:4px solid #d90000}
+.training-unit-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:12px}
+.training-unit-grid>div{padding:13px 14px;border:1px solid #203b57;border-radius:9px;background:#081522}
+.training-unit-grid strong{display:block;margin-bottom:5px;font-size:12px;color:#9bc7f3}
+.training-unit-grid p{margin:0;font-size:10px}
+.training-dispatch-example{margin-top:10px;padding:13px 15px;border:1px solid #2a4a69;border-radius:8px;background:#06111c;overflow:auto}
+.training-dispatch-example code{color:#8ed1ff;font-size:11px;white-space:nowrap}
+@media(max-width:760px){.training-unit-grid{grid-template-columns:1fr}.nli-page .haw-hero:after,.sv-page .haw-hero:after{display:none}}
