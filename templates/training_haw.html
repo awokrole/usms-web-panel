@@ -1,36 +1,36 @@
 {% extends "base.html" %}
 {% block title %}Materiały szkoleniowe HAW — USMS Panel{% endblock %}
 {% block content %}
-<div class="haw-page">
+<div class="haw-page training-material-page">
   <section class="panel haw-hero">
     <div class="haw-hero-copy">
       <div class="eyebrow">MATERIAŁY SZKOLENIOWE • HAW</div>
       <h1>Materiał szkoleniowy HAW</h1>
-      <p>Materiał szkoleniowy United States Marshals Service odwzorowany z przekazanego dokumentu źródłowego.</p>
+      <p>Materiał szkoleniowy United States Marshals Service.</p>
       <div class="haw-meta">
         <span>8 stron materiału</span>
         <span>Training Division</span>
         <span>HAW</span>
-        <a class="haw-pdf-link" href="{{ url_for('static', filename='training/haw/material-szkoleniowy-haw.pdf') }}" target="_blank" rel="noopener">Otwórz oryginalny PDF ↗</a>
+        <a class="haw-pdf-link" href="{{ url_for('static', filename='haw-material-szkoleniowy.pdf') }}" target="_blank" rel="noopener">Otwórz oryginalny PDF ↗</a>
       </div>
     </div>
-    <img class="haw-training-seal" src="{{ url_for('static', filename='training/haw/training-division.png') }}" alt="U.S. Marshals Service Training Division">
+    <img class="haw-training-seal" src="{{ url_for('static', filename='haw-training-division.png') }}" alt="U.S. Marshals Service Training Division">
   </section>
 
   <div class="haw-layout">
     <aside class="panel haw-toc">
       <strong>SPIS TREŚCI</strong>
-      <a href="#haw-blos"><span>01</span>BLOS</a>
-      <a href="#haw-fire"><span>02</span>Rodzaje ognia</a>
-      <a href="#haw-rifle"><span>03</span>Budowa broni długiej</a>
-      <a href="#haw-first-aid"><span>04</span>Pierwsza pomoc</a>
-      <a href="#haw-cqb"><span>05</span>CQB</a>
-      <a href="#haw-auto-fire"><span>06</span>Ogień automatyczny</a>
-      <a href="#haw-ammo"><span>07</span>Amunicja SOG</a>
-      <a href="#haw-tactics"><span>08</span>Taktyki CQB</a>
-      <a href="#haw-entry"><span>09</span>Metody wejścia</a>
-      <a href="#haw-malfunctions"><span>10</span>Zacięcia broni</a>
-      <a href="#haw-room"><span>11</span>Praca w pomieszczeniu</a>
+      <a class="haw-toc-link" href="#haw-blos"><span>01</span>BLOS</a>
+      <a class="haw-toc-link" href="#haw-fire"><span>02</span>Rodzaje ognia</a>
+      <a class="haw-toc-link" href="#haw-rifle"><span>03</span>Budowa broni długiej</a>
+      <a class="haw-toc-link" href="#haw-first-aid"><span>04</span>Pierwsza pomoc</a>
+      <a class="haw-toc-link" href="#haw-cqb"><span>05</span>CQB</a>
+      <a class="haw-toc-link" href="#haw-auto-fire"><span>06</span>Ogień automatyczny</a>
+      <a class="haw-toc-link" href="#haw-ammo"><span>07</span>Amunicja SOG</a>
+      <a class="haw-toc-link" href="#haw-tactics"><span>08</span>Taktyki CQB</a>
+      <a class="haw-toc-link" href="#haw-entry"><span>09</span>Metody wejścia</a>
+      <a class="haw-toc-link" href="#haw-malfunctions"><span>10</span>Zacięcia broni</a>
+      <a class="haw-toc-link" href="#haw-room"><span>11</span>Praca w pomieszczeniu</a>
     </aside>
 
     <main class="haw-content">
@@ -38,11 +38,11 @@
         <div class="haw-section-no">01</div>
         <div class="eyebrow">PODSTAWY BEZPIECZEŃSTWA</div>
         <h2>Co to BLOS?</h2>
-        <div class="haw-blos-grid">
-          <div><b>B</b><strong>Broń</strong><p>Broń traktuj zawsze jakby była naładowana.</p></div>
-          <div><b>L</b><strong>Lufa</strong><p>Lufa skierowana w stronę celu albo w ziemię.</p></div>
-          <div><b>O</b><strong>Otoczenie</strong><p>Przed strzałem upewniamy się czy nie ma nikogo na linii strzału.</p></div>
-          <div><b>S</b><strong>Spust</strong><p>Palec trzymaj na spuście tylko w momencie oddania strzału.</p></div>
+        <div class="haw-blos-list">
+          <div class="haw-blos-item"><strong>B - Broń</strong><p>Broń traktuj zawsze jakby była naładowana.</p></div>
+          <div class="haw-blos-item"><strong>L - Lufa</strong><p>Lufa skierowana w stronę celu albo w ziemię.</p></div>
+          <div class="haw-blos-item"><strong>O - Otoczenie</strong><p>Przed strzałem upewniamy się czy nie ma nikogo na linii strzału.</p></div>
+          <div class="haw-blos-item"><strong>S - Spust</strong><p>Palec trzymaj na spuście tylko w momencie oddania strzału.</p></div>
         </div>
       </article>
 
@@ -67,7 +67,7 @@
         <div class="eyebrow">WYPOSAŻENIE</div>
         <h2>Budowa broni długiej</h2>
         <figure class="haw-figure">
-          <img src="{{ url_for('static', filename='training/haw/budowa-broni-dlugiej.png') }}" alt="Budowa broni długiej — opis elementów">
+          <img src="{{ url_for('static', filename='haw-budowa-broni-dlugiej.png') }}" alt="Budowa broni długiej — opis elementów">
           <figcaption>Grafika z materiału szkoleniowego HAW.</figcaption>
         </figure>
       </article>
@@ -154,8 +154,40 @@
         </div>
       </article>
 
-      <div class="panel haw-source-note">Treść oraz grafiki odwzorowano z przekazanego materiału szkoleniowego HAW. Nie uzupełniano ani nie zastępowano treści informacjami zewnętrznymi.</div>
+      <div class="panel haw-source-note">Treść oraz grafiki pochodzą z przekazanego materiału szkoleniowego HAW. Nie uzupełniano ani nie zastępowano treści informacjami zewnętrznymi.</div>
     </main>
   </div>
 </div>
+
+<script>
+(() => {
+  const toc = document.querySelector('.haw-toc');
+  if (!toc) return;
+  const links = [...toc.querySelectorAll('.haw-toc-link')];
+  const sections = links.map(link => document.querySelector(link.getAttribute('href'))).filter(Boolean);
+
+  links.forEach(link => {
+    link.addEventListener('click', event => {
+      const target = document.querySelector(link.getAttribute('href'));
+      if (!target) return;
+      event.preventDefault();
+      links.forEach(item => item.classList.toggle('active', item === link));
+      target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      history.replaceState(null, '', link.getAttribute('href'));
+    });
+  });
+
+  if ('IntersectionObserver' in window) {
+    const observer = new IntersectionObserver(entries => {
+      const visible = entries
+        .filter(entry => entry.isIntersecting)
+        .sort((a, b) => Math.abs(a.boundingClientRect.top) - Math.abs(b.boundingClientRect.top))[0];
+      if (!visible) return;
+      const id = '#' + visible.target.id;
+      links.forEach(link => link.classList.toggle('active', link.getAttribute('href') === id));
+    }, { rootMargin: '-90px 0px -65% 0px', threshold: 0.01 });
+    sections.forEach(section => observer.observe(section));
+  }
+})();
+</script>
 {% endblock %}
