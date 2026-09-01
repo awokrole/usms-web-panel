@@ -1545,6 +1545,12 @@ def legal_acts():
     return render_template("legal_acts.html")
 
 
+@app.route("/baza-wiedzy/start-trainee")
+@logged_in_required
+def trainee_start():
+    return render_template("trainee_start.html")
+
+
 @app.route("/materialy-szkoleniowe/haw")
 @logged_in_required
 def training_haw():
