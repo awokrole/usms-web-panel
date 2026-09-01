@@ -639,3 +639,53 @@ nav{display:flex;flex-direction:column;gap:5px;overflow:auto}.nav-label{font-siz
     background-color:rgba(8,22,36,.82);
   }
 }
+
+
+/* HAW — watermark w nagłówku + powrót BLOS do 4 kafelków */
+.haw-hero-watermark{
+  position:absolute;
+  right:26px;
+  top:50%;
+  transform:translateY(-50%);
+  width:128px;
+  height:128px;
+  background-image:url('/static/training-division-watermark.png');
+  background-repeat:no-repeat;
+  background-position:center;
+  background-size:contain;
+  opacity:.20;
+  pointer-events:none;
+  z-index:0;
+}
+.haw-hero-copy{position:relative;z-index:1;padding-right:150px}
+.haw-hero:after{right:160px}
+
+.haw-blos-grid>div{
+  min-height:104px;
+  display:flex;
+  flex-direction:column;
+  justify-content:flex-start;
+  padding:16px 16px 15px;
+}
+.haw-blos-grid strong{
+  display:block;
+  margin:0 0 8px;
+  font-size:13px;
+  line-height:1.35;
+  color:#f1f6fc;
+}
+.haw-blos-grid p{
+  margin:0;
+  font-size:11px;
+  line-height:1.6;
+  color:#d1dbe7;
+}
+
+@media(max-width:700px){
+  .haw-hero-watermark{width:88px;height:88px;right:14px;top:18px;transform:none;opacity:.18}
+  .haw-hero-copy{padding-right:90px}
+}
+@media(max-width:520px){
+  .haw-hero-watermark{width:70px;height:70px;right:12px;top:12px}
+  .haw-hero-copy{padding-right:64px}
+}
