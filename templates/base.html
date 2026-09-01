@@ -6,6 +6,7 @@
     <title>{% block title %}USMS Panel{% endblock %}</title>
     <link rel="icon" type="image/png" href="{{ url_for('static', filename='usms-favicon.png') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    {% block extra_head %}{% endblock %}
 </head>
 <body>
 {% if current_user %}

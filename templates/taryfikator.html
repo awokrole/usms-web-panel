@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% block title %}Taryfikator — USMS Panel{% endblock %}
+{% block extra_head %}<link rel="stylesheet" href="{{ url_for('static', filename='taryfikator.css') }}">{% endblock %}
 {% block content %}
 <div class="tariff-page" id="tariffCalc">
   <section class="panel tariff-hero">
