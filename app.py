@@ -1575,6 +1575,12 @@ def training_kpp():
     return render_template("training_kpp.html")
 
 
+@app.route("/materialy-szkoleniowe/szpia")
+@logged_in_required
+def training_szpia():
+    return render_template("training_szpia.html")
+
+
 def _as_utc_datetime(value):
     if not value:
         return None
