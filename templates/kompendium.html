@@ -8,8 +8,15 @@
       <h1>Kompendium</h1>
       <p>Wewnętrzna baza wiedzy, procedur operacyjnych i zasad służby USMS.</p>
     </div>
-    <div class="compendium-search-wrap">
-      <input id="compendiumSearch" class="compendium-search" type="search" placeholder="Szukaj: 10-80, PWC, JSD, PIT, Bean Bag, Miranda…" autocomplete="off">
+    <div class="compendium-search-wrap" id="compendiumSearchWrap">
+      <div class="compendium-search-toolbar" id="compendiumSearchToolbar">
+        <input id="compendiumSearch" class="compendium-search" type="search" placeholder="Szukaj: 10-80, PWC, JSD, PIT, Bean Bag, Miranda…" autocomplete="off">
+        <div class="compendium-search-nav" aria-label="Nawigacja po wynikach wyszukiwania">
+          <span id="compendiumSearchPosition" class="compendium-search-position" hidden>0 / 0</span>
+          <button id="compendiumPrevResult" type="button" class="compendium-search-arrow" aria-label="Poprzedni wynik" title="Poprzedni wynik"><span aria-hidden="true">&#8249;</span></button>
+          <button id="compendiumNextResult" type="button" class="compendium-search-arrow" aria-label="Następny wynik" title="Następny wynik"><span aria-hidden="true">&#8250;</span></button>
+        </div>
+      </div>
       <span id="searchCount" class="search-count"></span>
     </div>
   </div>
@@ -140,13 +147,112 @@
 </div>
 <script>
 (function(){
- const input=document.getElementById('compendiumSearch'), sections=[...document.querySelectorAll('.kb-section')], no=document.getElementById('noResults'), count=document.getElementById('searchCount');
- function norm(v){return (v||'').toLocaleLowerCase('pl').normalize('NFD').replace(/[\u0300-\u036f]/g,'')}
- function search(){const q=norm(input.value.trim());let visible=0;sections.forEach(s=>{const hit=!q||norm(s.innerText+' '+(s.dataset.search||'')).includes(q);s.hidden=!hit;if(hit)visible++});no.hidden=visible!==0;count.textContent=q?(visible+' wyników'):'';}
- input.addEventListener('input',search);
+ const input=document.getElementById('compendiumSearch');
+ const sections=[...document.querySelectorAll('.kb-section')];
+ const no=document.getElementById('noResults');
+ const count=document.getElementById('searchCount');
+ const wrap=document.getElementById('compendiumSearchWrap');
+ const toolbar=document.getElementById('compendiumSearchToolbar');
+ const prevBtn=document.getElementById('compendiumPrevResult');
+ const nextBtn=document.getElementById('compendiumNextResult');
+ const pos=document.getElementById('compendiumSearchPosition');
+ let matches=[];
+ let current=-1;
+ let floatSentinelTop=0;
+
+ function escapeRegExp(v){return v.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')}
+ function keywords(){return [...new Set(input.value.trim().split(/\s+/).map(v=>v.trim()).filter(Boolean))]}
+ function clearMarks(){
+   document.querySelectorAll('mark.compendium-search-hit').forEach(mark=>{
+     const parent=mark.parentNode;
+     parent.replaceChild(document.createTextNode(mark.textContent),mark);
+     parent.normalize();
+   });
+ }
+ function clearActive(){document.querySelectorAll('.compendium-search-hit-active').forEach(m=>m.classList.remove('compendium-search-hit-active'))}
+ function highlight(root,keys){
+   if(!keys.length)return;
+   const pattern=new RegExp('('+keys.slice().sort((a,b)=>b.length-a.length).map(escapeRegExp).join('|')+')','giu');
+   const walker=document.createTreeWalker(root,NodeFilter.SHOW_TEXT,{acceptNode(node){
+     if(!node.nodeValue.trim())return NodeFilter.FILTER_REJECT;
+     const p=node.parentElement;
+     if(!p||p.closest('mark.compendium-search-hit,script,style'))return NodeFilter.FILTER_REJECT;
+     pattern.lastIndex=0;
+     return pattern.test(node.nodeValue)?NodeFilter.FILTER_ACCEPT:NodeFilter.FILTER_REJECT;
+   }});
+   const nodes=[]; while(walker.nextNode())nodes.push(walker.currentNode);
+   nodes.forEach(node=>{
+     pattern.lastIndex=0;
+     const frag=document.createDocumentFragment();let last=0;
+     node.nodeValue.replace(pattern,(match,_g,offset)=>{
+       if(offset>last)frag.append(document.createTextNode(node.nodeValue.slice(last,offset)));
+       const mark=document.createElement('mark');mark.className='compendium-search-hit';mark.textContent=match;frag.append(mark);
+       last=offset+match.length;return match;
+     });
+     if(last<node.nodeValue.length)frag.append(document.createTextNode(node.nodeValue.slice(last)));
+     node.parentNode.replaceChild(frag,node);
+   });
+ }
+ function updateNav(){
+   const querying=keywords().length>0, has=matches.length>0;
+   pos.hidden=!querying;
+   pos.textContent=has?`${current+1} / ${matches.length}`:'0 / 0';
+   prevBtn.disabled=!has;nextBtn.disabled=!has;
+ }
+ function reveal(mark){
+   const section=mark.closest('.kb-section');if(section)section.hidden=false;
+   const details=mark.closest('details');if(details)details.open=true;
+   const tabPanel=mark.closest('.kb-tab-panel');
+   if(tabPanel){
+     const root=tabPanel.closest('.kb-section');
+     root.querySelectorAll('.kb-tab').forEach(x=>x.classList.toggle('active',x.dataset.tab===tabPanel.dataset.panel));
+     root.querySelectorAll('.kb-tab-panel').forEach(x=>x.classList.toggle('active',x===tabPanel));
+   }
+   const equipPanel=mark.closest('.equip-panel');
+   if(equipPanel){
+     document.querySelectorAll('.equip-tab').forEach(x=>x.classList.toggle('active',x.dataset.equip===equipPanel.dataset.equipPanel));
+     document.querySelectorAll('.equip-panel').forEach(x=>x.classList.toggle('active',x===equipPanel));
+   }
+ }
+ function focus(index,{scroll=true}={}){
+   if(!matches.length){current=-1;clearActive();updateNav();return}
+   if(index<0)index=matches.length-1;if(index>=matches.length)index=0;
+   clearActive();const mark=matches[index];reveal(mark);current=index;mark.classList.add('compendium-search-hit-active');updateNav();
+   if(scroll)requestAnimationFrame(()=>{const top=mark.getBoundingClientRect().top+window.scrollY-130;window.scrollTo({top:Math.max(0,top),behavior:'smooth'})});
+ }
+ function next(){if(matches.length)focus(current<0?0:current+1)}
+ function prev(){if(matches.length)focus(current<0?matches.length-1:current-1)}
+ function runSearch(){
+   clearMarks();clearActive();matches=[];current=-1;
+   const keys=keywords();const querying=keys.length>0;let visible=0;
+   sections.forEach(s=>{
+     s.hidden=false;
+     if(querying)highlight(s,keys);
+     const hits=s.querySelectorAll('mark.compendium-search-hit').length;
+     s.hidden=querying&&hits===0;
+     if(!s.hidden)visible++;
+   });
+   matches=[...document.querySelectorAll('mark.compendium-search-hit')];
+   no.hidden=!querying||matches.length>0;
+   count.textContent=querying?`${matches.length} trafień • ${visible} sekcji`:'';
+   if(matches.length)focus(0,{scroll:false});else updateNav();
+   updateFloating();
+ }
+ function updateFloating(){
+   if(!wrap||!toolbar)return;
+   if(!floatSentinelTop)floatSentinelTop=wrap.getBoundingClientRect().top+window.scrollY;
+   const shouldFloat=window.scrollY>floatSentinelTop+24;
+   toolbar.classList.toggle('is-floating',shouldFloat);
+   wrap.classList.toggle('has-floating-toolbar',shouldFloat);
+ }
+ input.addEventListener('input',runSearch);
+ input.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();e.shiftKey?prev():next()}else if(e.key==='Escape'&&input.value){input.value='';runSearch();input.focus()}});
+ prevBtn.addEventListener('click',prev);nextBtn.addEventListener('click',next);
+ window.addEventListener('scroll',updateFloating,{passive:true});window.addEventListener('resize',()=>{floatSentinelTop=0;updateFloating()});
  document.querySelectorAll('.kb-tab').forEach(b=>b.addEventListener('click',()=>{const root=b.closest('.kb-section');root.querySelectorAll('.kb-tab').forEach(x=>x.classList.remove('active'));root.querySelectorAll('.kb-tab-panel').forEach(x=>x.classList.remove('active'));b.classList.add('active');root.querySelector('[data-panel="'+b.dataset.tab+'"]').classList.add('active')}));
  document.querySelectorAll('.equip-tab').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('.equip-tab').forEach(x=>x.classList.remove('active'));document.querySelectorAll('.equip-panel').forEach(x=>x.classList.remove('active'));b.classList.add('active');document.querySelector('[data-equip-panel="'+b.dataset.equip+'"]').classList.add('active')}));
- document.querySelectorAll('.compendium-toc a').forEach(a=>a.addEventListener('click',()=>{if(input.value){input.value='';search();}}));
+ document.querySelectorAll('.compendium-toc a').forEach(a=>a.addEventListener('click',()=>{if(input.value){input.value='';runSearch()}}));
+ runSearch();updateFloating();
 })();
 </script>
 {% endblock %}

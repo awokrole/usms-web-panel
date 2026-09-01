@@ -1259,7 +1259,8 @@ function setTabHit(tab,hits){
 function updateFloatingSearchNav(){
   if(!searchNav || !searchToolbar) return;
   const shouldFloat=isSearching() && searchMatches.length>0 && searchToolbar.getBoundingClientRect().bottom<12;
-  searchNav.classList.toggle('is-floating',shouldFloat);
+  searchToolbar.classList.toggle('is-floating',shouldFloat);
+  searchNav.classList.remove('is-floating');
 }
 function updateSearchNavigation(){
   const hasQuery=isSearching();
