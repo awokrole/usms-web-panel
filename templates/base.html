@@ -41,12 +41,7 @@
                 </div>
             </details>
 
-            <details class="side-panel trainee-side-panel" {% if request.endpoint == 'trainee_start' %}open{% endif %}>
-                <summary><span class="side-panel-icon">★</span><strong>START TRAINEE</strong><span class="chevron">⌄</span></summary>
-                <div class="side-panel-list">
-                    <a href="{{ url_for('trainee_start') }}" class="{% if request.endpoint == 'trainee_start' %}active{% endif %}">▣ Przewodnik startowy</a>
-                </div>
-            </details>
+            <a href="{{ url_for('trainee_start') }}" class="side-direct-link trainee-side-direct {% if request.endpoint == 'trainee_start' %}active{% endif %}"><span class="side-panel-icon">★</span><strong>START TRAINEE</strong></a>
 
             <details class="side-panel" {% if request.endpoint in ['training_haw','training_ro','training_nli','training_sv','training_kpp','training_szpia'] %}open{% endif %}>
                 <summary><span class="side-panel-icon">✦</span><strong>MATERIAŁY SZKOLENIOWE</strong><span class="chevron">⌄</span></summary>
