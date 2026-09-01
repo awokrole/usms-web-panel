@@ -1551,6 +1551,12 @@ def training_haw():
     return render_template("training_haw.html")
 
 
+@app.route("/materialy-szkoleniowe/ro")
+@logged_in_required
+def training_ro():
+    return render_template("training_ro.html")
+
+
 def _as_utc_datetime(value):
     if not value:
         return None
