@@ -1528,7 +1528,7 @@ def trainings():
 
 
 @app.route("/taryfikator")
-@login_required
+@logged_in_required
 def taryfikator():
     return render_template("taryfikator.html")
 
