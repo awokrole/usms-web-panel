@@ -15,12 +15,12 @@
   <section class="panel tariff-assistant" aria-labelledby="assistantTitle">
     <div class="tariff-section-head">
       <div>
-        <div class="tariff-kicker">ASYSTENT ZARZUTÓW • TEST</div>
+        <div class="tariff-kicker">ASYSTENT ZARZUTÓW • GEMINI</div>
         <h2 id="assistantTitle">Opisz sytuację</h2>
       </div>
-      <span class="tariff-assistant-badge">PODPOWIEDZI</span>
+      <span class="tariff-assistant-badge">GEMINI</span>
     </div>
-    <p class="tariff-assistant-lead">Wpisz krótko, co się wydarzyło. System zaproponuje pasujące pozycje z obecnej wersji taryfikatora — decyzja o dodaniu zarzutu zawsze należy do funkcjonariusza.</p>
+    <p class="tariff-assistant-lead">Wpisz krótko, co się wydarzyło. Gemini przeanalizuje opis i zaproponuje wyłącznie pozycje istniejące w taryfikatorze — decyzja o dodaniu zarzutu zawsze należy do funkcjonariusza.</p>
     <div class="tariff-assistant-form">
       <textarea id="incidentDescription" rows="4" placeholder="Np. Kierowca prowadził pod wpływem alkoholu, nie wykonywał poleceń funkcjonariusza i podczas jazdy spowodował kolizję."></textarea>
       <div class="tariff-assistant-actions">
@@ -198,22 +198,60 @@ const assistantRules = [
 function normalizeIncident(text){
   return text.toLowerCase().replace(/\s+/g,' ').trim();
 }
-function analyzeDescription(){
-  const text=normalizeIncident(root.querySelector('#incidentDescription').value);
-  const box=root.querySelector('#suggestionBox');
-  const listEl=root.querySelector('#suggestionList');
-  const status=root.querySelector('#assistantStatus');
-  if(text.length<5){box.hidden=true; status.textContent='Wpisz krótki opis sytuacji.'; return;}
+function localFallbackSuggestions(text){
   const ids=[];
   assistantRules.forEach(rule=>{
     if(rule.terms.some(term=>text.includes(term))) rule.ids.forEach(id=>{if(!ids.includes(id)) ids.push(id)});
   });
+  return ids;
+}
+function renderSuggestions(ids, sourceLabel='Gemini'){
+  const box=root.querySelector('#suggestionBox');
+  const listEl=root.querySelector('#suggestionList');
+  const status=root.querySelector('#assistantStatus');
   const suggestions=ids.map(id=>charges.find(c=>c.id===id)).filter(Boolean);
   root._tariffSuggestions=suggestions.map(c=>c.id);
   root.querySelector('#suggestionCount').textContent=suggestions.length;
   listEl.innerHTML=suggestions.map(c=>`<article class="tariff-suggestion-row"><div><span class="tariff-cat">${c.cat}</span><strong>${c.name}</strong><small>${c.law}</small></div><button type="button" class="tariff-suggestion-add" data-suggest-add="${c.id}">Dodaj</button></article>`).join('');
   box.hidden=suggestions.length===0;
-  status.textContent=suggestions.length ? `Znaleziono ${suggestions.length} propozyc${suggestions.length===1?'ję':'je'}.` : 'Brak pasujących propozycji w obecnej wersji testowej taryfikatora.';
+  status.textContent=suggestions.length ? `${sourceLabel}: ${suggestions.length} propozyc${suggestions.length===1?'ja':'je'}.` : `${sourceLabel}: brak pasujących zarzutów w obecnym taryfikatorze.`;
+}
+async function analyzeDescription(){
+  const raw=root.querySelector('#incidentDescription').value.trim();
+  const text=normalizeIncident(raw);
+  const box=root.querySelector('#suggestionBox');
+  const status=root.querySelector('#assistantStatus');
+  const button=root.querySelector('#analyzeIncident');
+  if(text.length<5){box.hidden=true; status.textContent='Wpisz krótki opis sytuacji.'; return;}
+
+  button.disabled=true;
+  button.textContent='Analizuję…';
+  status.textContent='Gemini analizuje opis sytuacji…';
+  try{
+    const response=await fetch('{{ url_for("taryfikator_analyze") }}',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        description:raw,
+        charges:charges.map(c=>({id:c.id,name:c.name,category:c.cat,law:c.law}))
+      })
+    });
+    const data=await response.json().catch(()=>({}));
+    if(!response.ok || !data.ok) throw new Error(data.error || 'Gemini jest chwilowo niedostępny.');
+    renderSuggestions(Array.isArray(data.charge_ids)?data.charge_ids:[],'Gemini');
+  }catch(err){
+    const fallback=localFallbackSuggestions(text);
+    if(fallback.length){
+      renderSuggestions(fallback,'Tryb awaryjny');
+      status.textContent += ` Gemini: ${err.message || 'chwilowo niedostępny'}`;
+    }else{
+      box.hidden=true;
+      status.textContent=err.message || 'Nie udało się przeanalizować sytuacji.';
+    }
+  }finally{
+    button.disabled=false;
+    button.textContent='Analizuj sytuację';
+  }
 }
 function renderConversion(months){
   const title=root.querySelector('#conversionTitle');
