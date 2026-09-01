@@ -1,0 +1,185 @@
+{% extends "base.html" %}
+{% block title %}Taryfikator — USMS Panel{% endblock %}
+{% block content %}
+<div class="tariff-page" id="tariffCalc">
+  <section class="panel tariff-hero">
+    <div>
+      <div class="tariff-kicker">BAZA WIEDZY • WERSJA TESTOWA</div>
+      <h1>Taryfikator i kalkulator zarzutów</h1>
+      <p>Dodaj zarzuty, ustaw liczbę czynów, a kalkulator zsumuje karę pozbawienia wolności i sprawdzi grzywnę.</p>
+    </div>
+    <div class="tariff-hero-badge">TEST</div>
+  </section>
+
+  <div class="tariff-layout">
+    <section class="panel tariff-browser">
+      <div class="tariff-section-head">
+        <div><div class="tariff-kicker">WYBIERZ ZARZUT</div><h2>Taryfikator</h2></div>
+        <span class="tariff-count" id="visibleCount"></span>
+      </div>
+      <div class="tariff-tools">
+        <label class="tariff-search"><span>⌕</span><input id="chargeSearch" type="search" placeholder="Szukaj zarzutu…" autocomplete="off"></label>
+        <select id="categoryFilter" aria-label="Kategoria"></select>
+      </div>
+      <div class="tariff-list" id="chargeList"></div>
+    </section>
+
+    <aside class="panel tariff-cart">
+      <div class="tariff-section-head">
+        <div><div class="tariff-kicker">WYBRANE</div><h2>Zarzuty</h2></div>
+        <button class="tariff-text-btn" id="clearCharges" type="button">Wyczyść</button>
+      </div>
+      <div id="selectedCharges" class="tariff-selected"></div>
+      <div id="emptyCharges" class="tariff-empty">
+        <strong>Brak wybranych zarzutów</strong>
+        <span>Dodaj zarzut z listy po lewej.</span>
+      </div>
+
+      <div class="tariff-summary" aria-live="polite">
+        <div class="tariff-summary-grid">
+          <div><span>Liczba zarzutów</span><strong id="sumCounts">0</strong></div>
+          <div><span>Łączna kara</span><strong id="sumMonths">0 mies.</strong></div>
+          <div class="wide"><span>Maksymalna / należna grzywna</span><strong id="sumFine">$0</strong></div>
+        </div>
+        <div class="tariff-summary-note" id="fineNote">Grzywna zostanie obliczona po dodaniu zarzutów.</div>
+        <div class="tariff-copy-actions">
+          <button type="button" class="btn btn-secondary" id="copyCharges">Kopiuj zarzuty</button>
+          <button type="button" class="btn" id="copySummary">Kopiuj podsumowanie</button>
+        </div>
+        <div class="tariff-copy-status" id="copyStatus" role="status"></div>
+      </div>
+    </aside>
+  </div>
+
+  <section class="panel tariff-info">
+    <div class="tariff-info-icon">i</div>
+    <div><strong>Jak działa grzywna?</strong><p>W tej wersji testowej kwoty są automatycznie sprawdzane dla pozycji zestawionych z obecnymi Aktami prawnymi. „Do” oznacza maksymalną dopuszczalną kwotę; „stała” oznacza kwotę wynikającą wprost z przepisu.</p></div>
+  </section>
+</div>
+
+<script>
+(() => {
+const charges = [
+  {id:'road-1',cat:'Ruch drogowy',name:'Wyprzedzanie w miejscu niedozwolonym',months:0,fine:400,fineMode:'max',law:'Rozdział I, Art. 1'},
+  {id:'road-2',cat:'Ruch drogowy',name:'Przejście w miejscu niedozwolonym',months:0,fine:300,fineMode:'max',law:'Rozdział I, Art. 2'},
+  {id:'road-3',cat:'Ruch drogowy',name:'Nieprawidłowe zawracanie',months:0,fine:300,fineMode:'max',law:'Rozdział I, Art. 3'},
+  {id:'road-4',cat:'Ruch drogowy',name:'Postój lub parkowanie w miejscu niedozwolonym',months:0,fine:400,fineMode:'max',law:'Rozdział I, Art. 4'},
+  {id:'road-5',cat:'Ruch drogowy',name:'Niezastosowanie się do znaków drogowych',months:0,fine:350,fineMode:'max',law:'Rozdział I, Art. 5'},
+  {id:'road-6',cat:'Ruch drogowy',name:'Utrudnianie ruchu drogowego',months:0,fine:500,fineMode:'max',law:'Rozdział I, Art. 6'},
+  {id:'road-7',cat:'Ruch drogowy',name:'Niezastosowanie się do ruchu prawostronnego',months:0,fine:500,fineMode:'max',law:'Rozdział I, Art. 7'},
+  {id:'road-8',cat:'Ruch drogowy',name:'Niebezpieczne prowadzenie pojazdu',months:0,fine:1200,fineMode:'max',law:'Rozdział I, Art. 8'},
+  {id:'road-9',cat:'Ruch drogowy',name:'Niezastosowanie się do sygnalizacji świetlnej',months:0,fine:500,fineMode:'max',law:'Rozdział I, Art. 9'},
+  {id:'speed-10',cat:'Ruch drogowy',name:'Przekroczenie prędkości — do 10 km/h',months:0,fine:400,fineMode:'max',law:'Rozdział I, Art. 10'},
+  {id:'speed-25',cat:'Ruch drogowy',name:'Przekroczenie prędkości — 10–25 km/h',months:0,fine:500,fineMode:'max',law:'Rozdział I, Art. 10'},
+  {id:'speed-40',cat:'Ruch drogowy',name:'Przekroczenie prędkości — 26–40 km/h',months:0,fine:600,fineMode:'max',law:'Rozdział I, Art. 10'},
+  {id:'speed-50',cat:'Ruch drogowy',name:'Przekroczenie prędkości — 41–50 km/h',months:0,fine:700,fineMode:'max',law:'Rozdział I, Art. 10'},
+  {id:'speed-100',cat:'Ruch drogowy',name:'Przekroczenie prędkości — 51–100 km/h',months:0,fine:900,fineMode:'max',law:'Rozdział I, Art. 10'},
+  {id:'speed-100p',cat:'Ruch drogowy',name:'Przekroczenie prędkości — powyżej 100 km/h',months:0,fine:1100,fineMode:'max',law:'Rozdział I, Art. 10'},
+  {id:'road-bad',cat:'Ruch drogowy',name:'Jazda technicznie niesprawnym pojazdem',months:0,fine:2000,fineMode:'max',law:'Rozdział I, Art. 11 §1'},
+  {id:'road-visual',cat:'Ruch drogowy',name:'Jazda wizualnie niesprawnym pojazdem',months:0,fine:300,fineMode:'max',law:'Rozdział I, Art. 11 §2'},
+  {id:'road-windows',cat:'Ruch drogowy',name:'Przyciemnione szyby powyżej 80%',months:0,fine:1500,fineMode:'max',law:'Rozdział I, Art. 12'},
+  {id:'road-collision',cat:'Ruch drogowy',name:'Spowodowanie kolizji',months:0,fine:1500,fineMode:'max',law:'Rozdział I, Art. 13'},
+  {id:'road-accident',cat:'Ruch drogowy',name:'Spowodowanie wypadku',months:0,fine:2000,fineMode:'max',law:'Rozdział I, Art. 14'},
+  {id:'road-license',cat:'Ruch drogowy',name:'Prowadzenie pojazdu bez uprawnień',months:0,fine:750,fineMode:'max',law:'Rozdział I, Art. 15'},
+  {id:'road-reg',cat:'Ruch drogowy',name:'Prowadzenie pojazdu niezarejestrowanego',months:0,fine:2400,fineMode:'max',law:'Rozdział I, Art. 16'},
+  {id:'road-dui',cat:'Ruch drogowy',name:'Jazda pod wpływem środków odurzających / alkoholu',months:7,fine:1500,fineMode:'max',law:'Rozdział I, Art. 17'},
+  {id:'road-phone',cat:'Ruch drogowy',name:'Używanie telefonu podczas jazdy',months:0,fine:1000,fineMode:'max',law:'Rozdział I, Art. 18'},
+
+  {id:'pub-insult',cat:'Porządek publiczny',name:'Znieważenie',months:0,fine:500,fineMode:'max',law:'Rozdział II, Art. 1 §1'},
+  {id:'pub-insult-officer',cat:'Porządek publiczny',name:'Znieważenie funkcjonariusza publicznego',months:0,fine:1000,fineMode:'max',law:'Rozdział II, Art. 1 §2'},
+  {id:'pub-property',cat:'Porządek publiczny',name:'Niszczenie mienia',months:0,fine:2300,fineMode:'max',law:'Rozdział II, Art. 2'},
+  {id:'pub-orders',cat:'Porządek publiczny',name:'Niewykonywanie poleceń funkcjonariusza',months:5,fine:1100,fineMode:'fixed',law:'Rozdział II, Art. 3'},
+  {id:'pub-id',cat:'Porządek publiczny',name:'Odmowa wylegitymowania',months:0,fine:1000,fineMode:'max',law:'Rozdział II, Art. 4'},
+  {id:'pub-disorder',cat:'Porządek publiczny',name:'Zakłócanie porządku publicznego',months:0,fine:1000,fineMode:'max',law:'Rozdział II, Art. 5'},
+  {id:'pub-stolen-car',cat:'Porządek publiczny',name:'Jazda kradzionym pojazdem',months:5,fine:1500,fineMode:'max',law:'Rozdział II, Art. 7'},
+  {id:'pub-pilot',cat:'Porządek publiczny',name:'Pilotowanie bez uprawnień',months:0,fine:2500,fineMode:'max',law:'Rozdział II, Art. 8 §1'},
+  {id:'pub-work',cat:'Porządek publiczny',name:'Utrudnianie pracy funkcjonariuszy',months:5,fine:1500,fineMode:'max',law:'Rozdział II, Art. 9'},
+  {id:'pub-911',cat:'Porządek publiczny',name:'Bezpodstawne użycie numeru alarmowego',months:0,fine:4000,fineMode:'max',law:'Rozdział II, Art. 10'},
+  {id:'pub-religion',cat:'Porządek publiczny',name:'Złośliwe przeszkadzanie w wykonywaniu aktów religijnych',months:20,fine:1000,fineMode:'max',law:'Rozdział II, Art. 12'},
+  {id:'pub-porn',cat:'Porządek publiczny',name:'Publiczne prezentowanie treści pornograficznych',months:0,fine:1000,fineMode:'max',law:'Rozdział II, Art. 13'},
+
+  {id:'env-hunt-license',cat:'Licencje i środowisko',name:'Brak aktualnej licencji myśliwego',months:0,fine:1000,fineMode:'fixed',law:'Rozdział III, Art. 1 §1'},
+  {id:'env-fish-license',cat:'Licencje i środowisko',name:'Brak licencji wędkarskiej',months:0,fine:1000,fineMode:'fixed',law:'Rozdział III, Art. 1 §2'},
+  {id:'env-mineral-license',cat:'Licencje i środowisko',name:'Brak zezwolenia na wydobywanie surowców mineralnych',months:0,fine:1000,fineMode:'fixed',law:'Rozdział III, Art. 1 §3'},
+  {id:'env-poach',cat:'Licencje i środowisko',name:'Kłusownictwo',months:0,fine:2500,fineMode:'fixed',law:'Rozdział III, Art. 2'},
+  {id:'env-vehicle',cat:'Licencje i środowisko',name:'Pojazd niedostosowany na terenie łowieckim',months:0,fine:1000,fineMode:'fixed',law:'Rozdział III, Art. 3'},
+
+  {id:'rob-fuel',cat:'Napady',name:'Napad na stację paliw',months:15,fine:2000,fineMode:'max',law:'Napady — Stacja Paliw'},
+  {id:'rob-home',cat:'Napady',name:'Napad na dom',months:15,fine:2000,fineMode:'max',law:'Napady — dom'},
+  {id:'rob-shop',cat:'Napady',name:'Napad na sklep',months:15,fine:2300,fineMode:'max',law:'Napady — sklep'},
+  {id:'rob-atm',cat:'Napady',name:'Napad na bankomat',months:20,fine:4000,fineMode:'max',law:'Napady — bankomat'},
+  {id:'rob-ammunation',cat:'Napady',name:'Napad na Ammu-Nation',months:20,fine:10000,fineMode:'max',law:'Napady — Ammu-Nation'},
+  {id:'rob-pharmacy',cat:'Napady',name:'Napad na aptekę',months:20,fine:8000,fineMode:'max',law:'Napady — apteka'},
+  {id:'rob-laundry',cat:'Napady',name:'Napad na pralnię',months:20,fine:8000,fineMode:'max',law:'Napady — pralnia'},
+  {id:'rob-train',cat:'Napady',name:'Napad na pociąg',months:20,fine:6000,fineMode:'max',law:'Napady — pociąg'},
+  {id:'rob-villa',cat:'Napady',name:'Napad na villę',months:20,fine:7000,fineMode:'max',law:'Napady — villa'},
+  {id:'rob-military',cat:'Napady',name:'Napad na transport wojskowy',months:20,fine:10000,fineMode:'max',law:'Napady — transport wojskowy'},
+  {id:'rob-gruppe',cat:'Napady',name:'Napad na furgonetkę Gruppe6',months:20,fine:6000,fineMode:'max',law:'Napady — Gruppe6'},
+  {id:'rob-yacht',cat:'Napady',name:'Napad na jacht',months:25,fine:6000,fineMode:'max',law:'Napady — jacht'},
+  {id:'rob-oilrig',cat:'Napady',name:'Napad na Oilrig',months:25,fine:6000,fineMode:'max',law:'Napady — Oilrig'},
+  {id:'rob-barge',cat:'Napady',name:'Napad na barkę',months:30,fine:7500,fineMode:'max',law:'Napady — barka'}
+];
+
+const state = new Map();
+const root = document.getElementById('tariffCalc');
+const list = root.querySelector('#chargeList');
+const selected = root.querySelector('#selectedCharges');
+const empty = root.querySelector('#emptyCharges');
+const search = root.querySelector('#chargeSearch');
+const filter = root.querySelector('#categoryFilter');
+const count = root.querySelector('#visibleCount');
+const money = n => '$' + Number(n).toLocaleString('en-US');
+
+const cats = [...new Set(charges.map(x=>x.cat))];
+filter.innerHTML = '<option value="">Wszystkie kategorie</option>' + cats.map(c=>`<option>${c}</option>`).join('');
+
+function fineLabel(c, qty=1){
+  if(!c.fine) return 'Brak grzywny';
+  const total=c.fine*qty;
+  return c.fineMode==='fixed' ? `${money(c.fine)}${qty>1?' × '+qty+' = '+money(total):''}` : `do ${money(c.fine)}${qty>1?' × '+qty+' = do '+money(total):''}`;
+}
+function renderList(){
+  const q=search.value.trim().toLowerCase(); const cat=filter.value;
+  const rows=charges.filter(c=>(!cat||c.cat===cat)&&(!q||(c.name+' '+c.law).toLowerCase().includes(q)));
+  count.textContent=`${rows.length} pozycji`;
+  list.innerHTML=rows.map(c=>`<article class="tariff-charge-row">
+    <div class="tariff-charge-main"><span class="tariff-cat">${c.cat}</span><strong>${c.name}</strong><small>${c.law}</small></div>
+    <div class="tariff-charge-penalty"><span>${c.months ? c.months+' mies.' : '0 mies.'}</span><span class="fine-ok">${fineLabel(c)}</span></div>
+    <button type="button" class="tariff-add" data-add="${c.id}" aria-label="Dodaj ${c.name}">＋</button>
+  </article>`).join('') || '<div class="tariff-empty-list">Brak wyników.</div>';
+}
+function renderSelected(){
+  empty.hidden=state.size>0; selected.innerHTML='';
+  let cnt=0, months=0, fine=0, maxOnly=false;
+  state.forEach((qty,id)=>{const c=charges.find(x=>x.id===id); cnt+=qty; months+=c.months*qty; fine+=c.fine*qty; if(c.fineMode==='max')maxOnly=true;
+    selected.insertAdjacentHTML('beforeend',`<article class="tariff-selected-row" data-id="${id}">
+      <div class="tariff-selected-title"><strong>${c.name}</strong><small>${c.law}</small></div>
+      <div class="tariff-selected-values"><span>${c.months*qty} mies.</span><span class="fine-ok">${fineLabel(c,qty)}</span></div>
+      <div class="tariff-qty"><button type="button" data-dec="${id}">−</button><input type="number" min="1" max="99" value="${qty}" data-qty="${id}" aria-label="Liczba zarzutów"><button type="button" data-inc="${id}">＋</button></div>
+      <button type="button" class="tariff-remove" data-remove="${id}" aria-label="Usuń">×</button>
+    </article>`);
+  });
+  root.querySelector('#sumCounts').textContent=cnt;
+  root.querySelector('#sumMonths').textContent=months+' mies.';
+  root.querySelector('#sumFine').textContent=(maxOnly?'do ':'')+money(fine);
+  root.querySelector('#fineNote').textContent=state.size ? (maxOnly?'Suma zawiera grzywny określone w przepisach jako maksymalne („do”).':'Wszystkie wybrane grzywny mają kwotę stałą.') : 'Grzywna zostanie obliczona po dodaniu zarzutów.';
+}
+function setQty(id,n){ n=Math.max(1,Math.min(99,parseInt(n,10)||1)); state.set(id,n); renderSelected(); }
+function add(id){state.set(id,(state.get(id)||0)+1);renderSelected();}
+function copied(msg){const el=root.querySelector('#copyStatus');el.textContent=msg;setTimeout(()=>{if(el.textContent===msg)el.textContent='';},1800)}
+function chargeText(withSummary){
+  const lines=[]; state.forEach((qty,id)=>{const c=charges.find(x=>x.id===id); lines.push(`${c.name}${qty>1?' × '+qty:''} — ${c.months*qty} mies. — grzywna ${fineLabel(c,qty)}`)});
+  if(withSummary){let cnt=0,m=0,f=0,hasMax=false;state.forEach((qty,id)=>{const c=charges.find(x=>x.id===id);cnt+=qty;m+=c.months*qty;f+=c.fine*qty;hasMax ||= c.fineMode==='max'}); lines.push('',`Łącznie: ${cnt} zarzutów | ${m} mies. | grzywna ${hasMax?'do ':''}${money(f)}`)}
+  return lines.join('\n');
+}
+async function copyText(text,msg){if(!text){copied('Najpierw dodaj zarzuty.');return}try{await navigator.clipboard.writeText(text);copied(msg)}catch(e){const ta=document.createElement('textarea');ta.value=text;document.body.appendChild(ta);ta.select();document.execCommand('copy');ta.remove();copied(msg)}}
+root.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return; if(b.dataset.add)add(b.dataset.add); if(b.dataset.inc)setQty(b.dataset.inc,(state.get(b.dataset.inc)||1)+1); if(b.dataset.dec){const n=(state.get(b.dataset.dec)||1)-1;n<1?state.delete(b.dataset.dec):state.set(b.dataset.dec,n);renderSelected()} if(b.dataset.remove){state.delete(b.dataset.remove);renderSelected()}});
+selected.addEventListener('change',e=>{if(e.target.dataset.qty)setQty(e.target.dataset.qty,e.target.value)});
+search.addEventListener('input',renderList); filter.addEventListener('change',renderList);
+root.querySelector('#clearCharges').addEventListener('click',()=>{state.clear();renderSelected()});
+root.querySelector('#copyCharges').addEventListener('click',()=>copyText(chargeText(false),'Skopiowano zarzuty.'));
+root.querySelector('#copySummary').addEventListener('click',()=>copyText(chargeText(true),'Skopiowano podsumowanie.'));
+renderList();renderSelected();
+})();
+</script>
+{% endblock %}

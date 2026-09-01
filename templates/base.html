@@ -30,12 +30,13 @@
                 </div>
             </details>
 
-            <details class="side-panel" {% if request.endpoint in ['kompendium','directives','legal_acts','exam_home','exam_take','exam_result','exam_admin','exam_admin_session','exam_admin_attempt'] %}open{% endif %}>
+            <details class="side-panel" {% if request.endpoint in ['kompendium','directives','legal_acts','taryfikator','exam_home','exam_take','exam_result','exam_admin','exam_admin_session','exam_admin_attempt'] %}open{% endif %}>
                 <summary><span class="side-panel-icon">☰</span><strong>BAZA WIEDZY</strong><span class="chevron">⌄</span></summary>
                 <div class="side-panel-list">
                     <a href="{{ url_for('kompendium') }}" class="{% if request.endpoint == 'kompendium' %}active{% endif %}">⌘ Kompendium</a>
                     <a href="{{ url_for('directives') }}" class="{% if request.endpoint == 'directives' %}active{% endif %}">▧ Dyrektywy PIA</a>
                     <a href="{{ url_for('legal_acts') }}" class="{% if request.endpoint == 'legal_acts' %}active{% endif %}">§ Akty prawne</a>
+                    <a href="{{ url_for('taryfikator') }}" class="{% if request.endpoint == 'taryfikator' %}active{% endif %}">⚖ Taryfikator</a>
                     <a href="{{ url_for('exam_home') }}" class="{% if request.endpoint in ['exam_home','exam_take','exam_result'] %}active{% endif %}">✓ Egzaminy</a>
                     {% if is_admin %}<a href="{{ url_for('exam_admin') }}" class="{% if request.endpoint in ['exam_admin','exam_admin_session','exam_admin_attempt'] %}active{% endif %}">⚙ Egzaminy — Admin</a>{% endif %}
                 </div>
