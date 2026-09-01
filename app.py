@@ -1557,6 +1557,18 @@ def training_ro():
     return render_template("training_ro.html")
 
 
+@app.route("/materialy-szkoleniowe/nl-i")
+@logged_in_required
+def training_nli():
+    return render_template("training_nli.html")
+
+
+@app.route("/materialy-szkoleniowe/sv")
+@logged_in_required
+def training_sv():
+    return render_template("training_sv.html")
+
+
 def _as_utc_datetime(value):
     if not value:
         return None
