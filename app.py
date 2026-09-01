@@ -1581,8 +1581,12 @@ def taryfikator_analyze():
         + json.dumps(safe_catalog, ensure_ascii=False)
     )
 
-    model = (os.environ.get("GEMINI_MODEL") or "gemini-3.7-flash").strip()
-    endpoint = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent"
+    preferred_model = (os.environ.get("GEMINI_MODEL") or "gemini-2.5-flash").strip()
+    model_candidates = []
+    for candidate in (preferred_model, "gemini-2.5-flash", "gemini-2.0-flash"):
+        if candidate and candidate not in model_candidates:
+            model_candidates.append(candidate)
+
     body = {
         "contents": [{"parts": [{"text": prompt}]}],
         "generationConfig": {
@@ -1601,23 +1605,56 @@ def taryfikator_analyze():
         }
     }
 
-    try:
-        response = requests.post(
-            endpoint,
-            headers={"x-goog-api-key": api_key, "Content-Type": "application/json"},
-            json=body,
-            timeout=25,
+    response = None
+    used_model = None
+    last_google_error = ""
+
+    for model in model_candidates:
+        endpoint = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent"
+        try:
+            candidate_response = requests.post(
+                endpoint,
+                headers={"x-goog-api-key": api_key, "Content-Type": "application/json"},
+                json=body,
+                timeout=25,
+            )
+        except requests.RequestException:
+            continue
+
+        if candidate_response.status_code < 400:
+            response = candidate_response
+            used_model = model
+            break
+
+        try:
+            last_google_error = candidate_response.json().get("error", {}).get("message", "")
+        except Exception:
+            last_google_error = ""
+
+        app.logger.warning(
+            "Gemini API error model=%s status=%s: %s",
+            model,
+            candidate_response.status_code,
+            last_google_error[:500],
         )
-    except requests.RequestException:
-        return {"ok": False, "error": "Nie udało się połączyć z Gemini."}, 502
+
+        # 404 usually means the selected model is unavailable for this API/project.
+        # Try the next stable fallback model automatically.
+        if candidate_response.status_code == 404:
+            continue
+
+        # Other API errors are unlikely to be fixed by switching models.
+        response = candidate_response
+        used_model = model
+        break
+
+    if response is None:
+        return {"ok": False, "error": "Nie udało się połączyć z dostępnym modelem Gemini."}, 502
 
     if response.status_code >= 400:
-        try:
-            google_error = response.json().get("error", {}).get("message", "")
-        except Exception:
-            google_error = ""
-        app.logger.warning("Gemini API error %s: %s", response.status_code, google_error[:500])
         return {"ok": False, "error": "Gemini chwilowo nie może przeanalizować opisu."}, 502
+
+    app.logger.info("Taryfikator Gemini użył modelu: %s", used_model)
 
     try:
         result = response.json()
