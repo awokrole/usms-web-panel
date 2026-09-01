@@ -30,15 +30,21 @@
                 </div>
             </details>
 
-            <details class="side-panel" {% if request.endpoint in ['kompendium','trainee_start','directives','legal_acts','exam_home','exam_take','exam_result','exam_admin','exam_admin_session','exam_admin_attempt'] %}open{% endif %}>
+            <details class="side-panel" {% if request.endpoint in ['kompendium','directives','legal_acts','exam_home','exam_take','exam_result','exam_admin','exam_admin_session','exam_admin_attempt'] %}open{% endif %}>
                 <summary><span class="side-panel-icon">☰</span><strong>BAZA WIEDZY</strong><span class="chevron">⌄</span></summary>
                 <div class="side-panel-list">
                     <a href="{{ url_for('kompendium') }}" class="{% if request.endpoint == 'kompendium' %}active{% endif %}">⌘ Kompendium</a>
-                    <a href="{{ url_for('trainee_start') }}" class="{% if request.endpoint == 'trainee_start' %}active{% endif %}">★ Start Trainee</a>
                     <a href="{{ url_for('directives') }}" class="{% if request.endpoint == 'directives' %}active{% endif %}">▧ Dyrektywy PIA</a>
                     <a href="{{ url_for('legal_acts') }}" class="{% if request.endpoint == 'legal_acts' %}active{% endif %}">§ Akty prawne</a>
                     <a href="{{ url_for('exam_home') }}" class="{% if request.endpoint in ['exam_home','exam_take','exam_result'] %}active{% endif %}">✓ Egzaminy</a>
                     {% if is_admin %}<a href="{{ url_for('exam_admin') }}" class="{% if request.endpoint in ['exam_admin','exam_admin_session','exam_admin_attempt'] %}active{% endif %}">⚙ Egzaminy — Admin</a>{% endif %}
+                </div>
+            </details>
+
+            <details class="side-panel trainee-side-panel" {% if request.endpoint == 'trainee_start' %}open{% endif %}>
+                <summary><span class="side-panel-icon">★</span><strong>START TRAINEE</strong><span class="chevron">⌄</span></summary>
+                <div class="side-panel-list">
+                    <a href="{{ url_for('trainee_start') }}" class="{% if request.endpoint == 'trainee_start' %}active{% endif %}">▣ Przewodnik startowy</a>
                 </div>
             </details>
 
