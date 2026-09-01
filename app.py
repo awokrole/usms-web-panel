@@ -1533,6 +1533,111 @@ def taryfikator():
     return render_template("taryfikator.html")
 
 
+@app.post("/api/taryfikator/analyze")
+@logged_in_required
+def taryfikator_analyze():
+    """Zwraca wyłącznie identyfikatory zarzutów istniejących w katalogu przesłanym przez kalkulator."""
+    api_key = (os.environ.get("GEMINI_API_KEY") or "").strip()
+    if not api_key:
+        return {"ok": False, "error": "Asystent Gemini nie jest skonfigurowany."}, 503
+
+    payload = request.get_json(silent=True) or {}
+    description = str(payload.get("description") or "").strip()
+    catalog = payload.get("charges") or []
+
+    if len(description) < 5:
+        return {"ok": False, "error": "Opis sytuacji jest zbyt krótki."}, 400
+    if len(description) > 6000:
+        return {"ok": False, "error": "Opis sytuacji jest zbyt długi."}, 400
+    if not isinstance(catalog, list) or not catalog:
+        return {"ok": False, "error": "Brak katalogu zarzutów."}, 400
+
+    allowed = {}
+    safe_catalog = []
+    for item in catalog[:500]:
+        if not isinstance(item, dict):
+            continue
+        charge_id = str(item.get("id") or "").strip()[:100]
+        name = str(item.get("name") or "").strip()[:300]
+        category = str(item.get("category") or "").strip()[:150]
+        law = str(item.get("law") or "").strip()[:200]
+        if not charge_id or not name:
+            continue
+        allowed[charge_id] = True
+        safe_catalog.append({"id": charge_id, "name": name, "category": category, "law": law})
+
+    if not safe_catalog:
+        return {"ok": False, "error": "Brak prawidłowych pozycji taryfikatora."}, 400
+
+    prompt = (
+        "Jesteś asystentem funkcjonariusza w fikcyjnym/RP panelu USMS. "
+        "Masz wyłącznie podpowiadać zarzuty z dostarczonego katalogu taryfikatora. "
+        "NIGDY nie twórz nowych zarzutów, nie zmieniaj nazw i nie korzystaj z prawa spoza katalogu. "
+        "Jeżeli opis nie daje podstaw do pozycji z katalogu, zwróć pustą listę. "
+        "Uwzględniaj naturalny język, odmiany słów i kontekst zdarzenia. "
+        "Nie podawaj uzasadnienia. Zwróć wyłącznie JSON zgodny ze schematem.\n\n"
+        f"OPIS SYTUACJI:\n{description}\n\n"
+        "KATALOG ZARZUTÓW (wolno wskazać tylko id z tej listy):\n"
+        + json.dumps(safe_catalog, ensure_ascii=False)
+    )
+
+    model = (os.environ.get("GEMINI_MODEL") or "gemini-3.7-flash").strip()
+    endpoint = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent"
+    body = {
+        "contents": [{"parts": [{"text": prompt}]}],
+        "generationConfig": {
+            "temperature": 0.1,
+            "responseMimeType": "application/json",
+            "responseSchema": {
+                "type": "object",
+                "properties": {
+                    "charge_ids": {
+                        "type": "array",
+                        "items": {"type": "string"}
+                    }
+                },
+                "required": ["charge_ids"]
+            }
+        }
+    }
+
+    try:
+        response = requests.post(
+            endpoint,
+            headers={"x-goog-api-key": api_key, "Content-Type": "application/json"},
+            json=body,
+            timeout=25,
+        )
+    except requests.RequestException:
+        return {"ok": False, "error": "Nie udało się połączyć z Gemini."}, 502
+
+    if response.status_code >= 400:
+        try:
+            google_error = response.json().get("error", {}).get("message", "")
+        except Exception:
+            google_error = ""
+        app.logger.warning("Gemini API error %s: %s", response.status_code, google_error[:500])
+        return {"ok": False, "error": "Gemini chwilowo nie może przeanalizować opisu."}, 502
+
+    try:
+        result = response.json()
+        parts = result["candidates"][0]["content"]["parts"]
+        text = "".join(str(part.get("text") or "") for part in parts)
+        parsed = json.loads(text)
+        ids = parsed.get("charge_ids") or []
+    except (KeyError, IndexError, TypeError, ValueError, json.JSONDecodeError):
+        app.logger.warning("Nieprawidłowa odpowiedź Gemini dla taryfikatora")
+        return {"ok": False, "error": "Gemini zwrócił nieprawidłową odpowiedź."}, 502
+
+    unique_ids = []
+    for charge_id in ids:
+        charge_id = str(charge_id)
+        if charge_id in allowed and charge_id not in unique_ids:
+            unique_ids.append(charge_id)
+
+    return {"ok": True, "charge_ids": unique_ids, "model": model}
+
+
 @app.route("/kompendium")
 @logged_in_required
 def kompendium():
