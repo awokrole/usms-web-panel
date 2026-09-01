@@ -1581,9 +1581,9 @@ def taryfikator_analyze():
         + json.dumps(safe_catalog, ensure_ascii=False)
     )
 
-    preferred_model = (os.environ.get("GEMINI_MODEL") or "gemini-2.5-flash").strip()
+    preferred_model = (os.environ.get("GEMINI_MODEL") or "gemini-3.6-flash").strip()
     model_candidates = []
-    for candidate in (preferred_model, "gemini-2.5-flash", "gemini-2.0-flash"):
+    for candidate in (preferred_model, "gemini-3.6-flash"):
         if candidate and candidate not in model_candidates:
             model_candidates.append(candidate)
 
@@ -1638,8 +1638,8 @@ def taryfikator_analyze():
             last_google_error[:500],
         )
 
-        # 404 usually means the selected model is unavailable for this API/project.
-        # Try the next stable fallback model automatically.
+        # 404 zwykle oznacza, że wybrany model nie jest dostępny dla tego API/projektu.
+        # Jedyny fallback to aktualny Gemini 3.6 Flash.
         if candidate_response.status_code == 404:
             continue
 
@@ -1672,7 +1672,7 @@ def taryfikator_analyze():
         if charge_id in allowed and charge_id not in unique_ids:
             unique_ids.append(charge_id)
 
-    return {"ok": True, "charge_ids": unique_ids, "model": model}
+    return {"ok": True, "charge_ids": unique_ids, "model": used_model}
 
 
 @app.route("/kompendium")
