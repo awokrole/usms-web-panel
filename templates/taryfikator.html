@@ -5,11 +5,11 @@
 <div class="tariff-page" id="tariffCalc">
   <section class="panel tariff-hero">
     <div>
-      <div class="tariff-kicker">BAZA WIEDZY • WERSJA TESTOWA</div>
+      <div class="tariff-kicker">BAZA WIEDZY • PEŁNY TARYFIKATOR</div>
       <h1>Taryfikator i kalkulator zarzutów</h1>
       <p>Dodaj zarzuty, ustaw liczbę czynów, a kalkulator zsumuje karę pozbawienia wolności i sprawdzi grzywnę.</p>
     </div>
-    <div class="tariff-hero-badge">TEST</div>
+    <div class="tariff-hero-badge">239</div>
   </section>
 
   <section class="panel tariff-assistant" aria-labelledby="assistantTitle">
@@ -98,112 +98,22 @@
   </section>
 </div>
 
+<script src="{{ url_for('static', filename='taryfikator-data.js') }}"></script>
 <script>
 (() => {
-const charges = [
-  {id:'road-1',cat:'Ruch drogowy',name:'Wyprzedzanie w miejscu niedozwolonym',months:0,fine:400,fineMode:'max',law:'Rozdział I, Art. 1'},
-  {id:'road-2',cat:'Ruch drogowy',name:'Przejście w miejscu niedozwolonym',months:0,fine:300,fineMode:'max',law:'Rozdział I, Art. 2'},
-  {id:'road-3',cat:'Ruch drogowy',name:'Nieprawidłowe zawracanie',months:0,fine:300,fineMode:'max',law:'Rozdział I, Art. 3'},
-  {id:'road-4',cat:'Ruch drogowy',name:'Postój lub parkowanie w miejscu niedozwolonym',months:0,fine:400,fineMode:'max',law:'Rozdział I, Art. 4'},
-  {id:'road-5',cat:'Ruch drogowy',name:'Niezastosowanie się do znaków drogowych',months:0,fine:350,fineMode:'max',law:'Rozdział I, Art. 5'},
-  {id:'road-6',cat:'Ruch drogowy',name:'Utrudnianie ruchu drogowego',months:0,fine:500,fineMode:'max',law:'Rozdział I, Art. 6'},
-  {id:'road-7',cat:'Ruch drogowy',name:'Niezastosowanie się do ruchu prawostronnego',months:0,fine:500,fineMode:'max',law:'Rozdział I, Art. 7'},
-  {id:'road-8',cat:'Ruch drogowy',name:'Niebezpieczne prowadzenie pojazdu',months:0,fine:1200,fineMode:'max',law:'Rozdział I, Art. 8'},
-  {id:'road-9',cat:'Ruch drogowy',name:'Niezastosowanie się do sygnalizacji świetlnej',months:0,fine:500,fineMode:'max',law:'Rozdział I, Art. 9'},
-  {id:'speed-10',cat:'Ruch drogowy',name:'Przekroczenie prędkości — do 10 km/h',months:0,fine:400,fineMode:'max',law:'Rozdział I, Art. 10'},
-  {id:'speed-25',cat:'Ruch drogowy',name:'Przekroczenie prędkości — 10–25 km/h',months:0,fine:500,fineMode:'max',law:'Rozdział I, Art. 10'},
-  {id:'speed-40',cat:'Ruch drogowy',name:'Przekroczenie prędkości — 26–40 km/h',months:0,fine:600,fineMode:'max',law:'Rozdział I, Art. 10'},
-  {id:'speed-50',cat:'Ruch drogowy',name:'Przekroczenie prędkości — 41–50 km/h',months:0,fine:700,fineMode:'max',law:'Rozdział I, Art. 10'},
-  {id:'speed-100',cat:'Ruch drogowy',name:'Przekroczenie prędkości — 51–100 km/h',months:0,fine:900,fineMode:'max',law:'Rozdział I, Art. 10'},
-  {id:'speed-100p',cat:'Ruch drogowy',name:'Przekroczenie prędkości — powyżej 100 km/h',months:0,fine:1100,fineMode:'max',law:'Rozdział I, Art. 10'},
-  {id:'road-bad',cat:'Ruch drogowy',name:'Jazda technicznie niesprawnym pojazdem',months:0,fine:2000,fineMode:'max',law:'Rozdział I, Art. 11 §1'},
-  {id:'road-visual',cat:'Ruch drogowy',name:'Jazda wizualnie niesprawnym pojazdem',months:0,fine:300,fineMode:'max',law:'Rozdział I, Art. 11 §2'},
-  {id:'road-windows',cat:'Ruch drogowy',name:'Przyciemnione szyby powyżej 80%',months:0,fine:1500,fineMode:'max',law:'Rozdział I, Art. 12'},
-  {id:'road-collision',cat:'Ruch drogowy',name:'Spowodowanie kolizji',months:0,fine:1500,fineMode:'max',law:'Rozdział I, Art. 13'},
-  {id:'road-accident',cat:'Ruch drogowy',name:'Spowodowanie wypadku',months:0,fine:2000,fineMode:'max',law:'Rozdział I, Art. 14'},
-  {id:'road-license',cat:'Ruch drogowy',name:'Prowadzenie pojazdu bez uprawnień',months:0,fine:750,fineMode:'max',law:'Rozdział I, Art. 15'},
-  {id:'road-reg',cat:'Ruch drogowy',name:'Prowadzenie pojazdu niezarejestrowanego',months:0,fine:2400,fineMode:'max',law:'Rozdział I, Art. 16'},
-  {id:'road-dui',cat:'Ruch drogowy',name:'Jazda pod wpływem środków odurzających / alkoholu',months:7,fine:1500,fineMode:'max',law:'Rozdział I, Art. 17'},
-  {id:'road-phone',cat:'Ruch drogowy',name:'Używanie telefonu podczas jazdy',months:0,fine:1000,fineMode:'max',law:'Rozdział I, Art. 18'},
-
-  {id:'pub-insult',cat:'Porządek publiczny',name:'Znieważenie',months:0,fine:500,fineMode:'max',law:'Rozdział II, Art. 1 §1'},
-  {id:'pub-insult-officer',cat:'Porządek publiczny',name:'Znieważenie funkcjonariusza publicznego',months:0,fine:1000,fineMode:'max',law:'Rozdział II, Art. 1 §2'},
-  {id:'pub-property',cat:'Porządek publiczny',name:'Niszczenie mienia',months:0,fine:2300,fineMode:'max',law:'Rozdział II, Art. 2'},
-  {id:'pub-orders',cat:'Porządek publiczny',name:'Niewykonywanie poleceń funkcjonariusza',months:5,fine:1100,fineMode:'fixed',law:'Rozdział II, Art. 3'},
-  {id:'pub-id',cat:'Porządek publiczny',name:'Odmowa wylegitymowania',months:0,fine:1000,fineMode:'max',law:'Rozdział II, Art. 4'},
-  {id:'pub-disorder',cat:'Porządek publiczny',name:'Zakłócanie porządku publicznego',months:0,fine:1000,fineMode:'max',law:'Rozdział II, Art. 5'},
-  {id:'pub-stolen-car',cat:'Porządek publiczny',name:'Jazda kradzionym pojazdem',months:5,fine:1500,fineMode:'max',law:'Rozdział II, Art. 7'},
-  {id:'pub-pilot',cat:'Porządek publiczny',name:'Pilotowanie bez uprawnień',months:0,fine:2500,fineMode:'max',law:'Rozdział II, Art. 8 §1'},
-  {id:'pub-work',cat:'Porządek publiczny',name:'Utrudnianie pracy funkcjonariuszy',months:5,fine:1500,fineMode:'max',law:'Rozdział II, Art. 9'},
-  {id:'pub-911',cat:'Porządek publiczny',name:'Bezpodstawne użycie numeru alarmowego',months:0,fine:4000,fineMode:'max',law:'Rozdział II, Art. 10'},
-  {id:'pub-religion',cat:'Porządek publiczny',name:'Złośliwe przeszkadzanie w wykonywaniu aktów religijnych',months:20,fine:1000,fineMode:'max',law:'Rozdział II, Art. 12'},
-  {id:'pub-porn',cat:'Porządek publiczny',name:'Publiczne prezentowanie treści pornograficznych',months:0,fine:1000,fineMode:'max',law:'Rozdział II, Art. 13'},
-
-  {id:'env-hunt-license',cat:'Licencje i środowisko',name:'Brak aktualnej licencji myśliwego',months:0,fine:1000,fineMode:'fixed',law:'Rozdział III, Art. 1 §1'},
-  {id:'env-fish-license',cat:'Licencje i środowisko',name:'Brak licencji wędkarskiej',months:0,fine:1000,fineMode:'fixed',law:'Rozdział III, Art. 1 §2'},
-  {id:'env-mineral-license',cat:'Licencje i środowisko',name:'Brak zezwolenia na wydobywanie surowców mineralnych',months:0,fine:1000,fineMode:'fixed',law:'Rozdział III, Art. 1 §3'},
-  {id:'env-poach',cat:'Licencje i środowisko',name:'Kłusownictwo',months:0,fine:2500,fineMode:'fixed',law:'Rozdział III, Art. 2'},
-  {id:'env-vehicle',cat:'Licencje i środowisko',name:'Pojazd niedostosowany na terenie łowieckim',months:0,fine:1000,fineMode:'fixed',law:'Rozdział III, Art. 3'},
-
-  {id:'rob-fuel',cat:'Napady',name:'Napad na stację paliw',months:15,fine:2000,fineMode:'max',law:'Napady — Stacja Paliw'},
-  {id:'rob-home',cat:'Napady',name:'Napad na dom',months:15,fine:2000,fineMode:'max',law:'Napady — dom'},
-  {id:'rob-shop',cat:'Napady',name:'Napad na sklep',months:15,fine:2300,fineMode:'max',law:'Napady — sklep'},
-  {id:'rob-atm',cat:'Napady',name:'Napad na bankomat',months:20,fine:4000,fineMode:'max',law:'Napady — bankomat'},
-  {id:'rob-ammunation',cat:'Napady',name:'Napad na Ammu-Nation',months:20,fine:10000,fineMode:'max',law:'Napady — Ammu-Nation'},
-  {id:'rob-pharmacy',cat:'Napady',name:'Napad na aptekę',months:20,fine:8000,fineMode:'max',law:'Napady — apteka'},
-  {id:'rob-laundry',cat:'Napady',name:'Napad na pralnię',months:20,fine:8000,fineMode:'max',law:'Napady — pralnia'},
-  {id:'rob-train',cat:'Napady',name:'Napad na pociąg',months:20,fine:6000,fineMode:'max',law:'Napady — pociąg'},
-  {id:'rob-villa',cat:'Napady',name:'Napad na villę',months:20,fine:7000,fineMode:'max',law:'Napady — villa'},
-  {id:'rob-military',cat:'Napady',name:'Napad na transport wojskowy',months:20,fine:10000,fineMode:'max',law:'Napady — transport wojskowy'},
-  {id:'rob-gruppe',cat:'Napady',name:'Napad na furgonetkę Gruppe6',months:20,fine:6000,fineMode:'max',law:'Napady — Gruppe6'},
-  {id:'rob-yacht',cat:'Napady',name:'Napad na jacht',months:25,fine:6000,fineMode:'max',law:'Napady — jacht'},
-  {id:'rob-oilrig',cat:'Napady',name:'Napad na Oilrig',months:25,fine:6000,fineMode:'max',law:'Napady — Oilrig'},
-  {id:'rob-barge',cat:'Napady',name:'Napad na barkę',months:30,fine:7500,fineMode:'max',law:'Napady — barka'}
-];
+const charges = window.USMS_TARYFIKATOR_CHARGES || [];
 
 const state = new Map();
-const assistantRules = [
-  {ids:['road-dui'], terms:['pod wpływem alkoholu','po alkoholu','pijany kierowca','nietrzeźwy kierowca','pod wpływem narkotyków','prowadził po alkoholu']},
-  {ids:['road-collision'], terms:['spowodował kolizję','spowodowal kolizje','kolizja','uderzył w pojazd','uderzyl w pojazd','stłuczka','stluczka']},
-  {ids:['road-accident'], terms:['spowodował wypadek','spowodowal wypadek','wypadek drogowy']},
-  {ids:['road-license'], terms:['bez prawa jazdy','bez uprawnień do kierowania','bez uprawnien do kierowania']},
-  {ids:['road-reg'], terms:['niezarejestrowany pojazd','pojazd niezarejestrowany']},
-  {ids:['road-phone'], terms:['telefon podczas jazdy','używał telefonu podczas jazdy','uzywal telefonu podczas jazdy']},
-  {ids:['road-9'], terms:['czerwone światło','czerwonym świetle','czerwonym swietle','nie zastosował się do sygnalizacji','nie zastosowal sie do sygnalizacji']},
-  {ids:['road-8'], terms:['niebezpieczna jazda','niebezpiecznie prowadził','niebezpiecznie prowadzil']},
-  {ids:['pub-orders'], terms:['nie wykonywał poleceń','nie wykonywal polecen','odmówił wykonania polecenia','odmowil wykonania polecenia','nie słuchał poleceń','nie sluchal polecen']},
-  {ids:['pub-id'], terms:['odmowa wylegitymowania','odmówił wylegitymowania','odmowil wylegitymowania','odmówił podania danych','odmowil podania danych']},
-  {ids:['pub-work'], terms:['utrudniał pracę funkcjonariuszy','utrudnial prace funkcjonariuszy','utrudnianie pracy funkcjonariuszy','przeszkadzał funkcjonariuszom','przeszkadzal funkcjonariuszom']},
-  {ids:['pub-insult-officer'], terms:['znieważył funkcjonariusza','zniewazyl funkcjonariusza','wyzywał funkcjonariusza','wyzywal funkcjonariusza','obrażał funkcjonariusza','obrazal funkcjonariusza']},
-  {ids:['pub-property'], terms:['niszczył mienie','niszczyl mienie','zniszczył mienie','zniszczyl mienie','uszkodził mienie','uszkodzil mienie']},
-  {ids:['pub-stolen-car'], terms:['kradziony pojazd','kradzionym pojazdem','skradzionym pojazdem']},
-  {ids:['pub-disorder'], terms:['zakłócał porządek','zaklocal porzadek','zakłócanie porządku','zaklocanie porzadku']},
-  {ids:['pub-911'], terms:['bezpodstawnie zadzwonił na 911','bezpodstawnie zadzwonil na 911','fałszywe wezwanie 911','falszywe wezwanie 911']},
-  {ids:['rob-fuel'], terms:['napad na stację paliw','napad na stacje paliw']},
-  {ids:['rob-home'], terms:['napad na dom']},
-  {ids:['rob-shop'], terms:['napad na sklep']},
-  {ids:['rob-atm'], terms:['napad na bankomat']},
-  {ids:['rob-ammunation'], terms:['napad na ammu-nation','napad na ammunation']},
-  {ids:['rob-pharmacy'], terms:['napad na aptekę','napad na apteke']},
-  {ids:['rob-laundry'], terms:['napad na pralnię','napad na pralnie']},
-  {ids:['rob-train'], terms:['napad na pociąg','napad na pociag']},
-  {ids:['rob-villa'], terms:['napad na willę','napad na wille','napad na villę','napad na ville']},
-  {ids:['rob-military'], terms:['napad na transport wojskowy']},
-  {ids:['rob-gruppe'], terms:['napad na gruppe6','napad na furgonetkę gruppe6','napad na furgonetke gruppe6']},
-  {ids:['rob-yacht'], terms:['napad na jacht']},
-  {ids:['rob-oilrig'], terms:['napad na oilrig','napad na oil rig']},
-  {ids:['rob-barge'], terms:['napad na barkę','napad na barke']}
-];
-
 function normalizeIncident(text){
-  return text.toLowerCase().replace(/\s+/g,' ').trim();
+  return text.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9ąćęłńóśźż ]/gi,' ').replace(/\s+/g,' ').trim();
 }
 function localFallbackSuggestions(text){
-  const ids=[];
-  assistantRules.forEach(rule=>{
-    if(rule.terms.some(term=>text.includes(term))) rule.ids.forEach(id=>{if(!ids.includes(id)) ids.push(id)});
-  });
-  return ids;
+  const words=new Set(normalizeIncident(text).split(' ').filter(w=>w.length>=4));
+  return charges.map(c=>{
+    const n=normalizeIncident(c.name);
+    let score=0; words.forEach(w=>{if(n.includes(w)) score+=1;});
+    return [c.id,score];
+  }).filter(x=>x[1]>=2).sort((a,b)=>b[1]-a[1]).slice(0,8).map(x=>x[0]);
 }
 function renderSuggestions(ids, sourceLabel='Gemini'){
   const box=root.querySelector('#suggestionBox');
