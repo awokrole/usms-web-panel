@@ -11,6 +11,32 @@
     <div class="tariff-hero-badge">TEST</div>
   </section>
 
+  <section class="panel tariff-assistant" aria-labelledby="assistantTitle">
+    <div class="tariff-section-head">
+      <div>
+        <div class="tariff-kicker">ASYSTENT ZARZUTÓW • TEST</div>
+        <h2 id="assistantTitle">Opisz sytuację</h2>
+      </div>
+      <span class="tariff-assistant-badge">PODPOWIEDZI</span>
+    </div>
+    <p class="tariff-assistant-lead">Wpisz krótko, co się wydarzyło. System zaproponuje pasujące pozycje z obecnej wersji taryfikatora — decyzja o dodaniu zarzutu zawsze należy do funkcjonariusza.</p>
+    <div class="tariff-assistant-form">
+      <textarea id="incidentDescription" rows="4" placeholder="Np. Kierowca prowadził pod wpływem alkoholu, nie wykonywał poleceń funkcjonariusza i podczas jazdy spowodował kolizję."></textarea>
+      <div class="tariff-assistant-actions">
+        <button type="button" class="btn" id="analyzeIncident">Analizuj sytuację</button>
+        <button type="button" class="btn btn-secondary" id="clearIncident">Wyczyść opis</button>
+      </div>
+    </div>
+    <div class="tariff-suggestions" id="suggestionBox" hidden>
+      <div class="tariff-suggestions-head">
+        <div><span>PROPONOWANE ZARZUTY</span><strong id="suggestionCount">0</strong></div>
+        <button type="button" class="tariff-text-btn" id="addAllSuggestions">Dodaj wszystkie</button>
+      </div>
+      <div id="suggestionList" class="tariff-suggestion-list"></div>
+    </div>
+    <div class="tariff-assistant-status" id="assistantStatus" role="status"></div>
+  </section>
+
   <div class="tariff-layout">
     <section class="panel tariff-browser">
       <div class="tariff-section-head">
@@ -39,7 +65,7 @@
         <div class="tariff-summary-grid">
           <div><span>Liczba zarzutów</span><strong id="sumCounts">0</strong></div>
           <div><span>Łączna kara</span><strong id="sumMonths">0 mies.</strong></div>
-          <div class="wide"><span>Maksymalna / należna grzywna</span><strong id="sumFine">$0</strong></div>
+          <div class="wide"><span>Grzywna z taryfikatora</span><strong id="sumFine">$0</strong></div>
         </div>
         <div class="tariff-summary-note" id="fineNote">Grzywna zostanie obliczona po dodaniu zarzutów.</div>
         <div class="tariff-copy-actions">
@@ -51,9 +77,23 @@
     </aside>
   </div>
 
+  <section class="panel tariff-conversion" id="fineConversion" aria-live="polite">
+    <div class="tariff-conversion-icon" id="conversionIcon">$</div>
+    <div class="tariff-conversion-main">
+      <div class="tariff-kicker">ZAMIANA MIESIĘCY NA GRZYWNĘ</div>
+      <h2 id="conversionTitle">Dodaj zarzuty, aby sprawdzić</h2>
+      <p id="conversionText">Przelicznik: <strong>1 miesiąc = 1000$</strong>. Kalkulator pokaże kwotę możliwą do zastosowania po potwierdzeniu, że wybrane przestępstwo dopuszcza zamianę kary.</p>
+      <div class="tariff-conversion-stats">
+        <div><span>Miesiące</span><strong id="conversionMonths">0</strong></div>
+        <div><span>Po przeliczeniu</span><strong id="conversionAmount">0$</strong></div>
+      </div>
+      <div class="tariff-conversion-warning" id="conversionWarning">W obecnych materiałach nie ma jednej kompletnej listy przestępstw dopuszczających zamianę miesięcy na grzywnę. Wersja testowa nie zgaduje tej kwalifikacji.</div>
+    </div>
+  </section>
+
   <section class="panel tariff-info">
     <div class="tariff-info-icon">i</div>
-    <div><strong>Jak działa grzywna?</strong><p>W tej wersji testowej kwoty są automatycznie sprawdzane dla pozycji zestawionych z obecnymi Aktami prawnymi. „Do” oznacza maksymalną dopuszczalną kwotę; „stała” oznacza kwotę wynikającą wprost z przepisu.</p></div>
+    <div><strong>Kwoty z taryfikatora</strong><p>Kwota widoczna przy zarzucie jest pokazywana dokładnie jako kwota taryfikatora, bez dopisku „do”. Osobny kafelek powyżej służy wyłącznie do przeliczenia miesięcy według zasady 1 miesiąc = 1000$.</p></div>
   </section>
 </div>
 
@@ -121,6 +161,86 @@ const charges = [
 ];
 
 const state = new Map();
+const assistantRules = [
+  {ids:['road-dui'], terms:['pod wpływem alkoholu','po alkoholu','pijany kierowca','nietrzeźwy kierowca','pod wpływem narkotyków','prowadził po alkoholu']},
+  {ids:['road-collision'], terms:['spowodował kolizję','spowodowal kolizje','kolizja','uderzył w pojazd','uderzyl w pojazd','stłuczka','stluczka']},
+  {ids:['road-accident'], terms:['spowodował wypadek','spowodowal wypadek','wypadek drogowy']},
+  {ids:['road-license'], terms:['bez prawa jazdy','bez uprawnień do kierowania','bez uprawnien do kierowania']},
+  {ids:['road-reg'], terms:['niezarejestrowany pojazd','pojazd niezarejestrowany']},
+  {ids:['road-phone'], terms:['telefon podczas jazdy','używał telefonu podczas jazdy','uzywal telefonu podczas jazdy']},
+  {ids:['road-9'], terms:['czerwone światło','czerwonym świetle','czerwonym swietle','nie zastosował się do sygnalizacji','nie zastosowal sie do sygnalizacji']},
+  {ids:['road-8'], terms:['niebezpieczna jazda','niebezpiecznie prowadził','niebezpiecznie prowadzil']},
+  {ids:['pub-orders'], terms:['nie wykonywał poleceń','nie wykonywal polecen','odmówił wykonania polecenia','odmowil wykonania polecenia','nie słuchał poleceń','nie sluchal polecen']},
+  {ids:['pub-id'], terms:['odmowa wylegitymowania','odmówił wylegitymowania','odmowil wylegitymowania','odmówił podania danych','odmowil podania danych']},
+  {ids:['pub-work'], terms:['utrudniał pracę funkcjonariuszy','utrudnial prace funkcjonariuszy','utrudnianie pracy funkcjonariuszy','przeszkadzał funkcjonariuszom','przeszkadzal funkcjonariuszom']},
+  {ids:['pub-insult-officer'], terms:['znieważył funkcjonariusza','zniewazyl funkcjonariusza','wyzywał funkcjonariusza','wyzywal funkcjonariusza','obrażał funkcjonariusza','obrazal funkcjonariusza']},
+  {ids:['pub-property'], terms:['niszczył mienie','niszczyl mienie','zniszczył mienie','zniszczyl mienie','uszkodził mienie','uszkodzil mienie']},
+  {ids:['pub-stolen-car'], terms:['kradziony pojazd','kradzionym pojazdem','skradzionym pojazdem']},
+  {ids:['pub-disorder'], terms:['zakłócał porządek','zaklocal porzadek','zakłócanie porządku','zaklocanie porzadku']},
+  {ids:['pub-911'], terms:['bezpodstawnie zadzwonił na 911','bezpodstawnie zadzwonil na 911','fałszywe wezwanie 911','falszywe wezwanie 911']},
+  {ids:['rob-fuel'], terms:['napad na stację paliw','napad na stacje paliw']},
+  {ids:['rob-home'], terms:['napad na dom']},
+  {ids:['rob-shop'], terms:['napad na sklep']},
+  {ids:['rob-atm'], terms:['napad na bankomat']},
+  {ids:['rob-ammunation'], terms:['napad na ammu-nation','napad na ammunation']},
+  {ids:['rob-pharmacy'], terms:['napad na aptekę','napad na apteke']},
+  {ids:['rob-laundry'], terms:['napad na pralnię','napad na pralnie']},
+  {ids:['rob-train'], terms:['napad na pociąg','napad na pociag']},
+  {ids:['rob-villa'], terms:['napad na willę','napad na wille','napad na villę','napad na ville']},
+  {ids:['rob-military'], terms:['napad na transport wojskowy']},
+  {ids:['rob-gruppe'], terms:['napad na gruppe6','napad na furgonetkę gruppe6','napad na furgonetke gruppe6']},
+  {ids:['rob-yacht'], terms:['napad na jacht']},
+  {ids:['rob-oilrig'], terms:['napad na oilrig','napad na oil rig']},
+  {ids:['rob-barge'], terms:['napad na barkę','napad na barke']}
+];
+
+function normalizeIncident(text){
+  return text.toLowerCase().replace(/\s+/g,' ').trim();
+}
+function analyzeDescription(){
+  const text=normalizeIncident(root.querySelector('#incidentDescription').value);
+  const box=root.querySelector('#suggestionBox');
+  const listEl=root.querySelector('#suggestionList');
+  const status=root.querySelector('#assistantStatus');
+  if(text.length<5){box.hidden=true; status.textContent='Wpisz krótki opis sytuacji.'; return;}
+  const ids=[];
+  assistantRules.forEach(rule=>{
+    if(rule.terms.some(term=>text.includes(term))) rule.ids.forEach(id=>{if(!ids.includes(id)) ids.push(id)});
+  });
+  const suggestions=ids.map(id=>charges.find(c=>c.id===id)).filter(Boolean);
+  root._tariffSuggestions=suggestions.map(c=>c.id);
+  root.querySelector('#suggestionCount').textContent=suggestions.length;
+  listEl.innerHTML=suggestions.map(c=>`<article class="tariff-suggestion-row"><div><span class="tariff-cat">${c.cat}</span><strong>${c.name}</strong><small>${c.law}</small></div><button type="button" class="tariff-suggestion-add" data-suggest-add="${c.id}">Dodaj</button></article>`).join('');
+  box.hidden=suggestions.length===0;
+  status.textContent=suggestions.length ? `Znaleziono ${suggestions.length} propozyc${suggestions.length===1?'ję':'je'}.` : 'Brak pasujących propozycji w obecnej wersji testowej taryfikatora.';
+}
+function renderConversion(months){
+  const title=root.querySelector('#conversionTitle');
+  const text=root.querySelector('#conversionText');
+  const icon=root.querySelector('#conversionIcon');
+  const warning=root.querySelector('#conversionWarning');
+  root.querySelector('#conversionMonths').textContent=months;
+  root.querySelector('#conversionAmount').textContent=(months*1000).toLocaleString('en-US')+'$';
+  if(!state.size){
+    title.textContent='Dodaj zarzuty, aby sprawdzić';
+    text.innerHTML='Przelicznik: <strong>1 miesiąc = 1000$</strong>.';
+    icon.dataset.state='idle';
+    warning.hidden=false;
+    return;
+  }
+  if(months===0){
+    title.textContent='Zamiana miesięcy nie jest potrzebna';
+    text.innerHTML='Wybrane pozycje nie dodają kary pozbawienia wolności. Grzywny z taryfikatora są liczone osobno.';
+    icon.dataset.state='ok';
+    warning.hidden=true;
+    return;
+  }
+  title.textContent='Kwota po przeliczeniu miesięcy';
+  text.innerHTML=`${months} mies. × 1000$ = <strong>${(months*1000).toLocaleString('en-US')}$</strong>`;
+  icon.dataset.state='warn';
+  warning.hidden=false;
+}
+
 const root = document.getElementById('tariffCalc');
 const list = root.querySelector('#chargeList');
 const selected = root.querySelector('#selectedCharges');
@@ -136,7 +256,7 @@ filter.innerHTML = '<option value="">Wszystkie kategorie</option>' + cats.map(c=
 function fineLabel(c, qty=1){
   if(!c.fine) return 'Brak grzywny';
   const total=c.fine*qty;
-  return c.fineMode==='fixed' ? `${money(c.fine)}${qty>1?' × '+qty+' = '+money(total):''}` : `do ${money(c.fine)}${qty>1?' × '+qty+' = do '+money(total):''}`;
+  return `${money(c.fine)}${qty>1?' × '+qty+' = '+money(total):''}`;
 }
 function renderList(){
   const q=search.value.trim().toLowerCase(); const cat=filter.value;
@@ -150,8 +270,8 @@ function renderList(){
 }
 function renderSelected(){
   empty.hidden=state.size>0; selected.innerHTML='';
-  let cnt=0, months=0, fine=0, maxOnly=false;
-  state.forEach((qty,id)=>{const c=charges.find(x=>x.id===id); cnt+=qty; months+=c.months*qty; fine+=c.fine*qty; if(c.fineMode==='max')maxOnly=true;
+  let cnt=0, months=0, fine=0;
+  state.forEach((qty,id)=>{const c=charges.find(x=>x.id===id); cnt+=qty; months+=c.months*qty; fine+=c.fine*qty;
     selected.insertAdjacentHTML('beforeend',`<article class="tariff-selected-row" data-id="${id}">
       <div class="tariff-selected-title"><strong>${c.name}</strong><small>${c.law}</small></div>
       <div class="tariff-selected-values"><span>${c.months*qty} mies.</span><span class="fine-ok">${fineLabel(c,qty)}</span></div>
@@ -161,19 +281,24 @@ function renderSelected(){
   });
   root.querySelector('#sumCounts').textContent=cnt;
   root.querySelector('#sumMonths').textContent=months+' mies.';
-  root.querySelector('#sumFine').textContent=(maxOnly?'do ':'')+money(fine);
-  root.querySelector('#fineNote').textContent=state.size ? (maxOnly?'Suma zawiera grzywny określone w przepisach jako maksymalne („do”).':'Wszystkie wybrane grzywny mają kwotę stałą.') : 'Grzywna zostanie obliczona po dodaniu zarzutów.';
+  root.querySelector('#sumFine').textContent=money(fine);
+  root.querySelector('#fineNote').textContent=state.size ? 'Kwoty są sumowane dokładnie według wartości zapisanych przy wybranych pozycjach taryfikatora.' : 'Grzywna zostanie obliczona po dodaniu zarzutów.';
+  renderConversion(months);
 }
 function setQty(id,n){ n=Math.max(1,Math.min(99,parseInt(n,10)||1)); state.set(id,n); renderSelected(); }
 function add(id){state.set(id,(state.get(id)||0)+1);renderSelected();}
 function copied(msg){const el=root.querySelector('#copyStatus');el.textContent=msg;setTimeout(()=>{if(el.textContent===msg)el.textContent='';},1800)}
 function chargeText(withSummary){
   const lines=[]; state.forEach((qty,id)=>{const c=charges.find(x=>x.id===id); lines.push(`${c.name}${qty>1?' × '+qty:''} — ${c.months*qty} mies. — grzywna ${fineLabel(c,qty)}`)});
-  if(withSummary){let cnt=0,m=0,f=0,hasMax=false;state.forEach((qty,id)=>{const c=charges.find(x=>x.id===id);cnt+=qty;m+=c.months*qty;f+=c.fine*qty;hasMax ||= c.fineMode==='max'}); lines.push('',`Łącznie: ${cnt} zarzutów | ${m} mies. | grzywna ${hasMax?'do ':''}${money(f)}`)}
+  if(withSummary){let cnt=0,m=0,f=0;state.forEach((qty,id)=>{const c=charges.find(x=>x.id===id);cnt+=qty;m+=c.months*qty;f+=c.fine*qty}); lines.push('',`Łącznie: ${cnt} zarzutów | ${m} mies. | grzywna ${money(f)}`)}
   return lines.join('\n');
 }
 async function copyText(text,msg){if(!text){copied('Najpierw dodaj zarzuty.');return}try{await navigator.clipboard.writeText(text);copied(msg)}catch(e){const ta=document.createElement('textarea');ta.value=text;document.body.appendChild(ta);ta.select();document.execCommand('copy');ta.remove();copied(msg)}}
 root.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return; if(b.dataset.add)add(b.dataset.add); if(b.dataset.inc)setQty(b.dataset.inc,(state.get(b.dataset.inc)||1)+1); if(b.dataset.dec){const n=(state.get(b.dataset.dec)||1)-1;n<1?state.delete(b.dataset.dec):state.set(b.dataset.dec,n);renderSelected()} if(b.dataset.remove){state.delete(b.dataset.remove);renderSelected()}});
+root.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return; if(b.dataset.suggestAdd){add(b.dataset.suggestAdd);copied('Dodano proponowany zarzut.')}});
+root.querySelector('#analyzeIncident').addEventListener('click',analyzeDescription);
+root.querySelector('#clearIncident').addEventListener('click',()=>{root.querySelector('#incidentDescription').value='';root.querySelector('#suggestionBox').hidden=true;root.querySelector('#assistantStatus').textContent='';root._tariffSuggestions=[]});
+root.querySelector('#addAllSuggestions').addEventListener('click',()=>{const ids=root._tariffSuggestions||[];ids.forEach(id=>state.set(id,(state.get(id)||0)+1));renderSelected();copied(ids.length?'Dodano wszystkie propozycje.':'Brak propozycji do dodania.')});
 selected.addEventListener('change',e=>{if(e.target.dataset.qty)setQty(e.target.dataset.qty,e.target.value)});
 search.addEventListener('input',renderList); filter.addEventListener('change',renderList);
 root.querySelector('#clearCharges').addEventListener('click',()=>{state.clear();renderSelected()});
