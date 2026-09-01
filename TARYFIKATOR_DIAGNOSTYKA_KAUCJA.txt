@@ -1,0 +1,16 @@
+TARYFIKATOR + GEMINI + SYSTEM KAUCJI
+
+1. Główny static/style.css pozostaje identyczny bajt w bajt z ostatnim działającym plikiem przekazanym przez użytkownika.
+2. Style taryfikatora znajdują się wyłącznie w static/taryfikator.css.
+3. Gemini loguje do Railway m.in.:
+   - start analizy,
+   - czy klucz jest skonfigurowany,
+   - długość opisu i liczbę pozycji katalogu,
+   - model i endpoint,
+   - status HTTP, czas odpowiedzi i request id (jeśli Google go zwróci),
+   - treść błędu Google do 1200 znaków,
+   - liczbę zwróconych i zaakceptowanych ID.
+   Klucz API ani treść opisu nie są wypisywane do logów.
+4. System kaucji sprawdza wybrane zarzuty automatycznie.
+   Wyłączenia: próba/usiłowanie zabójstwa funkcjonariusza lub obywatela, zabójstwo funkcjonariusza lub obywatela, groźby z bronią palną, napad, porwanie funkcjonariusza lub obywatela oraz handel bronią.
+5. Przy wyłączeniu kaucji kalkulator wskazuje zarzut blokujący. Informacja o kaucji trafia także do kopiowanego podsumowania.

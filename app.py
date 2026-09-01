@@ -3,6 +3,7 @@ import os
 import secrets
 import sqlite3
 import io
+import time
 from datetime import datetime, timezone, timedelta
 
 try:
@@ -1537,19 +1538,31 @@ def taryfikator():
 @logged_in_required
 def taryfikator_analyze():
     """Zwraca wyłącznie identyfikatory zarzutów istniejących w katalogu przesłanym przez kalkulator."""
+    request_tag = f"tariff-{int(time.time() * 1000)}"
     api_key = (os.environ.get("GEMINI_API_KEY") or "").strip()
+    app.logger.info("GEMINI [%s] start analyze key_configured=%s", request_tag, bool(api_key))
     if not api_key:
+        app.logger.error("GEMINI [%s] brak GEMINI_API_KEY", request_tag)
         return {"ok": False, "error": "Asystent Gemini nie jest skonfigurowany."}, 503
 
     payload = request.get_json(silent=True) or {}
     description = str(payload.get("description") or "").strip()
     catalog = payload.get("charges") or []
+    app.logger.info(
+        "GEMINI [%s] payload description_len=%s catalog_items=%s",
+        request_tag,
+        len(description),
+        len(catalog) if isinstance(catalog, list) else "invalid",
+    )
 
     if len(description) < 5:
+        app.logger.warning("GEMINI [%s] opis zbyt krótki", request_tag)
         return {"ok": False, "error": "Opis sytuacji jest zbyt krótki."}, 400
     if len(description) > 6000:
+        app.logger.warning("GEMINI [%s] opis zbyt długi", request_tag)
         return {"ok": False, "error": "Opis sytuacji jest zbyt długi."}, 400
     if not isinstance(catalog, list) or not catalog:
+        app.logger.warning("GEMINI [%s] brak katalogu", request_tag)
         return {"ok": False, "error": "Brak katalogu zarzutów."}, 400
 
     allowed = {}
@@ -1567,6 +1580,7 @@ def taryfikator_analyze():
         safe_catalog.append({"id": charge_id, "name": name, "category": category, "law": law})
 
     if not safe_catalog:
+        app.logger.warning("GEMINI [%s] katalog po walidacji pusty", request_tag)
         return {"ok": False, "error": "Brak prawidłowych pozycji taryfikatora."}, 400
 
     prompt = (
@@ -1575,6 +1589,8 @@ def taryfikator_analyze():
         "NIGDY nie twórz nowych zarzutów, nie zmieniaj nazw i nie korzystaj z prawa spoza katalogu. "
         "Jeżeli opis nie daje podstaw do pozycji z katalogu, zwróć pustą listę. "
         "Uwzględniaj naturalny język, odmiany słów i kontekst zdarzenia. "
+        "Dobieraj tylko zarzuty wynikające bezpośrednio z opisu; nie utożsamiaj samego wystąpienia słów "
+        "agent, funkcjonariusz, osoba czy broń z zabójstwem, porwaniem lub innym ciężkim czynem. "
         "Nie podawaj uzasadnienia. Zwróć wyłącznie JSON zgodny ze schematem.\n\n"
         f"OPIS SYTUACJI:\n{description}\n\n"
         "KATALOG ZARZUTÓW (wolno wskazać tylko id z tej listy):\n"
@@ -1611,6 +1627,8 @@ def taryfikator_analyze():
 
     for model in model_candidates:
         endpoint = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent"
+        app.logger.info("GEMINI [%s] request model=%s endpoint=v1beta/generateContent", request_tag, model)
+        started = time.monotonic()
         try:
             candidate_response = requests.post(
                 endpoint,
@@ -1618,8 +1636,20 @@ def taryfikator_analyze():
                 json=body,
                 timeout=25,
             )
-        except requests.RequestException:
+        except requests.RequestException as exc:
+            app.logger.exception("GEMINI [%s] network_error model=%s error=%s", request_tag, model, exc)
             continue
+
+        elapsed_ms = int((time.monotonic() - started) * 1000)
+        google_request_id = candidate_response.headers.get("x-request-id") or candidate_response.headers.get("x-goog-request-id") or "-"
+        app.logger.info(
+            "GEMINI [%s] response model=%s status=%s elapsed_ms=%s request_id=%s",
+            request_tag,
+            model,
+            candidate_response.status_code,
+            elapsed_ms,
+            google_request_id,
+        )
 
         if candidate_response.status_code < 400:
             response = candidate_response
@@ -1627,34 +1657,44 @@ def taryfikator_analyze():
             break
 
         try:
-            last_google_error = candidate_response.json().get("error", {}).get("message", "")
+            error_payload = candidate_response.json()
+            last_google_error = str(error_payload.get("error", {}).get("message", ""))
+            error_status = str(error_payload.get("error", {}).get("status", ""))
         except Exception:
-            last_google_error = ""
+            last_google_error = candidate_response.text[:1200]
+            error_status = ""
 
         app.logger.warning(
-            "Gemini API error model=%s status=%s: %s",
+            "GEMINI [%s] api_error model=%s status=%s google_status=%s message=%s",
+            request_tag,
             model,
             candidate_response.status_code,
-            last_google_error[:500],
+            error_status,
+            last_google_error[:1200],
         )
 
-        # 404 zwykle oznacza, że wybrany model nie jest dostępny dla tego API/projektu.
-        # Jedyny fallback to aktualny Gemini 3.6 Flash.
         if candidate_response.status_code == 404:
             continue
 
-        # Other API errors are unlikely to be fixed by switching models.
         response = candidate_response
         used_model = model
         break
 
     if response is None:
+        app.logger.error("GEMINI [%s] all_models_failed last_error=%s", request_tag, last_google_error[:1200])
         return {"ok": False, "error": "Nie udało się połączyć z dostępnym modelem Gemini."}, 502
 
     if response.status_code >= 400:
+        app.logger.error(
+            "GEMINI [%s] final_api_error model=%s status=%s message=%s",
+            request_tag,
+            used_model,
+            response.status_code,
+            last_google_error[:1200],
+        )
         return {"ok": False, "error": "Gemini chwilowo nie może przeanalizować opisu."}, 502
 
-    app.logger.info("Taryfikator Gemini użył modelu: %s", used_model)
+    app.logger.info("GEMINI [%s] success model=%s", request_tag, used_model)
 
     try:
         result = response.json()
@@ -1662,8 +1702,14 @@ def taryfikator_analyze():
         text = "".join(str(part.get("text") or "") for part in parts)
         parsed = json.loads(text)
         ids = parsed.get("charge_ids") or []
-    except (KeyError, IndexError, TypeError, ValueError, json.JSONDecodeError):
-        app.logger.warning("Nieprawidłowa odpowiedź Gemini dla taryfikatora")
+    except (KeyError, IndexError, TypeError, ValueError, json.JSONDecodeError) as exc:
+        app.logger.warning(
+            "GEMINI [%s] invalid_response model=%s error=%s body=%s",
+            request_tag,
+            used_model,
+            exc,
+            response.text[:1200],
+        )
         return {"ok": False, "error": "Gemini zwrócił nieprawidłową odpowiedź."}, 502
 
     unique_ids = []
@@ -1672,6 +1718,13 @@ def taryfikator_analyze():
         if charge_id in allowed and charge_id not in unique_ids:
             unique_ids.append(charge_id)
 
+    app.logger.info(
+        "GEMINI [%s] complete model=%s raw_ids=%s accepted_ids=%s",
+        request_tag,
+        used_model,
+        len(ids),
+        len(unique_ids),
+    )
     return {"ok": True, "charge_ids": unique_ids, "model": used_model}
 
 
