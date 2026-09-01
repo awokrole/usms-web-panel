@@ -92,6 +92,18 @@
     </div>
   </section>
 
+
+  <section class="panel tariff-bail" id="bailPanel" aria-live="polite">
+    <div class="tariff-bail-icon" id="bailIcon">⚖</div>
+    <div class="tariff-bail-main">
+      <div class="tariff-kicker">SYSTEM KAUCJI</div>
+      <h2 id="bailTitle">Dodaj zarzuty, aby sprawdzić kaucję</h2>
+      <p id="bailText">Kalkulator automatycznie sprawdzi, czy któryś z wybranych zarzutów wyklucza możliwość kaucji.</p>
+      <div class="tariff-bail-reasons" id="bailReasons" hidden></div>
+      <div class="tariff-bail-note">Wyłączenia z kaucji: próba/usiłowanie zabójstwa funkcjonariusza lub obywatela, zabójstwo funkcjonariusza lub obywatela, groźby z bronią palną, napad, porwanie funkcjonariusza lub obywatela oraz handel bronią.</div>
+    </div>
+  </section>
+
   <section class="panel tariff-info">
     <div class="tariff-info-icon">i</div>
     <div><strong>Kwoty z taryfikatora</strong><p>Kwota widoczna przy zarzucie jest pokazywana dokładnie jako kwota taryfikatora, bez dopisku „do”. Osobny kafelek powyżej służy wyłącznie do przeliczenia miesięcy według zasady 1 miesiąc = 1000$.</p></div>
@@ -163,6 +175,55 @@ async function analyzeDescription(){
     button.textContent='Analizuj sytuację';
   }
 }
+function bailBlockingReason(c){
+  const n=normalizeIncident(c.name);
+  if(n.includes('napad')) return 'Napad';
+  if(n.includes('handel bronia')) return 'Handel bronią';
+  if(n.includes('porwanie agenta federalnego') || n.includes('porwanie funkcjonariusza') || n==='porwanie' || n.startsWith('porwanie i ') || n.includes('udaremniona proba porwania') || n.includes('usilowanie porwania')) return 'Porwanie funkcjonariusza lub obywatela';
+  if(n.includes('usilowanie zabojstwa') || n.includes('proba zabojstwa')) return 'Próba / usiłowanie zabójstwa';
+  if((n==='zabojstwo') || n.includes('zabojstwo agenta federalnego') || n.includes('zabojstwo ze szczegolnym okrucienstwem') || n.includes('zabojstwo funkcjonariusza')) return 'Zabójstwo funkcjonariusza lub obywatela';
+  if(n.includes('grozb') && (n.includes('bronia palna') || n.includes('broni palnej'))) return 'Groźby z bronią palną';
+  return '';
+}
+function getBailState(){
+  const blocked=[];
+  state.forEach((qty,id)=>{
+    const c=charges.find(x=>x.id===id);
+    if(!c) return;
+    const reason=bailBlockingReason(c);
+    if(reason) blocked.push({charge:c,qty,reason});
+  });
+  return blocked;
+}
+function renderBail(){
+  const title=root.querySelector('#bailTitle');
+  const text=root.querySelector('#bailText');
+  const icon=root.querySelector('#bailIcon');
+  const reasons=root.querySelector('#bailReasons');
+  if(!state.size){
+    title.textContent='Dodaj zarzuty, aby sprawdzić kaucję';
+    text.textContent='Kalkulator automatycznie sprawdzi, czy któryś z wybranych zarzutów wyklucza możliwość kaucji.';
+    icon.dataset.state='idle';
+    reasons.hidden=true;
+    reasons.innerHTML='';
+    return;
+  }
+  const blocked=getBailState();
+  if(!blocked.length){
+    title.textContent='Kaucja możliwa';
+    text.textContent='Żaden z wybranych zarzutów nie znajduje się na liście wyłączeń z kaucji.';
+    icon.dataset.state='ok';
+    reasons.hidden=true;
+    reasons.innerHTML='';
+    return;
+  }
+  title.textContent='Kaucja wykluczona';
+  text.textContent='Co najmniej jeden z wybranych zarzutów wyłącza możliwość zastosowania kaucji.';
+  icon.dataset.state='bad';
+  reasons.hidden=false;
+  reasons.innerHTML=blocked.map(x=>`<div><strong>${x.charge.name}${x.qty>1?' × '+x.qty:''}</strong><span>${x.reason}</span></div>`).join('');
+}
+
 function renderConversion(months){
   const title=root.querySelector('#conversionTitle');
   const text=root.querySelector('#conversionText');
@@ -233,13 +294,14 @@ function renderSelected(){
   root.querySelector('#sumFine').textContent=money(fine);
   root.querySelector('#fineNote').textContent=state.size ? 'Kwoty są sumowane dokładnie według wartości zapisanych przy wybranych pozycjach taryfikatora.' : 'Grzywna zostanie obliczona po dodaniu zarzutów.';
   renderConversion(months);
+  renderBail();
 }
 function setQty(id,n){ n=Math.max(1,Math.min(99,parseInt(n,10)||1)); state.set(id,n); renderSelected(); }
 function add(id){state.set(id,(state.get(id)||0)+1);renderSelected();}
 function copied(msg){const el=root.querySelector('#copyStatus');el.textContent=msg;setTimeout(()=>{if(el.textContent===msg)el.textContent='';},1800)}
 function chargeText(withSummary){
   const lines=[]; state.forEach((qty,id)=>{const c=charges.find(x=>x.id===id); lines.push(`${c.name}${qty>1?' × '+qty:''} — ${c.months*qty} mies. — grzywna ${fineLabel(c,qty)}`)});
-  if(withSummary){let cnt=0,m=0,f=0;state.forEach((qty,id)=>{const c=charges.find(x=>x.id===id);cnt+=qty;m+=c.months*qty;f+=c.fine*qty}); lines.push('',`Łącznie: ${cnt} zarzutów | ${m} mies. | grzywna ${money(f)}`)}
+  if(withSummary){let cnt=0,m=0,f=0;state.forEach((qty,id)=>{const c=charges.find(x=>x.id===id);cnt+=qty;m+=c.months*qty;f+=c.fine*qty}); const blocked=getBailState(); lines.push('',`Łącznie: ${cnt} zarzutów | ${m} mies. | grzywna ${money(f)}`,`Kaucja: ${blocked.length?'WYKLUCZONA':'MOŻLIWA'}`); if(blocked.length){lines.push(...blocked.map(x=>`- ${x.charge.name}: ${x.reason}`));}}
   return lines.join('\n');
 }
 async function copyText(text,msg){if(!text){copied('Najpierw dodaj zarzuty.');return}try{await navigator.clipboard.writeText(text);copied(msg)}catch(e){const ta=document.createElement('textarea');ta.value=text;document.body.appendChild(ta);ta.select();document.execCommand('copy');ta.remove();copied(msg)}}
