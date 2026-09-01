@@ -41,10 +41,11 @@
                 </div>
             </details>
 
-            <details class="side-panel" {% if request.endpoint in ['training_haw'] %}open{% endif %}>
+            <details class="side-panel" {% if request.endpoint in ['training_haw','training_ro'] %}open{% endif %}>
                 <summary><span class="side-panel-icon">✦</span><strong>MATERIAŁY SZKOLENIOWE</strong><span class="chevron">⌄</span></summary>
                 <div class="side-panel-list">
                     <a href="{{ url_for('training_haw') }}" class="{% if request.endpoint == 'training_haw' %}active{% endif %}">▣ HAW</a>
+                    <a href="{{ url_for('training_ro') }}" class="{% if request.endpoint == 'training_ro' %}active{% endif %}">▣ RO</a>
                 </div>
             </details>
 

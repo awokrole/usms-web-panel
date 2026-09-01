@@ -1,0 +1,219 @@
+{% extends "base.html" %}
+{% block title %}Materiały szkoleniowe RO — USMS Panel{% endblock %}
+{% block content %}
+<div class="haw-page training-material-page ro-page">
+  <section class="panel haw-hero">
+    <div class="haw-hero-copy">
+      <div class="eyebrow">MATERIAŁY SZKOLENIOWE • RO</div>
+      <h1>Materiał szkoleniowy RO</h1>
+      <p>Materiał szkoleniowy United States Marshals Service.</p>
+      <div class="haw-meta">
+        <span>11 stron materiału</span>
+        <span>Training Division</span>
+        <span>RO</span>
+        <a class="haw-pdf-link" href="{{ url_for('static', filename='ro-material-szkoleniowy.pdf') }}" target="_blank" rel="noopener">Otwórz oryginalny PDF ↗</a>
+      </div>
+    </div>
+    <div class="haw-hero-watermark" aria-hidden="true"></div>
+  </section>
+
+  <div class="haw-layout">
+    <aside class="panel haw-toc">
+      <strong>SPIS TREŚCI</strong>
+      <a class="haw-toc-link" href="#ro-radio"><span>01</span>Radiokomunikacja</a>
+      <a class="haw-toc-link" href="#ro-ten-codes"><span>02</span>Komunikaty radiowe</a>
+      <a class="haw-toc-link" href="#ro-codes"><span>03</span>CODE-XX</a>
+      <a class="haw-toc-link" href="#ro-status"><span>04</span>Statusy</a>
+      <a class="haw-toc-link" href="#ro-signals"><span>05</span>Sygnalizacja</a>
+      <a class="haw-toc-link" href="#ro-pursuit"><span>06</span>Komunikacja w pościgu</a>
+      <a class="haw-toc-link" href="#ro-shortcuts"><span>07</span>Skróty radiowe</a>
+      <a class="haw-toc-link" href="#ro-topography"><span>08</span>Topografia miasta</a>
+    </aside>
+
+    <main class="haw-content">
+      <article id="ro-radio" class="panel haw-section">
+        <div class="haw-section-no">01</div>
+        <div class="eyebrow">PODSTAWY</div>
+        <h2>Radiokomunikacja</h2>
+        <p>Komunikaty mają na celu wspomóc pracę funkcjonariuszy.</p>
+        <div class="ro-rule-grid">
+          <div><strong>Krótko i zrozumiale</strong><p>Komunikaty mają być krótkie, zwięzłe oraz zrozumiałe.</p></div>
+          <div><strong>Nie przerywamy</strong><p>Nie wchodzimy sobie w komunikaty.</p></div>
+          <div><strong>Kultura na radiu</strong><p>Na radiu obowiązuje kultura.</p></div>
+          <div><strong>Nie zgaduj kodu</strong><p>Jeżeli nie znasz jakiegoś Kodu radiowego lepiej, żebyś zgłosił np: <b>676 reaguje na bank koło urzędniczej.</b></p></div>
+        </div>
+        <div class="haw-warning ro-example"><strong>Niepoprawny komunikat:</strong> 676 10-20 na 10-76 koło urzędniczej.</div>
+        <p>Ważnym aspektem są kody radiowe w naszym departamencie obowiązują kody dziesiątkowe [10-XX], statusy oraz kody priorytetowe.</p>
+      </article>
+
+      <article id="ro-ten-codes" class="panel haw-section">
+        <div class="haw-section-no">02</div>
+        <div class="eyebrow">RADIO</div>
+        <h2>Komunikaty radiowe</h2>
+        <div class="ro-code-grid">
+          <div><b>10-0</b><span>Do wszystkich jednostek</span></div>
+          <div><b>10-1</b><span>Prośba o meldunek wszystkich jednostek</span></div>
+          <div><b>10-2</b><span>Potwierdzam (Tak)</span></div>
+          <div><b>10-3</b><span>Odmawiam (Nie)</span></div>
+          <div><b>10-4</b><span>Przyjąłem/Zrozumiano</span></div>
+          <div><b>10-5</b><span>W drodze</span></div>
+          <div><b>10-6</b><span>Same Traffic</span></div>
+          <div><b>10-8</b><span>Cisza na radiu</span></div>
+          <div><b>10-9</b><span>Powtórz</span></div>
+          <div><b>10-13A</b><span>Ranny funkcjonariusz (inni funkcjonariusze mogą dojechać)</span></div>
+          <div><b>10-13B</b><span>Ranny funkcjonariusz (inni funkcjonariusze nie mogą dojechać)</span></div>
+          <div><b>10-13C</b><span>Ranny strażnik więzienny</span></div>
+          <div><b>10-20</b><span>Obecna lokalizacja</span></div>
+          <div><b>10-21</b><span>Potrzebne wsparcie</span></div>
+          <div><b>10-22</b><span>Nie potrzebuje wsparcia</span></div>
+          <div><b>10-23</b><span>Jednostka na miejscu</span></div>
+          <div><b>10-32</b><span>Osoba z bronią</span></div>
+          <div><b>10-50</b><span>Kolizja/Wypadek</span></div>
+          <div><b>10-55</b><span>Naprawa pojazdu</span></div>
+          <div><b>10-64</b><span>Ucieczka z więzienia</span></div>
+          <div><b>10-70</b><span>Kradzież pojazdu</span></div>
+          <div><b>10-71</b><span>Strzały</span></div>
+          <div><b>10-72</b><span>Sprzedaż narkotyków</span></div>
+          <div><b>10-78</b><span>W drodze na ostatnie strzały</span></div>
+          <div><b>10-79</b><span>W drodze na ostatnie zgłoszenie</span></div>
+          <div><b>10-80</b><span>Rozpoczynam pościg</span></div>
+          <div><b>10-81</b><span>Pościg zakończony powodzeniem</span></div>
+          <div><b>10-82</b><span>Pościg zakończony porażką</span></div>
+          <div><b>10-83</b><span>Wznowienie pościgu za</span></div>
+          <div><b>10-90</b><span>Napad</span></div>
+          <div><b>10-100</b><span>Osoba nie poszukiwana</span></div>
+          <div><b>10-101</b><span>Osoba poszukiwana</span></div>
+          <div><b>10-102</b><span>Podejrzany zaginiony w akcji</span></div>
+        </div>
+      </article>
+
+      <article id="ro-codes" class="panel haw-section">
+        <div class="haw-section-no">03</div>
+        <div class="eyebrow">KODY PRIORYTETOWE</div>
+        <h2>CODE-XX</h2>
+        <div class="ro-code-grid ro-code-grid-short">
+          <div><b>Kod 0</b><span>Strzały w kierunku funkcjonariusza (natychmiastowa pomoc reszta jednostek)</span></div>
+          <div><b>Kod 2</b><span>Przeszukanie terenu</span></div>
+          <div><b>Kod 4</b><span>Odwołanie poprzedniego zgłoszonego kodu/statusu</span></div>
+          <div><b>Kod 5</b><span>Interwencja własna</span></div>
+          <div><b>Kod 6</b><span>Interwencja poza pojazdem</span></div>
+          <div><b>Kod 8</b><span>Teren czysty</span></div>
+          <div><b>Kod 10</b><span>Sprawdzenie osoby w bazie danych</span></div>
+        </div>
+      </article>
+
+      <article id="ro-status" class="panel haw-section">
+        <div class="haw-section-no">04</div>
+        <div class="eyebrow">STATUSY</div>
+        <h2>Statusy radiowe</h2>
+        <div class="ro-code-grid ro-code-grid-short">
+          <div><b>Status 1</b><span>Rozpoczęcie służby</span></div>
+          <div><b>Status 2</b><span>Przerwa w służbie</span></div>
+          <div><b>Status 3</b><span>Koniec służby</span></div>
+          <div><b>Status 4</b><span>Wolna jednostka</span></div>
+          <div><b>Status 5</b><span>Rozpoczęcie patrolu</span></div>
+          <div><b>Status 6</b><span>Koniec przerwy</span></div>
+          <div><b>Status 8</b><span>Wszystkie wolne jednostki na komendę</span></div>
+          <div><b>Status 9</b><span>Zebranie na komendzie</span></div>
+          <div><b>Status 10</b><span>Procedury zatrzymania na komendzie</span></div>
+          <div><b>Status 11</b><span>Prace biurowe</span></div>
+        </div>
+      </article>
+
+      <article id="ro-signals" class="panel haw-section">
+        <div class="haw-section-no">05</div>
+        <div class="eyebrow">POJAZDY</div>
+        <h2>Kody dotyczące sygnalizacji świetlnych i dźwiękowych</h2>
+        <div class="ro-signal-grid">
+          <div><strong>CODE 1</strong><p>Brak sygnalizacji świetlnej i dźwiękowej</p></div>
+          <div><strong>CODE 2</strong><p>Włączona sygnalizacja świetlna bez dźwiękowej</p></div>
+          <div><strong>CODE 3</strong><p>Włączona sygnalizacja świetlna i dźwiękowa</p></div>
+        </div>
+      </article>
+
+      <article id="ro-pursuit" class="panel haw-section">
+        <div class="haw-section-no">06</div>
+        <div class="eyebrow">POŚCIG</div>
+        <h2>Schemat komunikacji podczas pościgu</h2>
+        <p>Charakterystyczny punkt np: Czerwony parking, w jakim kierunku się kierujecie lub na jakiej ulicy jesteście ważnym aspekty są kierunki świata, które powinny zostać wykorzystane podczas pościgu.</p>
+        <div class="haw-callout ro-pursuit-example"><strong>Przykładowy komunikat:</strong><br>Poruszamy się w kierunku zachodnim niedaleko mijamy Bank Pacyfik będziemy odbijać na Południe średnia prędkość pościgowa 120km/h</div>
+        <div class="ro-directions">
+          <div><b>N</b><strong>North</strong><span>Północ</span></div>
+          <div><b>E</b><strong>East</strong><span>Wschód</span></div>
+          <div><b>S</b><strong>South</strong><span>Południe</span></div>
+          <div><b>W</b><strong>West</strong><span>Zachód</span></div>
+        </div>
+      </article>
+
+      <article id="ro-shortcuts" class="panel haw-section">
+        <div class="haw-section-no">07</div>
+        <div class="eyebrow">SKRÓTY</div>
+        <h2>Skróty Radiowe</h2>
+        <div class="ro-shortcuts-list">
+          <div><b>ETA</b><span>Estimated time to arrive - czas do przybycia jednostek na miejsce</span></div>
+          <div><b>ASAP</b><span>As Soon as possible - tak szybko jak to możliwe</span></div>
+          <div><b>Shots Fired</b><span>Rozpoczęcie strzelaniny</span></div>
+          <div><b>Officer Down</b><span>Ranny Funkcjonariusz</span></div>
+          <div><b>Suspect Down</b><span>Podejrzany Ranny</span></div>
+          <div><b>Armed Suspect</b><span>Podejrzany z widoczną bronią</span></div>
+          <div><b>Suspect in custody</b><span>Napastnik zatrzymany</span></div>
+          <div><b>Gunpoint</b><span>Osoba celująca do Funkcjonariusza.</span></div>
+        </div>
+      </article>
+
+      <article id="ro-topography" class="panel haw-section ro-topography-section">
+        <div class="haw-section-no">08</div>
+        <div class="eyebrow">TOPOGRAFIA MIASTA</div>
+        <h2>Charakterystyczne punkty</h2>
+        <div class="ro-place-grid">
+          <figure><img src="{{ url_for('static', filename='training/ro/czerwony-parking.jpg') }}" alt="Czerwony parking"><figcaption>Czerwony parking</figcaption></figure>
+          <figure><img src="{{ url_for('static', filename='training/ro/kwadraciak.jpg') }}" alt="Kwadraciak"><figcaption>Kwadraciak</figcaption></figure>
+          <figure><img src="{{ url_for('static', filename='training/ro/muzeum.jpg') }}" alt="Muzeum"><figcaption>Muzeum</figcaption></figure>
+          <figure><img src="{{ url_for('static', filename='training/ro/parking-24.jpg') }}" alt="Parking 24"><figcaption>Parking 24</figcaption></figure>
+          <figure><img src="{{ url_for('static', filename='training/ro/weazel-news.jpg') }}" alt="Weazel News"><figcaption>Weazel News</figcaption></figure>
+          <figure><img src="{{ url_for('static', filename='training/ro/molo.jpg') }}" alt="Molo"><figcaption>Molo</figcaption></figure>
+          <figure><img src="{{ url_for('static', filename='training/ro/tama.jpg') }}" alt="Tama"><figcaption>Tama</figcaption></figure>
+          <figure><img src="{{ url_for('static', filename='training/ro/szwalnia.jpg') }}" alt="Szwalnia"><figcaption>Szwalnia</figcaption></figure>
+          <figure><img src="{{ url_for('static', filename='training/ro/mala-wenecja.jpg') }}" alt="Mała Wenecja"><figcaption>Mała Wenecja</figcaption></figure>
+          <figure><img src="{{ url_for('static', filename='training/ro/szklany-parking.jpg') }}" alt="Szklany parking"><figcaption>Szklany parking</figcaption></figure>
+          <figure><img src="{{ url_for('static', filename='training/ro/zlomowisko.jpg') }}" alt="Złomowisko"><figcaption>Złomowisko</figcaption></figure>
+          <figure><img src="{{ url_for('static', filename='training/ro/diamond-kasyno.jpg') }}" alt="Diamond Kasyno"><figcaption>Diamond Kasyno</figcaption></figure>
+          <figure><img src="{{ url_for('static', filename='training/ro/obserwatorium.jpg') }}" alt="Obserwatorium"><figcaption>Obserwatorium</figcaption></figure>
+          <figure><img src="{{ url_for('static', filename='training/ro/maze-bank-arena.jpg') }}" alt="Maze Bank Arena"><figcaption>Maze Bank Arena</figcaption></figure>
+          <figure><img src="{{ url_for('static', filename='training/ro/pole-golfowe.jpg') }}" alt="Pole golfowe"><figcaption>Pole golfowe</figcaption></figure>
+        </div>
+      </article>
+
+      <div class="panel haw-source-note">Treść oraz grafiki pochodzą z przekazanego materiału szkoleniowego RO. Nie uzupełniano ani nie zastępowano treści informacjami zewnętrznymi.</div>
+    </main>
+  </div>
+</div>
+
+<script>
+(() => {
+  const toc = document.querySelector('.haw-toc');
+  if (!toc) return;
+  const links = [...toc.querySelectorAll('.haw-toc-link')];
+  const sections = links.map(link => document.querySelector(link.getAttribute('href'))).filter(Boolean);
+  links.forEach(link => {
+    link.addEventListener('click', event => {
+      const target = document.querySelector(link.getAttribute('href'));
+      if (!target) return;
+      event.preventDefault();
+      links.forEach(item => item.classList.toggle('active', item === link));
+      target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      history.replaceState(null, '', link.getAttribute('href'));
+    });
+  });
+  if ('IntersectionObserver' in window) {
+    const observer = new IntersectionObserver(entries => {
+      const visible = entries.filter(entry => entry.isIntersecting).sort((a, b) => Math.abs(a.boundingClientRect.top) - Math.abs(b.boundingClientRect.top))[0];
+      if (!visible) return;
+      const id = '#' + visible.target.id;
+      links.forEach(link => link.classList.toggle('active', link.getAttribute('href') === id));
+    }, { rootMargin: '-90px 0px -65% 0px', threshold: 0.01 });
+    sections.forEach(section => observer.observe(section));
+  }
+})();
+</script>
+{% endblock %}
