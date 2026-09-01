@@ -1545,6 +1545,12 @@ def legal_acts():
     return render_template("legal_acts.html")
 
 
+@app.route("/materialy-szkoleniowe/haw")
+@logged_in_required
+def training_haw():
+    return render_template("training_haw.html")
+
+
 def _as_utc_datetime(value):
     if not value:
         return None
