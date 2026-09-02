@@ -4,7 +4,10 @@ import secrets
 import sqlite3
 import io
 import time
+import re
+import html as html_lib
 from datetime import datetime, timezone, timedelta
+from pathlib import Path
 
 try:
     import psycopg2
@@ -21,6 +24,186 @@ from markupsafe import Markup, escape
 
 app = Flask(__name__)
 app.secret_key = os.environ.get("WEB_SECRET_KEY") or secrets.token_hex(32)
+
+
+# -----------------------------------------------------------------------------
+# Wiedza USMS dla asystenta Taryfikatora
+# -----------------------------------------------------------------------------
+# Gemini nie korzysta z ogólnej wiedzy prawnej. Poniższy indeks jest budowany
+# wyłącznie z publicznych/edukacyjnych stron znajdujących się w tym panelu WEB.
+# Przy analizie sytuacji wybierane są tylko najbardziej pasujące fragmenty,
+# dzięki czemu prompt pozostaje mały, a model ma kontekst z Kompendium, aktów
+# prawnych, dyrektyw i materiałów szkoleniowych.
+USMS_KNOWLEDGE_TEMPLATES = (
+    ("Kompendium USMS", "kompendium.html"),
+    ("Akty prawne", "legal_acts.html"),
+    ("Dyrektywy", "directives.html"),
+    ("Start Trainee", "trainee_start.html"),
+    ("Szkolenie HAW", "training_haw.html"),
+    ("Szkolenie RO", "training_ro.html"),
+    ("Szkolenie NL I", "training_nli.html"),
+    ("Szkolenie SV", "training_sv.html"),
+    ("Szkolenie KPP", "training_kpp.html"),
+    ("Szkolenie SZPIA", "training_szpia.html"),
+)
+
+_USMS_STOPWORDS = {
+    "i", "oraz", "a", "albo", "lub", "że", "ze", "z", "w", "we", "na", "do", "od", "po", "pod", "nad",
+    "przy", "dla", "o", "u", "za", "przez", "bez", "się", "sie", "jest", "są", "sa", "był", "byla", "było",
+    "byli", "były", "ten", "ta", "to", "te", "tej", "tego", "tym", "który", "która", "które", "kto", "co",
+    "jego", "jej", "ich", "go", "mu", "mi", "ma", "miał", "miala", "mieli", "nie", "tak", "jak", "już",
+    "osoba", "osoby", "osobę", "obywatel", "obywatela", "funkcjonariusz", "funkcjonariusza",
+}
+
+
+def _usms_plain_text_from_template(raw):
+    """Lekki ekstraktor widocznego tekstu z lokalnego szablonu HTML/Jinja."""
+    raw = re.sub(r"<script\b[^>]*>.*?</script>", " ", raw, flags=re.I | re.S)
+    raw = re.sub(r"<style\b[^>]*>.*?</style>", " ", raw, flags=re.I | re.S)
+    raw = re.sub(r"\{#[\s\S]*?#\}", " ", raw)
+    raw = re.sub(r"\{%[\s\S]*?%\}", " ", raw)
+    raw = re.sub(r"\{\{[\s\S]*?\}\}", " ", raw)
+    # Zachowaj granice bloków, żeby przepisy i sekcje nie sklejały się ze sobą.
+    raw = re.sub(r"</?(?:h[1-6]|p|div|li|tr|td|th|section|article|br|hr)\b[^>]*>", "\n", raw, flags=re.I)
+    raw = re.sub(r"<[^>]+>", " ", raw)
+    raw = html_lib.unescape(raw)
+    raw = raw.replace("\r\n", "\n").replace("\r", "\n")
+    lines = []
+    for line in raw.split("\n"):
+        line = re.sub(r"\s+", " ", line).strip()
+        if line:
+            lines.append(line)
+    return "\n".join(lines)
+
+
+def _usms_chunk_text(text, target_chars=1050, max_chars=1450):
+    """Dzieli dokument na zwarte fragmenty, bez rozcinania krótkich akapitów."""
+    paragraphs = [p.strip() for p in text.split("\n") if p.strip()]
+    chunks, current = [], []
+    size = 0
+    for paragraph in paragraphs:
+        paragraph = paragraph[:max_chars]
+        extra = len(paragraph) + (1 if current else 0)
+        if current and size + extra > target_chars:
+            chunks.append("\n".join(current))
+            current, size = [], 0
+        current.append(paragraph)
+        size += extra
+        if size >= max_chars:
+            chunks.append("\n".join(current))
+            current, size = [], 0
+    if current:
+        chunks.append("\n".join(current))
+    return chunks
+
+
+def _usms_tokens(text):
+    words = re.findall(r"[a-ząćęłńóśźż0-9]{3,}", str(text or "").lower())
+    return [w for w in words if w not in _USMS_STOPWORDS]
+
+
+def _build_usms_knowledge_index():
+    base = Path(app.root_path) / "templates"
+    index = []
+    for source, filename in USMS_KNOWLEDGE_TEMPLATES:
+        path = base / filename
+        try:
+            raw = path.read_text(encoding="utf-8")
+        except OSError as exc:
+            app.logger.warning("USMS KNOWLEDGE: nie można odczytać %s: %s", filename, exc)
+            continue
+        plain = _usms_plain_text_from_template(raw)
+        for number, chunk in enumerate(_usms_chunk_text(plain), start=1):
+            tokens = set(_usms_tokens(chunk))
+            if tokens:
+                index.append({
+                    "source": source,
+                    "filename": filename,
+                    "chunk": number,
+                    "text": chunk,
+                    "tokens": tokens,
+                    "lower": chunk.lower(),
+                })
+    app.logger.info(
+        "USMS KNOWLEDGE: indeks gotowy sources=%s chunks=%s",
+        len({row["source"] for row in index}),
+        len(index),
+    )
+    return index
+
+
+def _select_usms_knowledge(description, limit=12, max_total_chars=14500):
+    """Wyszukuje fragmenty strony najbardziej związane z opisem zdarzenia."""
+    if not USMS_KNOWLEDGE_INDEX:
+        return []
+    query_tokens = set(_usms_tokens(description))
+    query_lower = str(description or "").lower()
+
+    # Synonimy/skrótowce typowe dla RP i panelu. To tylko słowa wyszukujące;
+    # nie tworzą samodzielnie podstawy zarzutu.
+    expansions = {
+        "doj": {"federalnego", "federalnych", "sprawiedliwości"},
+        "agent": {"federalnego", "federalnych", "doj"},
+        "agenta": {"federalnego", "federalnych", "doj"},
+        "broń": {"broni", "klasy", "użycie", "posiadanie"},
+        "bron": {"broni", "klasy", "użycie", "posiadanie"},
+        "strzelił": {"strzał", "postrzelenie", "napaść", "zabójstwa"},
+        "postrzelił": {"postrzelenie", "napaść", "uszczerbek", "zabójstwa"},
+        "uciekał": {"pościg", "ucieczka", "zatrzymanie"},
+        "uciekł": {"pościg", "ucieczka", "zatrzymanie"},
+        "poddanie": {"negocjacji", "poddanym", "wymuszenie", "wolności"},
+        "poddał": {"poddanym", "wymuszenie", "wolności"},
+        "porwał": {"porwanie", "uprowadzenie", "wolności"},
+        "porwanie": {"uprowadzenie", "wolności", "przetrzymuje"},
+        "kajdanki": {"zatrzymanie", "transport", "wolności"},
+        "taser": {"paralizator", "use", "force", "uof"},
+    }
+    expanded = set(query_tokens)
+    for token in list(query_tokens):
+        expanded.update(expansions.get(token, set()))
+
+    scored = []
+    for row in USMS_KNOWLEDGE_INDEX:
+        overlap = expanded & row["tokens"]
+        if not overlap:
+            continue
+        # Rzadkie/konkretne słowa są ważniejsze niż szerokie terminy.
+        score = sum(1.0 + min(len(token), 12) / 12.0 for token in overlap)
+        # Bonus za dokładne wielowyrazowe sygnały i źródła normatywne.
+        if "kl ii" in query_lower and ("klasa ii" in row["lower"] or "klasy ii" in row["lower"]):
+            score += 5
+        if "federal" in query_lower and "federal" in row["lower"]:
+            score += 2
+        if any(word in query_lower for word in ("postrzeli", "strzeli", "zabi", "porwa", "uprowadz", "napad")):
+            if any(word in row["lower"] for word in ("postrz", "strzel", "zabój", "porwan", "uprowadz", "napaść")):
+                score += 2
+        if row["source"] == "Akty prawne":
+            score += 0.75
+        elif row["source"] == "Kompendium USMS":
+            score += 0.5
+        scored.append((score, row))
+
+    scored.sort(key=lambda item: (-item[0], item[1]["source"], item[1]["chunk"]))
+
+    selected, used, seen_sources = [], 0, {}
+    for score, row in scored:
+        # Maksymalnie kilka fragmentów z jednego dokumentu, żeby jedno źródło
+        # nie wyparło całej reszty kontekstu.
+        source_count = seen_sources.get(row["source"], 0)
+        if source_count >= 4:
+            continue
+        text = row["text"]
+        if used + len(text) > max_total_chars:
+            continue
+        selected.append({**row, "score": round(score, 2)})
+        seen_sources[row["source"]] = source_count + 1
+        used += len(text)
+        if len(selected) >= limit:
+            break
+    return selected
+
+
+USMS_KNOWLEDGE_INDEX = _build_usms_knowledge_index()
 
 
 def discord_markdown(value):
@@ -489,10 +672,28 @@ def ensure_web_profile_tables():
                 )
                 """
             )
+            # Kolumny źródłowe używane przez BOT przy imporcie dokumentów z Discorda.
+            for col, definition in {
+                "source_kind": "TEXT DEFAULT NULL",
+                "source_guild_id": "BIGINT DEFAULT NULL",
+                "source_channel_id": "BIGINT DEFAULT NULL",
+                "source_thread_id": "BIGINT DEFAULT NULL",
+                "source_message_id": "BIGINT DEFAULT NULL",
+                "source_attachment_id": "BIGINT DEFAULT NULL",
+                "source_author_id": "BIGINT DEFAULT NULL",
+            }.items():
+                cur.execute(f"ALTER TABLE officer_documents ADD COLUMN IF NOT EXISTS {col} {definition}")
             cur.execute(
                 """
                 CREATE INDEX IF NOT EXISTS idx_officer_documents_badge
                 ON officer_documents (badge_number, uploaded_at DESC)
+                """
+            )
+            cur.execute(
+                """
+                CREATE UNIQUE INDEX IF NOT EXISTS idx_officer_documents_discord_attachment_unique
+                ON officer_documents (source_attachment_id)
+                WHERE source_attachment_id IS NOT NULL
                 """
             )
         conn.commit()
@@ -1583,15 +1784,59 @@ def taryfikator_analyze():
         app.logger.warning("GEMINI [%s] katalog po walidacji pusty", request_tag)
         return {"ok": False, "error": "Brak prawidłowych pozycji taryfikatora."}, 400
 
+    knowledge_chunks = _select_usms_knowledge(description)
+    knowledge_text = "\n\n".join(
+        f"[ŹRÓDŁO: {row['source']} | fragment {row['chunk']}]\n{row['text']}"
+        for row in knowledge_chunks
+    )
+    app.logger.info(
+        "GEMINI [%s] knowledge chunks=%s sources=%s chars=%s",
+        request_tag,
+        len(knowledge_chunks),
+        ", ".join(sorted({row["source"] for row in knowledge_chunks})) or "none",
+        len(knowledge_text),
+    )
+
     prompt = (
-        "Jesteś asystentem funkcjonariusza w fikcyjnym/RP panelu USMS. "
-        "Masz wyłącznie podpowiadać zarzuty z dostarczonego katalogu taryfikatora. "
-        "NIGDY nie twórz nowych zarzutów, nie zmieniaj nazw i nie korzystaj z prawa spoza katalogu. "
-        "Jeżeli opis nie daje podstaw do pozycji z katalogu, zwróć pustą listę. "
-        "Uwzględniaj naturalny język, odmiany słów i kontekst zdarzenia. "
-        "Dobieraj tylko zarzuty wynikające bezpośrednio z opisu; nie utożsamiaj samego wystąpienia słów "
-        "agent, funkcjonariusz, osoba czy broń z zabójstwem, porwaniem lub innym ciężkim czynem. "
+        "Jesteś rygorystycznym asystentem kwalifikacji zarzutów w fikcyjnym/RP panelu USMS. "
+        "Twoim zadaniem NIE jest znalezienie jak największej liczby zarzutów, lecz wskazanie wyłącznie tych, "
+        "które są jednoznacznie i bezpośrednio opisane w zdarzeniu. "
+        "Masz wyłącznie wybierać zarzuty z dostarczonego katalogu taryfikatora. "
+        "Do interpretacji faktów otrzymujesz również KONTEKST WIEDZY USMS pobrany z aktualnych stron tego panelu: "
+        "Kompendium, aktów prawnych, dyrektyw, Start Trainee oraz materiałów HAW, RO, NL I, SV, KPP i SZPIA. "
+        "Ten kontekst służy do rozumienia definicji, procedur, zasad RP i znamion czynów, ale NIE pozwala tworzyć zarzutów, których nie ma w katalogu. "
+        "NIGDY nie twórz nowych zarzutów, nie zmieniaj nazw i nie korzystaj z prawa ani wiedzy spoza dostarczonego katalogu i KONTEKSTU WIEDZY USMS. "
+        "Jeżeli materiały panelu nie wspierają danego wniosku, nie uzupełniaj go wiedzą ogólną ani realnym prawem. "
+        "Jeżeli opis nie daje wystarczających przesłanek do pozycji z katalogu, POMIŃ ją. "
+        "Jeżeli nie ma żadnego pewnego dopasowania, zwróć pustą listę. "
+        "W razie wątpliwości zawsze wybierz pominięcie zamiast zgadywania. "
+        "Każdy zwrócony zarzut musi wynikać z konkretnego zachowania sprawcy opisanego w tekście, a nie tylko z miejsca, "
+        "roli osoby, słowa kluczowego lub możliwego scenariusza. "
+        "Sama obecność na terenie federalnym NIE oznacza napaści na placówkę. "
+        "Samo wystąpienie słów agent, funkcjonariusz lub obywatel NIE oznacza napaści, porwania ani zabójstwa tej osoby. "
+        "Samo wystąpienie słowa broń NIE oznacza nielegalnego posiadania, groźby, handlu ani użycia broni. "
+        "Zarzut napaści wybieraj tylko wtedy, gdy opis mówi o rzeczywistym ataku, uderzeniu, pobiciu, postrzeleniu lub innej czynnej agresji. "
+        "Jeżeli sprawca świadomie strzela do funkcjonariusza i go trafia, rozważ właściwy zarzut napaści na funkcjonariusza zgodnie z jego rolą z opisu. "
+        "Nie traktuj jednak samego postrzelenia automatycznie jako usiłowania zabójstwa: usiłowanie zabójstwa wybieraj dopiero, gdy opis wyraźnie wskazuje zamiar zabicia, np. próbę pozbawienia życia, celowe wielokrotne strzały w celu zabicia albo inne jednoznaczne okoliczności. "
+        "Zarzut porwania wybieraj tylko wtedy, gdy opis mówi o bezprawnym uprowadzeniu, dalszym przetrzymywaniu lub faktycznym pozbawieniu wolności przez sprawcę. "
+        "W realiach RP zwrot 'poddał funkcjonariusza', 'zmusił funkcjonariusza do poddania się' albo zmuszenie go do podniesienia rąk NIE oznacza automatycznie porwania. "
+        "Takie zachowanie traktuj jako wymuszenie/poddanie poprzez groźbę lub przemoc, jeżeli w katalogu istnieje odpowiednia pozycja dotycząca wymuszenia na służbach publicznych/federalnych. "
+        "Porwanie w takiej sytuacji rozważ dopiero, gdy po poddaniu funkcjonariusz jest uprowadzony, skrępowany, zamknięty, przetrzymywany albo realnie pozbawiony możliwości swobodnego odejścia przez dłuższe działanie sprawcy. "
+        "Jeżeli poddaniu towarzyszy faktyczny atak fizyczny, można niezależnie rozważyć właściwy zarzut napaści; sama komenda 'ręce do góry' bez ataku nie jest jeszcze napaścią fizyczną. "
+        "Zarzut zabójstwa wybieraj wyłącznie wtedy, gdy opis stwierdza śmierć ofiary spowodowaną działaniem sprawcy. "
+        "Zarzut dotyczący nielegalnego posiadania broni wybieraj tylko wtedy, gdy opis wyraźnie stwierdza posiadanie broni bez wymaganych uprawnień/zezwoleń. Sama informacja 'broń kl. II' lub 'broń klasy II' NIE oznacza nielegalnego posiadania. "
+        "Niewykonywanie poleceń wybieraj tylko wtedy, gdy opis wskazuje na konkretne wydane polecenie i odmowę, sprzeciw lub niewykonanie tego polecenia. Sama ucieczka lub niezatrzymanie się nie pozwala dopowiadać nieopisanych poleceń. "
+        "Jeżeli opis mówi, że osoba nie zatrzymała się do kontroli lub rozpoczęła ucieczkę pojazdem, szukaj w katalogu zarzutu dotyczącego niezatrzymania się/ucieczki/pościgu zamiast automatycznie zastępować go niewykonywaniem poleceń. "
+        "Fakt, że podejrzany został następnie postrzelony przez funkcjonariuszy, jest skutkiem interwencji i sam w sobie NIE stanowi zarzutu wobec podejrzanego. "
+        "Nie dubluj jednego zachowania kilkoma podobnymi zarzutami tylko dlatego, że ich nazwy są zbliżone. "
+        "Nie wybieraj zarzutu cięższego, jeśli opis wspiera jedynie lżejszą lub bardziej ogólną pozycję. "
+        "Uwzględniaj naturalny język i odmiany słów, ale nie dopowiadaj faktów, których użytkownik nie podał. "
+        "Zwróć maksymalnie 8 najlepiej dopasowanych zarzutów. "
+        "Jeżeli kontekst źródłowy i krótka reguła w tej instrukcji są w napięciu, preferuj bardziej szczegółową treść z KONTEKSTU WIEDZY USMS. "
         "Nie podawaj uzasadnienia. Zwróć wyłącznie JSON zgodny ze schematem.\n\n"
+        "KONTEKST WIEDZY USMS (wybrane fragmenty lokalnych stron; może być pusty, jeśli brak trafnego fragmentu):\n"
+        + (knowledge_text or "[brak trafnego fragmentu]")
+        + "\n\n"
         f"OPIS SYTUACJI:\n{description}\n\n"
         "KATALOG ZARZUTÓW (wolno wskazać tylko id z tej listy):\n"
         + json.dumps(safe_catalog, ensure_ascii=False)

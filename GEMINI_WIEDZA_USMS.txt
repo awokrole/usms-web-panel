@@ -1,0 +1,34 @@
+GEMINI — WIEDZA USMS
+====================
+
+Ta wersja rozszerza asystenta Taryfikatora o lokalny indeks wiedzy budowany z treści obecnych w panelu WEB.
+
+Źródła indeksowane przez backend:
+- Kompendium USMS
+- Akty prawne
+- Dyrektywy
+- Start Trainee
+- HAW
+- RO
+- NL I
+- SV
+- KPP
+- SZPIA
+
+Działanie:
+1. Przy starcie aplikacji backend czyta lokalne szablony powyższych stron.
+2. Widoczna treść jest dzielona na niewielkie fragmenty i indeksowana lokalnie.
+3. Po wpisaniu opisu sytuacji backend wybiera najbardziej pasujące fragmenty wiedzy USMS.
+4. Gemini otrzymuje opis, wybrane fragmenty wiedzy oraz aktualny katalog Taryfikatora.
+5. Model nadal może zwrócić wyłącznie ID zarzutów istniejących w Taryfikatorze.
+6. Brak informacji w materiałach USMS nie może być uzupełniany prawem realnym ani ogólną wiedzą modelu.
+
+Bezpieczeństwo:
+- GEMINI_API_KEY pozostaje wyłącznie po stronie serwera.
+- Do indeksu nie trafiają kadry, profile funkcjonariuszy, rekordy, dokumenty użytkowników ani dane z PostgreSQL.
+- style.css nie został zmieniony.
+
+Railway Logs:
+Po analizie pojawi się m.in. wpis:
+GEMINI [...] knowledge chunks=... sources=... chars=...
+co pozwala sprawdzić, z których sekcji panelu został dobrany kontekst.

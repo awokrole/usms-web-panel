@@ -78,3 +78,7 @@ Zmiany:
 - Usunięto niebieski znak `+` / `−` przy ocenie w Podsumowaniu tygodnia.
 - Ocena w stanie zwiniętym jest bardziej kompaktowa.
 - Kliknięcie gwiazdek/wyniku nadal rozwija pełne rozbicie punktów.
+
+## Dokumenty importowane przez Discord BOT
+
+Panel współdzieli tabelę `officer_documents` z botem. Ta wersja dodaje kompatybilne kolumny `source_*` i unikalny indeks po Discord `source_attachment_id`, dzięki czemu dokumenty zaimportowane z ticketów i Forum automatycznie pojawiają się w profilu funkcjonariusza i nie duplikują się po ponownym skanie.
