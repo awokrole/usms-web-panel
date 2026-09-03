@@ -674,6 +674,7 @@ def ensure_web_profile_tables():
             )
             # Kolumny źródłowe używane przez BOT przy imporcie dokumentów z Discorda.
             for col, definition in {
+                "discord_id": "BIGINT DEFAULT NULL",
                 "source_kind": "TEXT DEFAULT NULL",
                 "source_guild_id": "BIGINT DEFAULT NULL",
                 "source_channel_id": "BIGINT DEFAULT NULL",
@@ -683,10 +684,36 @@ def ensure_web_profile_tables():
                 "source_author_id": "BIGINT DEFAULT NULL",
             }.items():
                 cur.execute(f"ALTER TABLE officer_documents ADD COLUMN IF NOT EXISTS {col} {definition}")
+
+            # Backfill dla dokumentów utworzonych przed trwałym powiązaniem po Discord ID.
+            # Import Discord -> source_author_id, ręczny upload WEB -> uploaded_by.
+            cur.execute(
+                """
+                UPDATE officer_documents d
+                SET discord_id = d.source_author_id
+                WHERE d.discord_id IS NULL
+                  AND d.source_author_id IS NOT NULL
+                  AND EXISTS (SELECT 1 FROM officers o WHERE o.discord_id = d.source_author_id)
+                """
+            )
+            cur.execute(
+                """
+                UPDATE officer_documents d
+                SET discord_id = d.uploaded_by
+                WHERE d.discord_id IS NULL
+                  AND EXISTS (SELECT 1 FROM officers o WHERE o.discord_id = d.uploaded_by)
+                """
+            )
             cur.execute(
                 """
                 CREATE INDEX IF NOT EXISTS idx_officer_documents_badge
                 ON officer_documents (badge_number, uploaded_at DESC)
+                """
+            )
+            cur.execute(
+                """
+                CREATE INDEX IF NOT EXISTS idx_officer_documents_discord
+                ON officer_documents (discord_id, uploaded_at DESC)
                 """
             )
             cur.execute(
@@ -743,22 +770,39 @@ def get_profile_meta(badge: str):
         conn.close()
 
 
-def get_officer_documents(badge: str):
+def get_officer_documents(badge: str, discord_id=None):
     if not DATABASE_URL:
         return []
+
+    # Odznaka zmienia się przy awansie/degradacji. Discord ID jest stałym kluczem
+    # profilu; fallback po badge zachowuje zgodność ze starymi rekordami.
+    if discord_id is None:
+        officer = get_officer_by_badge(badge)
+        discord_id = officer.get("discord_id") if officer else None
 
     conn = pg_connect("usms-profile-documents")
     try:
         with conn.cursor(cursor_factory=RealDictCursor) as cur:
-            cur.execute(
-                """
-                SELECT id, badge_number, title, mime_type, uploaded_by, uploaded_at
-                FROM officer_documents
-                WHERE badge_number = %s
-                ORDER BY id DESC
-                """,
-                (str(badge),),
-            )
+            if discord_id:
+                cur.execute(
+                    """
+                    SELECT id, badge_number, title, mime_type, uploaded_by, uploaded_at
+                    FROM officer_documents
+                    WHERE discord_id = %s OR (discord_id IS NULL AND badge_number = %s)
+                    ORDER BY id DESC
+                    """,
+                    (int(discord_id), str(badge)),
+                )
+            else:
+                cur.execute(
+                    """
+                    SELECT id, badge_number, title, mime_type, uploaded_by, uploaded_at
+                    FROM officer_documents
+                    WHERE badge_number = %s
+                    ORDER BY id DESC
+                    """,
+                    (str(badge),),
+                )
             return [dict(row) for row in cur.fetchall()]
     finally:
         conn.close()
@@ -1642,13 +1686,14 @@ def upload_officer_document(badge):
             cur.execute(
                 """
                 INSERT INTO officer_documents (
-                    badge_number, title, mime_type, file_data,
+                    badge_number, discord_id, title, mime_type, file_data,
                     uploaded_by, uploaded_at
                 )
-                VALUES (%s, %s, %s, %s, %s, %s)
+                VALUES (%s, %s, %s, %s, %s, %s, %s)
                 """,
                 (
                     str(badge),
+                    int(officer["discord_id"]),
                     title,
                     mime,
                     psycopg2.Binary(data),
