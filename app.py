@@ -674,7 +674,6 @@ def ensure_web_profile_tables():
             )
             # Kolumny źródłowe używane przez BOT przy imporcie dokumentów z Discorda.
             for col, definition in {
-                "discord_id": "BIGINT DEFAULT NULL",
                 "source_kind": "TEXT DEFAULT NULL",
                 "source_guild_id": "BIGINT DEFAULT NULL",
                 "source_channel_id": "BIGINT DEFAULT NULL",
@@ -682,28 +681,9 @@ def ensure_web_profile_tables():
                 "source_message_id": "BIGINT DEFAULT NULL",
                 "source_attachment_id": "BIGINT DEFAULT NULL",
                 "source_author_id": "BIGINT DEFAULT NULL",
+                "owner_discord_id": "BIGINT DEFAULT NULL",
             }.items():
                 cur.execute(f"ALTER TABLE officer_documents ADD COLUMN IF NOT EXISTS {col} {definition}")
-
-            # Backfill dla dokumentów utworzonych przed trwałym powiązaniem po Discord ID.
-            # Import Discord -> source_author_id, ręczny upload WEB -> uploaded_by.
-            cur.execute(
-                """
-                UPDATE officer_documents d
-                SET discord_id = d.source_author_id
-                WHERE d.discord_id IS NULL
-                  AND d.source_author_id IS NOT NULL
-                  AND EXISTS (SELECT 1 FROM officers o WHERE o.discord_id = d.source_author_id)
-                """
-            )
-            cur.execute(
-                """
-                UPDATE officer_documents d
-                SET discord_id = d.uploaded_by
-                WHERE d.discord_id IS NULL
-                  AND EXISTS (SELECT 1 FROM officers o WHERE o.discord_id = d.uploaded_by)
-                """
-            )
             cur.execute(
                 """
                 CREATE INDEX IF NOT EXISTS idx_officer_documents_badge
@@ -712,8 +692,24 @@ def ensure_web_profile_tables():
             )
             cur.execute(
                 """
-                CREATE INDEX IF NOT EXISTS idx_officer_documents_discord
-                ON officer_documents (discord_id, uploaded_at DESC)
+                CREATE INDEX IF NOT EXISTS idx_officer_documents_owner_discord
+                ON officer_documents (owner_discord_id, uploaded_at DESC)
+                """
+            )
+            # Jednorazowe, bezpieczne przypisanie starych dokumentów.
+            # Odznaka jest używana tylko jeśli w całej historii należy do dokładnie jednej osoby.
+            cur.execute(
+                """
+                UPDATE officer_documents d
+                SET owner_discord_id = x.discord_id
+                FROM (
+                    SELECT badge_number, MIN(discord_id) AS discord_id
+                    FROM officers
+                    WHERE badge_number IS NOT NULL AND BTRIM(badge_number) <> ''
+                    GROUP BY badge_number
+                    HAVING COUNT(*) = 1
+                ) x
+                WHERE d.owner_discord_id IS NULL AND d.badge_number = x.badge_number
                 """
             )
             cur.execute(
@@ -770,39 +766,28 @@ def get_profile_meta(badge: str):
         conn.close()
 
 
-def get_officer_documents(badge: str, discord_id=None):
+def get_officer_documents(discord_id: str | int):
+    """Dokumenty należą do stałego Discord ID, nie do numeru odznaki."""
     if not DATABASE_URL:
         return []
 
-    # Odznaka zmienia się przy awansie/degradacji. Discord ID jest stałym kluczem
-    # profilu; fallback po badge zachowuje zgodność ze starymi rekordami.
-    if discord_id is None:
-        officer = get_officer_by_badge(badge)
-        discord_id = officer.get("discord_id") if officer else None
+    try:
+        owner_id = int(discord_id)
+    except (TypeError, ValueError):
+        return []
 
     conn = pg_connect("usms-profile-documents")
     try:
         with conn.cursor(cursor_factory=RealDictCursor) as cur:
-            if discord_id:
-                cur.execute(
-                    """
-                    SELECT id, badge_number, title, mime_type, uploaded_by, uploaded_at
-                    FROM officer_documents
-                    WHERE discord_id = %s OR (discord_id IS NULL AND badge_number = %s)
-                    ORDER BY id DESC
-                    """,
-                    (int(discord_id), str(badge)),
-                )
-            else:
-                cur.execute(
-                    """
-                    SELECT id, badge_number, title, mime_type, uploaded_by, uploaded_at
-                    FROM officer_documents
-                    WHERE badge_number = %s
-                    ORDER BY id DESC
-                    """,
-                    (str(badge),),
-                )
+            cur.execute(
+                """
+                SELECT id, badge_number, owner_discord_id, title, mime_type, uploaded_by, uploaded_at
+                FROM officer_documents
+                WHERE owner_discord_id = %s
+                ORDER BY id DESC
+                """,
+                (owner_id,),
+            )
             return [dict(row) for row in cur.fetchall()]
     finally:
         conn.close()
@@ -1447,7 +1432,7 @@ def inspection_documents():
     q = request.args.get("q", "").strip().casefold()
     rows = []
     for officer in officers_list:
-        docs = get_officer_documents(officer["badge"])
+        docs = get_officer_documents(officer["discord_id"])
         row = dict(officer)
         row["document_count"] = len(docs)
         rows.append(row)
@@ -1507,7 +1492,7 @@ def officer_detail(badge):
     officer["vacation_end"] = state.get("vacation_end")
 
     profile_meta = get_profile_meta(officer["badge"])
-    documents = get_officer_documents(officer["badge"])
+    documents = get_officer_documents(officer["discord_id"])
     is_own_profile = current_user_owns_officer(officer)
 
     payroll_summary = None
@@ -1656,7 +1641,7 @@ def upload_officer_document(badge):
 
     # Maksymalnie 6 dokumentów na profil. Sprawdzamy limit po stronie serwera,
     # żeby nie dało się go ominąć przez ręczne wysłanie formularza.
-    existing_documents = get_officer_documents(str(badge))
+    existing_documents = get_officer_documents(officer["discord_id"])
     if len(existing_documents) >= DOCUMENT_MAX_COUNT:
         return render_template(
             "error.html",
@@ -1686,14 +1671,14 @@ def upload_officer_document(badge):
             cur.execute(
                 """
                 INSERT INTO officer_documents (
-                    badge_number, discord_id, title, mime_type, file_data,
+                    owner_discord_id, badge_number, title, mime_type, file_data,
                     uploaded_by, uploaded_at
                 )
                 VALUES (%s, %s, %s, %s, %s, %s, %s)
                 """,
                 (
-                    str(badge),
                     int(officer["discord_id"]),
+                    str(badge),
                     title,
                     mime,
                     psycopg2.Binary(data),
