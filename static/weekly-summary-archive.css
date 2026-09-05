@@ -1,0 +1,10 @@
+.weekly-summary-head{align-items:flex-end;gap:18px;flex-wrap:wrap}
+.weekly-period-picker{margin-left:auto;min-width:250px}
+.weekly-period-picker label{display:block;font-size:11px;font-weight:800;letter-spacing:.08em;color:var(--muted);margin-bottom:6px}
+.weekly-period-picker select{width:100%;min-height:42px;border:1px solid var(--border);border-radius:10px;background:var(--panel);color:var(--text);padding:0 12px;font:inherit}
+.weekly-archive-banner,.weekly-recovery-note{display:flex;gap:12px;align-items:center;flex-wrap:wrap;border:1px solid var(--border);border-radius:12px;padding:12px 14px;margin:0 0 12px;background:var(--panel)}
+.weekly-archive-banner strong{color:var(--blue)}
+.weekly-recovery-note{border-style:dashed}
+.weekly-recovery-note strong{color:var(--yellow)}
+.weekly-archive-banner span,.weekly-recovery-note span{color:var(--muted);font-size:13px}
+@media(max-width:760px){.weekly-period-picker{width:100%;margin-left:0}}
