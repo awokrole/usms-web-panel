@@ -7,6 +7,7 @@ import time
 import re
 import html as html_lib
 from datetime import datetime, timezone, timedelta
+from zoneinfo import ZoneInfo
 from pathlib import Path
 
 try:
@@ -515,6 +516,32 @@ def ensure_roster_tables():
                 )
             """)
             cur.execute("ALTER TABLE payroll_entries ADD COLUMN IF NOT EXISTS multiplier NUMERIC(4,2) NOT NULL DEFAULT 1.00")
+
+            cur.execute("""
+                CREATE TABLE IF NOT EXISTS weekly_summary_entries (
+                    id BIGSERIAL PRIMARY KEY,
+                    period_key TEXT NOT NULL,
+                    period_label TEXT NOT NULL,
+                    discord_id BIGINT NOT NULL,
+                    badge_snapshot TEXT NOT NULL DEFAULT '',
+                    rank_snapshot TEXT NOT NULL DEFAULT '',
+                    name_snapshot TEXT NOT NULL DEFAULT '',
+                    weekly_seconds BIGINT NOT NULL DEFAULT 0,
+                    plus_count INTEGER NOT NULL DEFAULT 0,
+                    minus_count INTEGER NOT NULL DEFAULT 0,
+                    praise_count INTEGER NOT NULL DEFAULT 0,
+                    reprimand_count INTEGER NOT NULL DEFAULT 0,
+                    required_trainings_json TEXT NOT NULL DEFAULT '[]',
+                    completed_trainings_json TEXT NOT NULL DEFAULT '[]',
+                    last_promotion_snapshot TIMESTAMPTZ NULL,
+                    hired_at_snapshot TIMESTAMPTZ NULL,
+                    source TEXT NOT NULL DEFAULT 'resetgodzin',
+                    recovered BOOLEAN NOT NULL DEFAULT FALSE,
+                    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+                    UNIQUE (period_key, discord_id)
+                )
+            """)
+            cur.execute("CREATE INDEX IF NOT EXISTS idx_weekly_summary_period ON weekly_summary_entries(period_key, created_at DESC)")
 
             cur.execute("""
                 CREATE TABLE IF NOT EXISTS payroll_settings (
@@ -2174,12 +2201,264 @@ def _weekly_rating(seconds, plus_count=0, minus_count=0, praise_count=0, reprima
     }
 
 
+def _weekly_archive_period_cutoff(period_key):
+    """Koniec okresu w lokalnej strefie USMS (Europe/Warsaw), jako UTC."""
+    try:
+        _start, end = str(period_key).split("_", 1)
+        end_date = datetime.fromisoformat(end).date()
+        local_next_midnight = datetime.combine(end_date + timedelta(days=1), datetime.min.time(), tzinfo=ZoneInfo("Europe/Warsaw"))
+        return local_next_midnight.astimezone(timezone.utc)
+    except Exception:
+        return None
+
+
+def _record_count_at_cutoff(cur, discord_id, record_type, current_value, cutoff):
+    # Pierwsza zmiana PO końcu tygodnia zawiera old_count = dokładny stan na cutoff.
+    cur.execute("""
+        SELECT old_count FROM record_history
+        WHERE discord_id=%s AND record_type=%s AND created_at >= %s
+        ORDER BY created_at ASC LIMIT 1
+    """, (discord_id, record_type, cutoff))
+    row = cur.fetchone()
+    if row:
+        return int(row["old_count"] or 0)
+    return int(current_value or 0)
+
+
+def _training_at_cutoff(cur, discord_id, training_code, current_completed, cutoff):
+    # Pierwsza zmiana po cutoff pozwala odwrócić stan i ustalić wartość z końca tygodnia.
+    cur.execute("""
+        SELECT action FROM training_history
+        WHERE discord_id=%s AND training_code=%s AND created_at >= %s
+        ORDER BY created_at ASC LIMIT 1
+    """, (discord_id, training_code, cutoff))
+    row = cur.fetchone()
+    if not row:
+        return bool(current_completed)
+    action = str(row["action"] or "").lower()
+    if action == "granted":
+        return False
+    if action == "revoked":
+        return True
+    return bool(current_completed)
+
+
+def _recover_missing_weekly_summaries_from_payroll():
+    """
+    Jednorazowo odtwarza archiwalne podsumowania z payroll_entries.
+    Godziny/ranga/odznaka/nazwa pochodzą dokładnie ze snapshotu wypłat.
+    Plusy/minusy/pochwały/nagany i wymagane szkolenia są odtwarzane na moment
+    końca okresu z tabel historii, więc zmiany wykonane już po resecie nie fałszują wyniku.
+    """
+    if not DATABASE_URL:
+        return 0
+    conn = pg_connect("usms-weekly-summary-recovery")
+    recovered_total = 0
+    try:
+        with conn.cursor(cursor_factory=RealDictCursor) as cur:
+            cur.execute("""
+                SELECT p.period_key, MAX(p.period_label) AS period_label, MAX(p.created_at) AS newest
+                FROM payroll_entries p
+                WHERE p.is_history=TRUE
+                  AND NOT EXISTS (
+                      SELECT 1 FROM weekly_summary_entries w WHERE w.period_key=p.period_key
+                  )
+                GROUP BY p.period_key
+                ORDER BY newest ASC
+            """)
+            periods = [dict(r) for r in cur.fetchall()]
+            for period in periods:
+                period_key = str(period["period_key"])
+                cutoff = _weekly_archive_period_cutoff(period_key)
+                if cutoff is None:
+                    continue
+                cur.execute("""
+                    SELECT discord_id, badge_snapshot, rank_snapshot, name_snapshot, hours, period_label
+                    FROM payroll_entries
+                    WHERE period_key=%s AND is_history=TRUE
+                    ORDER BY badge_snapshot
+                """, (period_key,))
+                payroll_rows = [dict(r) for r in cur.fetchall()]
+                for pay in payroll_rows:
+                    discord_id = pay.get("discord_id")
+                    if discord_id is None:
+                        continue
+                    discord_id = int(discord_id)
+                    cur.execute("""
+                        SELECT COALESCE(r.plus_count,0) AS plus_count,
+                               COALESCE(r.minus_count,0) AS minus_count,
+                               COALESCE(r.praise_count,0) AS praise_count,
+                               COALESCE(r.reprimand_count,0) AS reprimand_count,
+                               o.last_promotion, o.hired_at
+                        FROM officers o
+                        LEFT JOIN officer_records r ON r.discord_id=o.discord_id
+                        WHERE o.discord_id=%s
+                    """, (discord_id,))
+                    current = dict(cur.fetchone() or {})
+                    plus = _record_count_at_cutoff(cur, discord_id, "plus", current.get("plus_count",0), cutoff)
+                    minus = _record_count_at_cutoff(cur, discord_id, "minus", current.get("minus_count",0), cutoff)
+                    praise = _record_count_at_cutoff(cur, discord_id, "praise", current.get("praise_count",0), cutoff)
+                    reprimand = _record_count_at_cutoff(cur, discord_id, "reprimand", current.get("reprimand_count",0), cutoff)
+
+                    rank = str(pay.get("rank_snapshot") or "")
+                    required = _required_trainings_for_rank(rank)
+                    completed = []
+                    for code in required:
+                        cur.execute("""
+                            SELECT completed FROM officer_trainings
+                            WHERE discord_id=%s AND training_code=%s
+                        """, (discord_id, code))
+                        tr = cur.fetchone()
+                        current_completed = bool(tr and tr["completed"])
+                        if _training_at_cutoff(cur, discord_id, code, current_completed, cutoff):
+                            completed.append(code)
+
+                    # Ostatni awans na moment końca tygodnia.
+                    cur.execute("""
+                        SELECT created_at FROM officer_history
+                        WHERE discord_id=%s AND event_type='rank_change' AND created_at < %s
+                        ORDER BY created_at DESC LIMIT 1
+                    """, (discord_id, cutoff))
+                    promo = cur.fetchone()
+                    last_promotion = promo["created_at"] if promo else current.get("last_promotion")
+                    if last_promotion and getattr(last_promotion, "tzinfo", None) and last_promotion >= cutoff:
+                        last_promotion = None
+
+                    cur.execute("""
+                        INSERT INTO weekly_summary_entries (
+                            period_key, period_label, discord_id, badge_snapshot, rank_snapshot,
+                            name_snapshot, weekly_seconds, plus_count, minus_count, praise_count,
+                            reprimand_count, required_trainings_json, completed_trainings_json,
+                            last_promotion_snapshot, hired_at_snapshot, source, recovered
+                        ) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,'payroll_history_recovery',TRUE)
+                        ON CONFLICT (period_key, discord_id) DO NOTHING
+                    """, (
+                        period_key, pay.get("period_label") or period.get("period_label") or period_key,
+                        discord_id, str(pay.get("badge_snapshot") or ""), rank,
+                        str(pay.get("name_snapshot") or f"Discord {discord_id}"),
+                        int(round(float(pay.get("hours") or 0) * 3600)), plus, minus, praise, reprimand,
+                        json.dumps(required, ensure_ascii=False), json.dumps(completed, ensure_ascii=False),
+                        last_promotion, current.get("hired_at"),
+                    ))
+                    recovered_total += max(0, cur.rowcount or 0)
+        conn.commit()
+    finally:
+        conn.close()
+    if recovered_total:
+        print(f"✅ WEB: odzyskano {recovered_total} wpisów archiwalnego Podsumowania tygodnia z payroll_entries.", flush=True)
+    return recovered_total
+
+
+def _weekly_archive_periods():
+    if not DATABASE_URL:
+        return []
+    conn = pg_connect("usms-weekly-summary-periods")
+    try:
+        with conn.cursor(cursor_factory=RealDictCursor) as cur:
+            cur.execute("""
+                SELECT period_key, MAX(period_label) AS period_label,
+                       BOOL_OR(recovered) AS recovered, MAX(created_at) AS newest
+                FROM weekly_summary_entries
+                GROUP BY period_key
+                ORDER BY newest DESC
+            """)
+            return [dict(r) for r in cur.fetchall()]
+    finally:
+        conn.close()
+
+
+def _weekly_archive_rows(period_key):
+    conn = pg_connect("usms-weekly-summary-rows")
+    try:
+        with conn.cursor(cursor_factory=RealDictCursor) as cur:
+            cur.execute("""
+                SELECT * FROM weekly_summary_entries
+                WHERE period_key=%s
+                ORDER BY badge_snapshot
+            """, (period_key,))
+            return [dict(r) for r in cur.fetchall()]
+    finally:
+        conn.close()
+
+
+def _prepare_weekly_archive_officer(row):
+    required = json.loads(row.get("required_trainings_json") or "[]")
+    completed = set(json.loads(row.get("completed_trainings_json") or "[]"))
+    seconds = int(row.get("weekly_seconds") or 0)
+    officer = {
+        "discord_id": int(row.get("discord_id") or 0),
+        "badge": row.get("badge_snapshot") or "Brak",
+        "rank": row.get("rank_snapshot") or "Brak",
+        "full_name": row.get("name_snapshot") or f"Discord {row.get('discord_id')}",
+        "weekly_seconds": seconds,
+        "weekly_text": format_seconds(seconds),
+        "norm_met": seconds >= 10 * 3600,
+        "norm_missing_text": format_seconds(max(0, 10 * 3600 - seconds)),
+        "plus": int(row.get("plus_count") or 0),
+        "minus": int(row.get("minus_count") or 0),
+        "praise": int(row.get("praise_count") or 0),
+        "reprimand": int(row.get("reprimand_count") or 0),
+        "required_trainings": required,
+        "required_done": [x for x in required if x in completed],
+        "required_missing": [x for x in required if x not in completed],
+        "last_promotion": row.get("last_promotion_snapshot"),
+        "hired_at": row.get("hired_at_snapshot"),
+        "is_archive": True,
+        "recovered": bool(row.get("recovered")),
+    }
+    officer["training_ok"] = not officer["required_missing"]
+    rating = _weekly_rating(seconds, officer["plus"], officer["minus"], officer["praise"], officer["reprimand"], officer["training_ok"])
+    officer["rating"] = rating["stars"]
+    officer["rating_score"] = rating["score"]
+    officer["rating_label"] = rating["label"]
+    officer["rating_breakdown"] = rating["breakdown"]
+    officer["rating_filled"] = "★" * officer["rating"]
+    officer["rating_empty"] = "☆" * (5 - officer["rating"])
+    officer["is_trainee"] = officer["rank"] == "Deputy U.S Marshal Trainee"
+    return officer
+
+
+def _group_weekly_rows(records):
+    groups = []
+    used = set()
+    for _start, _end, rank_name in RANK_RANGES:
+        members = [r for r in records if r.get("rank") == rank_name]
+        if members:
+            groups.append({"rank": rank_name, "officers": members})
+            used.add(rank_name)
+    for rank_name in sorted({r.get("rank") for r in records if r.get("rank") not in used}):
+        members = [r for r in records if r.get("rank") == rank_name]
+        if members:
+            groups.append({"rank": rank_name or "Brak", "officers": members})
+    return groups
+
+
 @app.route("/panel-admina/podsumowanie-tygodnia")
 @admin_required
 def weekly_summary():
+    try:
+        _recover_missing_weekly_summaries_from_payroll()
+    except Exception as exc:
+        print(f"⚠️ WEB: nie udało się odzyskać starszych podsumowań: {exc!r}", flush=True)
+
+    periods = _weekly_archive_periods()
+    selected_period = (request.args.get("period") or "").strip()
+    if selected_period:
+        rows = _weekly_archive_rows(selected_period)
+        if not rows:
+            abort(404)
+        records = [_prepare_weekly_archive_officer(r) for r in rows]
+        groups = _group_weekly_rows(records)
+        period_label = rows[0].get("period_label") or selected_period
+        recovered = any(bool(r.get("recovered")) for r in rows)
+        return render_template(
+            "weekly_summary.html", rank_groups=groups, periods=periods,
+            selected_period=selected_period, period_label=period_label,
+            is_archive=True, recovered_archive=recovered,
+        )
+
     records = load_officers()
     duty = load_duty_state()
-    groups = []
     for officer in records:
         state = duty.get(officer["discord_id"], {})
         seconds = int(state.get("weekly_seconds", 0) or 0)
@@ -2204,11 +2483,13 @@ def weekly_summary():
         officer["rating_filled"] = "★" * officer["rating"]
         officer["rating_empty"] = "☆" * (5 - officer["rating"])
         officer["is_trainee"] = officer.get("rank") == "Deputy U.S Marshal Trainee"
-    for _start, _end, rank_name in RANK_RANGES:
-        members = [r for r in records if r.get("rank") == rank_name]
-        if members:
-            groups.append({"rank": rank_name, "officers": members})
-    return render_template("weekly_summary.html", rank_groups=groups)
+        officer["is_archive"] = False
+    groups = _group_weekly_rows(records)
+    return render_template(
+        "weekly_summary.html", rank_groups=groups, periods=periods,
+        selected_period="", period_label="Bieżący tydzień",
+        is_archive=False, recovered_archive=False,
+    )
 
 
 @app.route("/system/sluzba")
